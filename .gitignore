@@ -1,0 +1,9 @@
+.vscode/.ropeproject
+
+/Backup
+TD-Arena.*.toe
+CrashAutoSave.TD-Arena.*.toe
+TouchDesignerCrash.*
+
+/scenes/*
+!/scenes/demo.json
