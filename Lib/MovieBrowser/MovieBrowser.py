@@ -1,7 +1,6 @@
 class MovieBrowser:
     def __init__(self, ownerComponent):
         self.ownerComponent = ownerComponent
-        print("Movie browser initializing")
 
     def GetMovie(self, movieCompName):
         comp = self.ownerComponent.op(movieCompName)

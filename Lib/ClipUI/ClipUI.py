@@ -1,10 +1,16 @@
 class ClipUI:
-    def __init__(self, ownerComponent, movieBrowser, clipManager, deckManager):
+    @property
+    def ClipLocation(self):
+        return (
+            self.ownerComponent.parent.deckUI.digits,
+            self.ownerComponent.parent.layerUI.digits,
+            self.ownerComponent.digits,
+        )
+
+    def __init__(self, ownerComponent, movieBrowser, compCtrl):
         self.ownerComponent = ownerComponent
         self.movieBrowser = movieBrowser
-        self.clipManager = clipManager
-        self.deckManager = deckManager
-        print("Clip UI initializing")
+        self.compCtrl = compCtrl
 
     #
     #  arguments for dropping nodes           (and files)
@@ -19,16 +25,11 @@ class ClipUI:
     #       args[7] dropped network
     #
     def OnDrop(self, *args):
-        print("dropped with args:")
-        print(args)
         (movieName, moviePath) = self.movieBrowser.GetMovie(args[0])
-        clip = self.clipManager.LoadMovieClip(movieName, moviePath)
+        self.compCtrl.LoadMovieClip(self.ClipLocation, movieName, moviePath)
 
-        self.deckManager.SetClip(*self.deckLocation(), clip.digits)
+    def OnLeftClickThumb(self):
+        print("left clicking")
 
-    def deckLocation(self):
-        return (
-            self.ownerComponent.parent.deckUI.digits,
-            self.ownerComponent.parent.layerUI.digits,
-            self.ownerComponent.digits,
-        )
+    def OnRightClickThumb(self):
+        self.compCtrl.ClearClip(self.ClipLocation)

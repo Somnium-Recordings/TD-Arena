@@ -1,7 +1,7 @@
 import math
 
 
-class DeckManager:
+class DeckCtrl:
     def __init__(self, ownerComponent):
         self.ownerComponent = ownerComponent
         self.deckList = None
@@ -21,18 +21,33 @@ class DeckManager:
         assert self.deckList, "could not find decks container in composition/decks"
 
     def AddDeck(self):
-        # TODO: show add button if DeckManager not initialized
+        # TODO: show add button if DeckCtrl not initialized
         # TODO: find way to prompt for deck name
         self.deckList.appendRow(["Deck {}".format(self.deckList.numRows)])
 
-    def SetClip(self, deckNumber, layerNumber, clipNumber, clipId):
+    def SetClip(self, clipLocation, clipID):
+        self.clipCell(clipLocation).val = clipID
+    
+    def ClearClip(self, clipLocation):
+        cell = self.clipCell(clipLocation)
+        clipID = cell.val
+        cell.val = ""
+
+        return clipID
+        
+
+
+    def clipCell(self, clipLocation):
+        (deckNumber, layerNumber, clipNumber) = clipLocation
+
         # TODO: handle cases where deck not found
         deckOpName = "deck{}".format(deckNumber)
         deck = self.decks.op(deckOpName)
         assert deck, "could not find requested deck ({})to add clip to".format(
             deckOpName
         )
-        deck[layerNumber, clipNumber] = clipId
+
+        return deck[layerNumber, clipNumber]
 
     # @property
     # def DeckList(self):

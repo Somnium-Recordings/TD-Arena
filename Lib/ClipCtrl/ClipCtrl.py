@@ -3,7 +3,7 @@ import math
 NETWORK_LAYOUT_COLUMNS = 4
 
 
-class ClipManager:
+class ClipCtrl:
     def __init__(self, ownerComponent):
         self.ownerComponent = ownerComponent
         self.movieClipTemplate = ownerComponent.op("movieClipTemplate")
@@ -27,10 +27,10 @@ class ClipManager:
         assert self.clips, "could not find clips container in composition/clips"
 
         for clip in self.clips.findChildren(name="clip*", depth=1, type=COMP):
-            clipId = clip.digits
-            self.clipComps[clipId] = clip
-            if clipId >= self.nextClipID:
-                self.nextClipID = clipId + 1
+            clipID = clip.digits
+            self.clipComps[clipID] = clip
+            if clipID >= self.nextClipID:
+                self.nextClipID = clipID + 1
 
     def LoadMovieClip(self, name, path):
         clip = self.createNextClip(self.movieClipTemplate)
@@ -40,12 +40,20 @@ class ClipManager:
 
         return clip
 
+    def DeleteClip(self, clipID):
+        assert self.clipComps, "could not delete clip, composition not loaded"
+
+        clip = self.clipComps.pop(int(clipID), None)
+        if clip:
+            clip.destroy()
+            self.updateClipNetworkPositions()
+
     def createNextClip(self, clipTemplate):
         assert self.clips, "could not create clip, composition not loaded"
 
-        clipId = self.nextClipID
-        clip = self.clips.copy(clipTemplate, name="clip{}".format(clipId))
-        self.clipComps[clipId] = clip
+        clipID = self.nextClipID
+        clip = self.clips.copy(clipTemplate, name="clip{}".format(clipID))
+        self.clipComps[clipID] = clip
         self.nextClipID += 1
 
         self.updateClipNetworkPositions()
