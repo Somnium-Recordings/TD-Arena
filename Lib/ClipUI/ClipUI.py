@@ -1,7 +1,9 @@
 class ClipUI:
-    def __init__(self, ownerComponent, clipManager):
+    def __init__(self, ownerComponent, movieBrowser, clipManager, deckManager):
         self.ownerComponent = ownerComponent
+        self.movieBrowser = movieBrowser
         self.clipManager = clipManager
+        self.deckManager = deckManager
         print("Clip UI initializing")
 
     #
@@ -19,4 +21,14 @@ class ClipUI:
     def OnDrop(self, *args):
         print("dropped with args:")
         print(args)
-        self.clipManager.LoadMovieClip(args)
+        (movieName, moviePath) = self.movieBrowser.GetMovie(args[0])
+        clip = self.clipManager.LoadMovieClip(movieName, moviePath)
+
+        self.deckManager.SetClip(*self.deckLocation(), clip.digits)
+
+    def deckLocation(self):
+        return (
+            self.ownerComponent.parent.deckUI.digits,
+            self.ownerComponent.parent.layerUI.digits,
+            self.ownerComponent.digits,
+        )
