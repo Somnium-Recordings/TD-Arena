@@ -16,11 +16,11 @@ class DeckCtrl:
         self.composition = self.ownerComponent.op("../composition")
         assert self.composition, "could not find composition component"
 
-        self.deckList = self.composition.op("deckList")
-        assert self.deckList, "could not find deckList dat in composition/deckList"
-
         self.decks = self.composition.op("decks")
-        assert self.deckList, "could not find decks container in composition/decks"
+        assert self.decks, "could not find decks container in composition/decks"
+
+        self.deckList = self.decks.op("deckList")
+        assert self.deckList, "could not find deckList dat in composition/deckList"
 
     def AddDeck(self):
         # TODO: show add button if DeckCtrl not initialized

@@ -8,7 +8,7 @@ class CompositionCtrl:
         clipID = self.deckCtrl.GetClipID(clipLocation)
 
         if clipID:
-            self.clipCtrl.ReplaceMovieClip(movieName, moviePath, clipID)
+            self.clipCtrl.ReplaceWithMovieClip(movieName, moviePath, clipID)
         else:
             clip = self.clipCtrl.LoadMovieClip(movieName, moviePath)
             self.deckCtrl.SetClip(clipLocation, clip.digits)
