@@ -35,6 +35,15 @@ class ClipCtrl:
     def LoadMovieClip(self, name, path):
         clip = self.createNextClip(self.movieClipTemplate)
 
+        return self.setMovieClip(name, path, clip)
+
+    def ReplaceMovieClip(self, name, path, clipID):
+        clip = self.clipComps[clipID]
+        assert clip, "could not replace movie clip of unknown clip id {}".format(clipID)
+
+        return self.setMovieClip(name, path, clip)
+
+    def setMovieClip(self, name, path, clip):
         clip.par.Clipname = name
         clip.par.Moviepath = "movies://{}".format(path)
 
@@ -43,7 +52,7 @@ class ClipCtrl:
     def DeleteClip(self, clipID):
         assert self.clipComps, "could not delete clip, composition not loaded"
 
-        clip = self.clipComps.pop(int(clipID), None)
+        clip = self.clipComps.pop(clipID, None)
         if clip:
             clip.destroy()
             self.updateClipNetworkPositions()

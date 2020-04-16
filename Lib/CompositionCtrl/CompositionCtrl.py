@@ -5,9 +5,13 @@ class CompositionCtrl:
         self.deckCtrl = deckCtrl
 
     def LoadMovieClip(self, clipLocation, movieName, moviePath):
-        clip = self.clipCtrl.LoadMovieClip(movieName, moviePath)
+        clipID = self.deckCtrl.GetClipID(clipLocation)
 
-        self.deckCtrl.SetClip(clipLocation, clip.digits)
+        if clipID:
+            self.clipCtrl.ReplaceMovieClip(movieName, moviePath, clipID)
+        else:
+            clip = self.clipCtrl.LoadMovieClip(movieName, moviePath)
+            self.deckCtrl.SetClip(clipLocation, clip.digits)
 
     def ClearClip(self, clipLocation):
         clipID = self.deckCtrl.ClearClip(clipLocation)
