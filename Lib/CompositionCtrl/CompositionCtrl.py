@@ -1,8 +1,9 @@
 class CompositionCtrl:
-    def __init__(self, ownerComponent, clipCtrl, deckCtrl):
+    def __init__(self, ownerComponent, clipCtrl, deckCtrl, layerCtrl):
         self.ownerComponent = ownerComponent
         self.clipCtrl = clipCtrl
         self.deckCtrl = deckCtrl
+        self.layerCtrl = layerCtrl
 
     def LoadMovieClip(self, clipLocation, movieName, moviePath):
         clipID = self.deckCtrl.GetClipID(clipLocation)
@@ -18,3 +19,13 @@ class CompositionCtrl:
 
         if clipID:
             self.clipCtrl.DeleteClip(clipID)
+            self.layerCtrl.ClearClipID(clipID)
+
+    def LaunchClip(self, clipLocation):
+        (_, layerNumber, _) = clipLocation
+        clipID = self.deckCtrl.GetClipID(clipLocation)
+        self.layerCtrl.SetClip(layerNumber, clipID)
+
+        if clipID: # clipID is None when launching an empty clip
+            # TODO: play the clip
+            pass

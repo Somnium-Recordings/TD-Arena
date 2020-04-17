@@ -1,7 +1,9 @@
 import math
 
+
 def intIfSet(stringNumber):
     return int(stringNumber) if stringNumber else stringNumber
+
 
 class DeckCtrl:
     def __init__(self, ownerComponent):
@@ -29,18 +31,16 @@ class DeckCtrl:
 
     def SetClip(self, clipLocation, clipID):
         self.clipCell(clipLocation).val = clipID
-    
+
     def GetClipID(self, clipLocation):
         return intIfSet(self.clipCell(clipLocation).val)
-    
+
     def ClearClip(self, clipLocation):
         cell = self.clipCell(clipLocation)
         clipID = cell.val
         cell.val = ""
 
         return intIfSet(clipID)
-        
-
 
     def clipCell(self, clipLocation):
         (deckNumber, layerNumber, clipNumber) = clipLocation

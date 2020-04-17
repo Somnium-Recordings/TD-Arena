@@ -18,15 +18,14 @@ class ClipCtrl:
         self.loadComposition()
 
     def loadComposition(self):
-        self.nextClipID = 0
-        self.clipComps = {}
-
         self.composition = self.ownerComponent.op("../composition")
         assert self.composition, "could not find composition component"
 
         self.clips = self.composition.op("clips")
         assert self.clips, "could not find clips container in composition/clips"
 
+        self.nextClipID = 0
+        self.clipComps = {}
         for clip in self.clips.findChildren(name="clip*", depth=1, type=COMP):
             clipID = clip.digits
             self.clipComps[clipID] = clip

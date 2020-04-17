@@ -29,7 +29,7 @@ class ClipUI:
         self.compCtrl.LoadMovieClip(self.ClipLocation, movieName, moviePath)
 
     def OnLeftClickThumb(self):
-        print("left clicking")
+        self.compCtrl.LaunchClip(self.ClipLocation)
 
     def OnRightClickThumb(self):
         self.compCtrl.ClearClip(self.ClipLocation)
