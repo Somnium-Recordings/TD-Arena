@@ -61,12 +61,12 @@ class ClipCtrl:
             self.updateClipNetworkPositions()
 
     def loadSource(self, clip, sourceTemplate):
-        existingSource = clip.op('source')
+        existingSource = clip.op("source")
         if existingSource:
             # TODO: is there a more performant way to do this?
             # How does this perform if clip is active?
             existingSource.destroy()
-        
+
         return clip.copy(sourceTemplate, name="source")
 
     def createNextClip(self):
