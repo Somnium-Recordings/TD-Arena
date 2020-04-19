@@ -24,8 +24,10 @@ class CompositionCtrl:
     def LaunchClip(self, clipLocation):
         (_, layerNumber, _) = clipLocation
         clipID = self.deckCtrl.GetClipID(clipLocation)
-        self.layerCtrl.SetClip(layerNumber, clipID)
+        previousClipID = self.layerCtrl.SetClip(layerNumber, clipID)
 
         if clipID: # clipID is None when launching an empty clip
-            # TODO: play the clip
-            pass
+            self.clipCtrl.ActivateClip(clipID)
+
+        if previousClipID and previousClipID != clipID:
+            self.clipCtrl.DeactivateClip(previousClipID)

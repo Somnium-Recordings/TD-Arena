@@ -1,3 +1,5 @@
+import tdaUtils
+
 class LayerCtrl:
     def __init__(self, ownerComponent):
         self.ownerComponent = ownerComponent
@@ -30,7 +32,11 @@ class LayerCtrl:
             offsetLayerID in self.layerOPs
         ), "could not set clip for unknown layer ID{}".format(layerID)
         layer = self.layerOPs[offsetLayerID]
+
+        previousClipID = tdaUtils.intIfSet(layer.par.Clipid.val)
         layer.par.Clipid = clipID
+
+        return previousClipID
 
     def RefreshLayerReferences(self):
         self.layerOPs = {}

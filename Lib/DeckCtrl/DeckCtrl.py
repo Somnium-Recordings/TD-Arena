@@ -1,9 +1,7 @@
 import math
 
 
-def intIfSet(stringNumber):
-    return int(stringNumber) if stringNumber else stringNumber
-
+from tdaUtils import intIfSet
 
 class DeckCtrl:
     def __init__(self, ownerComponent):

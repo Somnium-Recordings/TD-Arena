@@ -46,6 +46,22 @@ class ClipCtrl:
 
         return self.setMovieClip(name, path, clip, source)
 
+    def ActivateClip(self, clipID):
+        clip = self.clipComps[clipID]
+        assert clip, "could not activate unknown clip id {}".format(clipID)
+        source = clip.op("source")
+
+        clip.par.Active = 1
+
+        source.par.Onactivate.pulse()
+
+
+    def DeactivateClip(self, clipID):
+        clip = self.clipComps[clipID]
+        assert clip, "could not deactivate unknown clip id {}".format(clipID)
+
+        clip.par.Active = 0
+
     def setMovieClip(self, name, path, clip, source):
         clip.par.Clipname = name
         source.par.Moviepath = "movies://{}".format(path)
