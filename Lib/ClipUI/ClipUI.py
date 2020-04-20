@@ -7,9 +7,9 @@ class ClipUI:
             self.ownerComponent.digits,
         )
 
-    def __init__(self, ownerComponent, movieBrowser, compCtrl):
+    def __init__(self, ownerComponent, browserUI, compCtrl):
         self.ownerComponent = ownerComponent
-        self.movieBrowser = movieBrowser
+        self.browserUI = browserUI
         self.compCtrl = compCtrl
 
     #
@@ -25,8 +25,15 @@ class ClipUI:
     #       args[7] dropped network
     #
     def OnDrop(self, *args):
-        (movieName, moviePath) = self.movieBrowser.GetMovie(args[0])
-        self.compCtrl.LoadMovieClip(self.ClipLocation, movieName, moviePath)
+        droppedNode = args[0]
+        (fileName, filePath) = self.browserUI.GetPath(droppedNode)
+
+        if droppedNode.startswith("movie"):
+            self.compCtrl.LoadMovieClip(self.ClipLocation, fileName, filePath)
+        else:
+            raise AssertionError(
+                "Could not match node to clip type: {}".format(droppedNode)
+            )
 
     def OnLeftClickThumb(self):
         self.compCtrl.LaunchClip(self.ClipLocation)

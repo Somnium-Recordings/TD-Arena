@@ -24,7 +24,7 @@ class Paths:
             newPaths[protocol.val] = expanded
 
         # clear any project paths that are no longer configured
-        for protocol in project.paths:
+        for protocol in project.paths.copy():
             if protocol not in newPaths:
                 del project.paths[protocol]
 

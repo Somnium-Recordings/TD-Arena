@@ -64,7 +64,7 @@ class ClipCtrl:
 
     def setMovieClip(self, name, path, clip, source):
         clip.par.Clipname = name
-        source.par.Moviepath = "movies://{}".format(path)
+        source.par.Moviepath = path
 
         return clip
 
