@@ -3,11 +3,30 @@ import math
 
 from tdaUtils import intIfSet
 
+
 class DeckCtrl:
+    @property
+    def DeckList(self):
+        return self.deckList
+
+    @property
+    def StateDATs(self):
+        """
+        paths to DATs that RenderState should watch for changes
+        TODO: use dependency here and update when loadComposition is fired
+        """
+        compPath = self.composition.path
+        return " ".join(
+            ["{}/decks/deckList".format(compPath), "{}/decks/deck*".format(compPath)]
+        )
+
     def __init__(self, ownerComponent):
         self.ownerComponent = ownerComponent
         self.deckList = None
         self.composition = None
+
+        self.deckState = ownerComponent.op("text_deckState")
+        self.clipState = ownerComponent.op("null_clipState")
 
         # TODO: support "savable" compositions
         self.loadComposition()
@@ -39,6 +58,10 @@ class DeckCtrl:
         cell.val = ""
 
         return intIfSet(clipID)
+
+    def GetDeckOp(self, index):
+        # TODO: cache these
+        return self.decks.op("deck{}".format(index))
 
     def clipCell(self, clipLocation):
         (deckNumber, layerNumber, clipNumber) = clipLocation

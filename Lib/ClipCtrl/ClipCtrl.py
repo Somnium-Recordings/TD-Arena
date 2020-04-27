@@ -4,10 +4,19 @@ NETWORK_LAYOUT_COLUMNS = 4
 
 
 class ClipCtrl:
+    @property
+    def StateDATs(self):
+        """
+        paths to DATs that RenderState should watch for changes
+        """
+        return self.ClipState.path
+
     def __init__(self, ownerComponent):
         self.ownerComponent = ownerComponent
+        self.clipIDTable = ownerComponent.op("./table_clipIDs")
         self.clipTemplate = ownerComponent.op("./clipTemplate")
         self.movieSourceTemplate = ownerComponent.op("./movieSourceTemplate")
+        self.ClipState = ownerComponent.op("null_clipState")
 
         self.nextClipID = None
         self.clipComps = None
@@ -26,11 +35,14 @@ class ClipCtrl:
 
         self.nextClipID = 0
         self.clipComps = {}
+        self.clipIDTable.clear()
         for clip in self.clips.findChildren(name="clip*", depth=1, type=COMP):
             clipID = clip.digits
             self.clipComps[clipID] = clip
             if clipID >= self.nextClipID:
                 self.nextClipID = clipID + 1
+
+            self.clipIDTable.appendRow([clipID])
 
     def LoadMovieClip(self, name, path):
         clip = self.createNextClip()
@@ -55,7 +67,6 @@ class ClipCtrl:
 
         source.par.Onactivate.pulse()
 
-
     def DeactivateClip(self, clipID):
         clip = self.clipComps[clipID]
         assert clip, "could not deactivate unknown clip id {}".format(clipID)
@@ -70,6 +81,10 @@ class ClipCtrl:
 
     def DeleteClip(self, clipID):
         assert self.clipComps, "could not delete clip, composition not loaded"
+
+        cell = self.clipIDTable.findCell(clipID)
+        if cell:
+            self.clipIDTable.deleteRow(cell.row)
 
         clip = self.clipComps.pop(clipID, None)
         if clip:
@@ -92,6 +107,8 @@ class ClipCtrl:
         clip = self.clips.copy(self.clipTemplate, name="clip{}".format(clipID))
         self.clipComps[clipID] = clip
         self.nextClipID += 1
+
+        self.clipIDTable.appendRow([clipID])
 
         self.updateClipNetworkPositions()
 
