@@ -3,11 +3,11 @@ TDJ = op.TDModules.mod.TDJSON
 MAX_WAIT_CYCLES = 10
 
 
-class UiState:
+class StateUI:
 
     def __init__(self, ownerComponent):
         self.ownerComponent = ownerComponent
-        self.state = ownerComponent.op("touchin_uiState")
+        self.state = ownerComponent.op("touchin_stateUI")
 
         self.deckState = ownerComponent.op("deckState")
         self.deckList = self.deckState.op("table_deckList")
