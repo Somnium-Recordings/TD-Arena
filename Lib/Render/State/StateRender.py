@@ -1,10 +1,11 @@
 TDJ = op.TDModules.mod.TDJSON
 
 
-class RenderState:
+class StateRender:
     def __init__(self, ownerComponent, deckCtrl, clipCtrl):
         self.ownerComponent = ownerComponent
         self.renderState = ownerComponent.op("text_renderState")
+        self.errors = ownerComponent.op('error1')
         self.deckCtrl = deckCtrl
         self.clipCtrl = clipCtrl
         self.state = None
@@ -14,7 +15,7 @@ class RenderState:
         self.InitalizeState()
 
     def InitalizeState(self):
-        self.state = {"clips": [], "decks": []}
+        self.state = {"clips": [], "decks": [], "errors": []}
         self.OnDeckStateChange(sendState=False)
         self.OnClipStateChange(sendState=False)
         self.sendState()
@@ -38,6 +39,14 @@ class RenderState:
     def OnClipStateChange(self, sendState=True):
         self.state["clips"] = [
             self.getCellValues(clip) for clip in self.clipCtrl.ClipState.rows()
+        ]
+
+        if sendState:
+            self.sendState()
+    
+    def OnErrorStateChange(self, sendState=True):
+        self.state["errors"] = [
+            self.getCellValues(error) for error in self.errors.rows()
         ]
 
         if sendState:

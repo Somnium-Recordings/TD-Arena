@@ -4,7 +4,6 @@ MAX_WAIT_CYCLES = 10
 
 
 class StateUI:
-
     def __init__(self, ownerComponent):
         self.ownerComponent = ownerComponent
         self.state = ownerComponent.op("touchin_stateUI")
@@ -15,14 +14,20 @@ class StateUI:
         self.clipState = ownerComponent.op("clipState")
         self.clipList = self.clipState.op("table_clipList")
 
+        self.errors = ownerComponent.op("table_errorState")
+
     def OnChange(self):
         print("recieved change")
         state = TDJ.datToJSON(self.state)
         self.updateDeckState(state["decks"])
         self.updateClipState(state["clips"])
+        self.updateErrorState(state["errors"])
 
     def updateClipState(self, clips):
         self.syncToDat(clips, self.clipList)
+
+    def updateErrorState(self, errors):
+        self.syncToDat(errors, self.errors)
 
     def updateDeckState(self, decks):
         deckNames = [[deck["name"]] for deck in decks]
