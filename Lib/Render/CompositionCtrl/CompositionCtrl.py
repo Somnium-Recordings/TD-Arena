@@ -8,7 +8,8 @@ class CompositionCtrl:
     def LoadMovieClip(self, clipLocation, movieName, moviePath):
         clipID = self.deckCtrl.GetClipID(clipLocation)
 
-        if clipID:
+        # TODO: return None from DeckCtrl to avoid runnig into this again
+        if isinstance(clipID, int): # clipID is "" when empty clip
             self.clipCtrl.ReplaceWithMovieClip(movieName, moviePath, clipID)
         else:
             clip = self.clipCtrl.LoadMovieClip(movieName, moviePath)
@@ -17,7 +18,7 @@ class CompositionCtrl:
     def ClearClip(self, clipLocation):
         clipID = self.deckCtrl.ClearClip(clipLocation)
 
-        if clipID:
+        if isinstance(clipID, int): # clipID is "" if an empty clip
             self.clipCtrl.DeleteClip(clipID)
             self.layerCtrl.ClearClipID(clipID)
 
@@ -26,8 +27,8 @@ class CompositionCtrl:
         clipID = self.deckCtrl.GetClipID(clipLocation)
         previousClipID = self.layerCtrl.SetClip(layerNumber, clipID)
 
-        if clipID: # clipID is None when launching an empty clip
+        if isinstance(clipID, int): # clipID is "" when launching an empty clip
             self.clipCtrl.ActivateClip(clipID)
 
-        if previousClipID and previousClipID != clipID:
+        if isinstance(previousClipID, int) and previousClipID != clipID:
             self.clipCtrl.DeactivateClip(previousClipID)

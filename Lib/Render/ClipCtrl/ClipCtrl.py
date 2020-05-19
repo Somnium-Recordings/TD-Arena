@@ -83,11 +83,11 @@ class ClipCtrl:
         assert self.clipComps, "could not delete clip, composition not loaded"
 
         cell = self.clipIDTable.findCell(clipID)
-        if cell:
+        if cell is not None:
             self.clipIDTable.deleteRow(cell.row)
 
         clip = self.clipComps.pop(clipID, None)
-        if clip:
+        if clip is not None:
             clip.destroy()
             self.updateClipNetworkPositions()
 
@@ -98,7 +98,12 @@ class ClipCtrl:
             # How does this perform if clip is active?
             existingSource.destroy()
 
-        return clip.copy(sourceTemplate, name="source")
+        newSource = clip.copy(sourceTemplate, name="source")
+        # TODO: figure out a better way to handle this. 
+        # Right now if we don't do this the source looses its Moviepath property on reload
+        newSource.par.externaltox = None
+
+        return newSource
 
     def createNextClip(self):
         assert self.clips, "could not create clip, composition not loaded"
