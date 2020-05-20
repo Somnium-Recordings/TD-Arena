@@ -15,8 +15,17 @@ class ClipCtrl:
         self.ownerComponent = ownerComponent
         self.clipIDTable = ownerComponent.op("./table_clipIDs")
         self.clipTemplate = ownerComponent.op("./clipTemplate")
-        self.movieSourceTemplate = ownerComponent.op("./movieSourceTemplate")
         self.ClipState = ownerComponent.op("null_clipState")
+        self.sourceMap = {
+            "movie": {
+                "template": ownerComponent.op("./movieSourceTemplate"),
+                "init": self.initMovieClip,
+            },
+            "tox": {
+                "template": ownerComponent.op("./toxSourceTemplate"),
+                "init": self.initToxClip,
+            }
+        }
 
         self.nextClipID = None
         self.clipComps = None
@@ -44,19 +53,21 @@ class ClipCtrl:
 
             self.clipIDTable.appendRow([clipID])
 
-    def LoadMovieClip(self, name, path):
+    def CreateClip(self, sourceType, name, path):
         clip = self.createNextClip()
-        source = self.loadSource(clip, self.movieSourceTemplate)
+        self.loadSource(sourceType, name, path, clip)
 
-        return self.setMovieClip(name, path, clip, source)
+        return clip
 
-    def ReplaceWithMovieClip(self, name, path, clipID):
+    def ReplaceSource(self, sourceType, name, path, clipID):
         clip = self.clipComps[clipID]
-        assert clip, "could not replace movie clip of unknown clip id {}".format(clipID)
+        assert clip, "could not replace {} clip of unknown clip id {}".format(
+            sourceType, clipID
+        )
 
-        source = self.loadSource(clip, self.movieSourceTemplate)
+        self.loadSource(sourceType, name, path, clip)
 
-        return self.setMovieClip(name, path, clip, source)
+        return clip
 
     def ActivateClip(self, clipID):
         clip = self.clipComps[clipID]
@@ -73,12 +84,6 @@ class ClipCtrl:
 
         clip.par.Active = 0
 
-    def setMovieClip(self, name, path, clip, source):
-        clip.par.Clipname = name
-        source.par.Moviepath = path
-
-        return clip
-
     def DeleteClip(self, clipID):
         assert self.clipComps, "could not delete clip, composition not loaded"
 
@@ -91,7 +96,20 @@ class ClipCtrl:
             clip.destroy()
             self.updateClipNetworkPositions()
 
-    def loadSource(self, clip, sourceTemplate):
+    def initMovieClip(self, name, path, clip, source):
+        clip.par.Clipname = name
+        source.par.Moviepath = path
+
+    def initToxClip(self, name, path, clip, source):
+        clip.par.Clipname = name
+        source.par.Toxpath = path
+
+    def loadSource(self, sourceType, name, path, clip):
+        sourceMap = self.sourceMap.get(sourceType, None)
+        assert sourceMap, 'unmapped source type "{}" requested'.format(sourceType)
+        sourceTemplate = sourceMap["template"]
+        initSourceFn = sourceMap["init"]
+
         existingSource = clip.op("source")
         if existingSource:
             # TODO: is there a more performant way to do this?
@@ -99,9 +117,11 @@ class ClipCtrl:
             existingSource.destroy()
 
         newSource = clip.copy(sourceTemplate, name="source")
-        # TODO: figure out a better way to handle this. 
+        # TODO: figure out a better way to handle this.
         # Right now if we don't do this the source looses its Moviepath property on reload
         newSource.par.externaltox = None
+
+        initSourceFn(name, path, clip, newSource)
 
         return newSource
 

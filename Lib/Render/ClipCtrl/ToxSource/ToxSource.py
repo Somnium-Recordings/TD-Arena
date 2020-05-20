@@ -5,12 +5,15 @@ MAX_WAIT_CYCLES = 20
 class ToxSource:
     def __init__(self, ownerComponent):
         self.ownerComponent = ownerComponent
-        self.engine = ownerComponent.op("./engine1")
+        # self.engine = ownerComponent.op("./engine1")
         self.thumb = ownerComponent.op("./null_thumb")
         self.state = ownerComponent.op("./constant_state")
+        self.tox = ownerComponent.op("./tox")
 
     def Load(self):
         print("loading tox")
+        self.tox.par.reinitnet.pulse()
+        self.setIsLoaded()
         # self.movie.preload()
         # self.waitForPreload()
 
@@ -41,5 +44,5 @@ class ToxSource:
     #     self.movie.par.cuepoint = 0
     #     self.movie.par.cue = 0
 
-    # def setIsLoaded(self):
-    #     self.state.par.value0 = 0
+    def setIsLoaded(self):
+        self.state.par.value0 = 0

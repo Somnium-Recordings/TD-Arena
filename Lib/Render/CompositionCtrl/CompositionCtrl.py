@@ -8,15 +8,15 @@ class CompositionCtrl:
         self.deckCtrl = deckCtrl
         self.layerCtrl = layerCtrl
 
-    def LoadMovieClip(self, clipAddress, movieName, moviePath):
+    def LoadClip(self, clipAddress, sourceType, name, path):
         clipLocation = self.getClipLocation(clipAddress)
         clipID = self.deckCtrl.GetClipID(clipLocation)
 
         # TODO: return None from DeckCtrl to avoid runnig into this again
         if isinstance(clipID, int):  # clipID is "" when empty clip
-            self.clipCtrl.ReplaceWithMovieClip(movieName, moviePath, clipID)
+            self.clipCtrl.ReplaceSource(sourceType, name, path, clipID)
         else:
-            clip = self.clipCtrl.LoadMovieClip(movieName, moviePath)
+            clip = self.clipCtrl.CreateClip(sourceType, name, path)
             self.deckCtrl.SetClip(clipLocation, clip.digits)
 
     def ClearClip(self, clipAddress):

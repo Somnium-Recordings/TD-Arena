@@ -25,17 +25,21 @@ class ClipUI:
     #
     def OnDrop(self, *args):
         droppedNode = args[0]
+        sourceType = self.getSourceType(droppedNode)
         (fileName, filePath) = self.browserUI.GetPath(droppedNode)
 
-        if droppedNode.startswith("movie"):
+        self.stateUI.SendMessage(
+            "{}/source/load".format(self.ClipAddress), sourceType, fileName, filePath
+        )
 
-            self.stateUI.SendMessage(
-                "{}/source/movie/load".format(self.ClipAddress), fileName, filePath
-            )
-        else:
-            raise AssertionError(
-                "Could not match node to clip type: {}".format(droppedNode)
-            )
+    def getSourceType(self, nodeName):
+        if nodeName.startswith("movie"):
+            return "movie"
+
+        if nodeName.startswith("generator"):
+            return "tox"
+
+        raise AssertionError("Could not match node to clip type: {}".format(nodeName))
 
     def OnLeftClickThumb(self):
         self.stateUI.SendMessage("{}/connect".format(self.ClipAddress))

@@ -40,7 +40,7 @@ class StateRender:
             {
                 "/composition/layers/*/clips/*/connect": self.compCtrl.ConnectClip,
                 "/composition/layers/*/clips/*/clear": self.compCtrl.ClearClip,
-                "/composition/layers/*/clips/*/source/movie/load": self.compCtrl.LoadMovieClip,
+                "/composition/layers/*/clips/*/source/load": self.compCtrl.LoadClip,
             }
         )
 
@@ -52,7 +52,7 @@ class StateRender:
         self.OnDeckStateChange(sendState=False)
         self.OnClipStateChange(sendState=False)
         self.sendState()
-
+    
     def ReceiveMessage(self, address, *args):
         self.dispatcher.dispatch(address, *args)
 
@@ -94,7 +94,7 @@ class StateRender:
     def sendState(self):
         self.dirty = True
         # Batch state changes to once per frame, this also helps
-        # with races from multiple chanegs occuring close together
+        # with races from multiple changes occuring close together
         # TODO: I think there might still be a race here
         run("args[0].flushState()", self, delayFrames=1)
 

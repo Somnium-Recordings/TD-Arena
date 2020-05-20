@@ -4,6 +4,7 @@ valueMap = {
     # Resolutions
     "Renderw": {"target": "both"},
     "Renderh": {"target": "both"},
+    "Renderlocal": {"target": "none"},
     "Uiw": {"target": "ui", "par": "w"},
     "Uih": {"target": "ui", "par": "h"},
     "Clipthumbw": {"target": "both"},
@@ -92,6 +93,8 @@ class TdArena:
             targets.append(
                 self.engineRender if self.par.Useengine else self.localRender
             )
+        elif mapConfig["target"] == "none":
+            pass
         else:
             raise AssertionError("unexpected mapType of {}".format(mapConfig["target"]))
 

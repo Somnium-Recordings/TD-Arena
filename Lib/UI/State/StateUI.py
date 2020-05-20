@@ -4,6 +4,9 @@ MAX_WAIT_CYCLES = 10
 
 
 class StateUI:
+    """
+    TODO: Use osc return values for things like active clip/deck to reduce UI delay
+    """
     def __init__(self, ownerComponent):
         self.ownerComponent = ownerComponent
         self.state = ownerComponent.op("touchin_state")
