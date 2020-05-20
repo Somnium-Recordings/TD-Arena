@@ -9,8 +9,10 @@ valueMap = {
     "Clipthumbw": {"target": "both"},
     "Clipthumbh": {"target": "both"},
     # Networking
+    "Localoscinport": {"target": "local", "par": "Oscinport"},
     "Localstateoutport": {"target": "local", "par": "Stateoutport"},
     "Localerrorsoutport": {"target": "local", "par": "Errorsoutport"},
+    "Engineoscinport": {"target": "engine", "par": "Oscinport"},
     "Enginestateoutport": {"target": "engine", "par": "Stateoutport"},
     "Engineerrorsoutport": {"target": "engine", "par": "Errorsoutport"},
     # Paths
@@ -93,10 +95,19 @@ class TdArena:
         else:
             raise AssertionError("unexpected mapType of {}".format(mapConfig["target"]))
 
-        return [self.getTargetPar(target, mapConfig) for target in targets]
+        targets = [self.getTargetPar(target, mapConfig) for target in targets]
+        return filter(lambda x: x is not None, targets)
 
     def getTargetPar(self, targetOp, mapConfig):
-        return getattr(targetOp.par, mapConfig["par"])
+        target = getattr(targetOp.par, mapConfig["par"], None)
+        if target is None:
+            print(
+                "mapping expected {} to have paremeter {}, parameter will not be synced".format(
+                    targetOp.name, mapConfig["par"]
+                )
+            )
+
+        return target
 
     def toggleEngine(self, useEngine):
         self.localRender.allowCooking = not useEngine

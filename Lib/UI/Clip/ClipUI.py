@@ -1,15 +1,14 @@
 class ClipUI:
     @property
-    def ClipLocation(self):
-        return (
-            self.ownerComponent.parent.deckUI.digits,
-            self.ownerComponent.parent.layerUI.digits,
-            self.ownerComponent.digits,
+    def ClipAddress(self):
+        return "/composition/layers/{}/clips/{}".format(
+            self.ownerComponent.parent.layerUI.digits, self.ownerComponent.digits
         )
 
-    def __init__(self, ownerComponent, browserUI, compCtrl):
+    def __init__(self, ownerComponent, browserUI, stateUI, compCtrl):
         self.ownerComponent = ownerComponent
         self.browserUI = browserUI
+        self.stateUI = stateUI
         self.compCtrl = compCtrl
 
     #
@@ -29,14 +28,17 @@ class ClipUI:
         (fileName, filePath) = self.browserUI.GetPath(droppedNode)
 
         if droppedNode.startswith("movie"):
-            self.compCtrl.LoadMovieClip(self.ClipLocation, fileName, filePath)
+
+            self.stateUI.SendMessage(
+                "{}/source/movie/load".format(self.ClipAddress), fileName, filePath
+            )
         else:
             raise AssertionError(
                 "Could not match node to clip type: {}".format(droppedNode)
             )
 
     def OnLeftClickThumb(self):
-        self.compCtrl.LaunchClip(self.ClipLocation)
+        self.stateUI.SendMessage("{}/connect".format(self.ClipAddress))
 
     def OnRightClickThumb(self):
-        self.compCtrl.ClearClip(self.ClipLocation)
+        self.stateUI.SendMessage("{}/clear".format(self.ClipAddress))

@@ -1,15 +1,48 @@
+from collections import OrderedDict
+from fnmatch import fnmatchcase
+
 TDJ = op.TDModules.mod.TDJSON
 
 
+class OscDispatcher:
+    def __init__(self, initialMappings={}):
+        self.mappings = OrderedDict(initialMappings)
+
+    def map(self, address, handler):
+        self.mappings[address] = handler
+
+    def matchHandler(self, address):
+        for mappedAddress, handler in self.mappings.items():
+            if fnmatchcase(address, mappedAddress):
+                return handler
+
+        return None
+
+    def dispatch(self, address, *args):
+        handler = self.matchHandler(address)
+        assert handler, "unmatched osc address {}".format(address)
+
+        handler(address, *args)
+
+
 class StateRender:
-    def __init__(self, ownerComponent, deckCtrl, clipCtrl):
+    def __init__(self, ownerComponent, compCtrl, deckCtrl, clipCtrl):
         self.ownerComponent = ownerComponent
         self.renderState = ownerComponent.op("text_renderState")
-        self.errors = ownerComponent.op('error1')
+        self.errors = ownerComponent.op("error1")
+        self.compCtrl = compCtrl
         self.deckCtrl = deckCtrl
         self.clipCtrl = clipCtrl
         self.state = None
         self.dirty = False
+
+        self.dispatcher = OscDispatcher(
+            {
+                "/composition/layers/*/clips/*/connect": self.compCtrl.ConnectClip,
+                "/composition/layers/*/clips/*/clear": self.compCtrl.ClearClip,
+                "/composition/layers/*/clips/*/source/movie/load": self.compCtrl.LoadMovieClip,
+            }
+        )
 
         # TODO: support "savable" compositions
         self.InitalizeState()
@@ -19,6 +52,9 @@ class StateRender:
         self.OnDeckStateChange(sendState=False)
         self.OnClipStateChange(sendState=False)
         self.sendState()
+
+    def ReceiveMessage(self, address, *args):
+        self.dispatcher.dispatch(address, *args)
 
     def OnDeckStateChange(self, sendState=True):
         state = []
@@ -43,7 +79,7 @@ class StateRender:
 
         if sendState:
             self.sendState()
-    
+
     def OnErrorStateChange(self, sendState=True):
         self.state["errors"] = [
             self.getCellValues(error) for error in self.errors.rows()

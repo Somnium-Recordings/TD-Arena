@@ -14,6 +14,11 @@ class StateUI:
         self.clipState = ownerComponent.op("clipState")
         self.clipList = self.clipState.op("table_clipList")
 
+        self.oscOut = ownerComponent.op('oscout1')
+    
+    def SendMessage(self, address, *args):
+        self.oscOut.sendOSC(address, args)
+
     def OnChange(self):
         state = TDJ.datToJSON(self.state)
         self.updateDeckState(state["decks"])

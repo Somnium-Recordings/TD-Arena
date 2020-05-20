@@ -20,8 +20,17 @@ class DeckCtrl:
             ["{}/decks/deckList".format(compPath), "{}/decks/deck*".format(compPath)]
         )
 
-    def __init__(self, ownerComponent):
+    @property
+    def ActiveDeck(self):
+        """
+        TODO: is there a better way to handle this than referencing
+              the par from self.render?
+        """
+        return self.render.par.Activedeck.val
+
+    def __init__(self, ownerComponent, render):
         self.ownerComponent = ownerComponent
+        self.render = render
         self.deckList = None
         self.composition = None
 
@@ -64,10 +73,9 @@ class DeckCtrl:
         return self.decks.op("deck{}".format(index))
 
     def clipCell(self, clipLocation):
-        (deckNumber, layerNumber, clipNumber) = clipLocation
+        (layerNumber, clipNumber) = clipLocation
 
-        # TODO: handle cases where deck not found
-        deckOpName = "deck{}".format(deckNumber)
+        deckOpName = "deck{}".format(self.ActiveDeck)
         deck = self.decks.op(deckOpName)
         assert deck, "could not find requested deck ({})to add clip to".format(
             deckOpName
