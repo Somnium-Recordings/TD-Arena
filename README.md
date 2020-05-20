@@ -1,5 +1,7 @@
 # TD Areana
 
+![TD Arena Tests](https://github.com/llwt/TD-Arena/workflows/TD%20Arena%20Tests/badge.svg)
+
 This project is heavily inspired by [Resolume Arena](https://resolume.com/). I wanted something that allowed me to preform like you might with arena, but allowing for sources other than just video (`tox`, `notch`, etc.) and custom effects built in TD.
 
 ## 🚧 Under Active Development 🚧
