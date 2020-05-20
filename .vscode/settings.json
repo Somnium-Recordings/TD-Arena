@@ -1,6 +1,10 @@
 {
   "editor.tabSize": 4,
-  "editor.insertSpaces": true,
+  "editor.insertSpaces": false,
   "editor.detectIndentation": false,
-  "python.formatting.provider": "black"
+  "python.linting.pylintEnabled": true,
+  "editor.formatOnSave": true,
+  "python.formatting.provider": "yapf",
+"python.pythonPath": "C:\\Users\\steve\\.virtualenvs\\TD-Arena-ES96ELvL\\Scripts\\python.exe",
+"python.linting.enabled": true
 }

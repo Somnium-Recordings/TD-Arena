@@ -1,3 +1,16 @@
 [MASTER]
 init-hook='import sys; sys.path.append("Lib")'
-disable=invalid-name,missing-class-docstring,missing-function-docstring,missing-module-docstring
+load-plugins=pylint_quotes
+indent-string=\t
+indent-after-paren=1
+disable=invalid-name,
+        fixme,
+        missing-class-docstring,
+        missing-function-docstring,
+        missing-module-docstring
+
+[VARIABLES]
+additional-builtins=COMP,
+                    op,
+                    project,
+                    run
