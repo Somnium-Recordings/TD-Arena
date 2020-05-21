@@ -10,7 +10,7 @@ This project is heavily inspired by [Resolume Arena](https://resolume.com/). I w
 
 This is not yet in a working state. If you're curious about any of this, please reach out through a github issue or ping me over in the [TouchDesigner discord](http://td-discord.com/) `@lolwut#2076`.
 
-![UI Screenshot](docs/images/2020-05-20-ui.png)
+![UI Screenshot](Docs/images/ui.png)
 
 ## Contributing
 

@@ -4,6 +4,7 @@
 /Backup-Original
 TD-Arena.*.toe
 CrashAutoSave.TD-Arena.*.toe
+CrashAutoSave.Render.*.toe
 TouchDesignerCrash.*
 
 /scenes/*
