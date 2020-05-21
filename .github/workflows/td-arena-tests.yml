@@ -31,3 +31,6 @@ jobs:
     - name: Lint & Format Check
       run: |
         pipenv run pre-commit run --all-files
+    - name: Test
+      run: |
+        pipenv run pytest
