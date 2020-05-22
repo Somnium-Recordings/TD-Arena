@@ -17,6 +17,7 @@ valueMap = {
 	'Enginestateoutport': {'target': 'engine', 'par': 'Stateoutport'},
 	'Engineerrorsoutport': {'target': 'engine', 'par': 'Errorsoutport'},
 	# Paths
+	'Compositionspath': {'target': 'both'},
 	'Effectspath': {'target': 'both'},
 	'Generatorspath': {'target': 'both'},
 	'Moviespath': {'target': 'both'},

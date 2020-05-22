@@ -14,6 +14,7 @@ class CompositionCtrl:
 		self.clipCtrl = clipCtrl
 		self.deckCtrl = deckCtrl
 		self.layerCtrl = layerCtrl
+		self.initComposition()
 
 	def LoadClip(self, clipAddress, sourceType, name, path):
 		clipLocation = getClipLocation(clipAddress)
@@ -44,3 +45,6 @@ class CompositionCtrl:
 
 		if isinstance(previousClipID, int) and previousClipID != clipID:
 			self.clipCtrl.DeactivateClip(previousClipID)
+
+	def initComposition(self):
+		pass

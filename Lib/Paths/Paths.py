@@ -2,12 +2,15 @@ import os.path
 
 
 class Paths:  # pylint: disable=too-few-public-methods
-	def __init__(self, ownerComp):
+	def __init__(self, ownerComp, logger):
 		self.ownerComp = ownerComp
+		self.logger = logger
 		self.configuredPaths = ownerComp.op('null_configuredPaths')
 		self.examine = ownerComp.op('examine_projectPaths')
 		self.setPaths = ownerComp.op('table_setPaths')
 		self.Apply()
+
+		logger.Debug(ownerComp, 'initialized paths are: {}'.format(project.paths))
 
 	def Apply(self):
 		newPaths = {}

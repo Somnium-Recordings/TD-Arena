@@ -11,6 +11,8 @@ disable=invalid-name,
 
 [VARIABLES]
 additional-builtins=COMP,
+					absTime,
                     op,
                     project,
-                    run
+                    run,
+					tdu

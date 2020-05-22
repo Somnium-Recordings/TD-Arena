@@ -7,5 +7,6 @@ CrashAutoSave.TD-Arena.*.toe
 CrashAutoSave.Render.*.toe
 TouchDesignerCrash.*
 
-/scenes/*
-!/scenes/demo.json
+/Compositions
+/Logs
+!/Logs/.gitkeep
