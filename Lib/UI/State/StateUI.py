@@ -30,6 +30,9 @@ class StateUI:
 		self.oscOut = ownerComponent.op('oscout1')
 
 	def SendMessage(self, address, *args):
+		"""
+		TODO: move this out of State and into OSC/Client?
+		"""
 		self.oscOut.sendOSC(address, args)
 
 	def OnChange(self):

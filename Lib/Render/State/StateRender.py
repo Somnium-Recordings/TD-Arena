@@ -1,82 +1,55 @@
-from collections import OrderedDict
-from fnmatch import fnmatchcase
-
 TDJ = op.TDModules.mod.TDJSON
-
-
-class OscDispatcher:
-	def __init__(self, initialMappings=None):
-		self.mappings = OrderedDict(initialMappings or {})
-
-	def map(self, address, handler):
-		self.mappings[address] = handler
-
-	def matchHandler(self, address):
-		for mappedAddress, handler in self.mappings.items():
-			if fnmatchcase(address, mappedAddress):
-				return handler
-
-		return None
-
-	def dispatch(self, address, *args):
-		handler = self.matchHandler(address)
-		assert handler, 'unmatched osc address {}'.format(address)
-
-		handler(address, *args)
 
 
 def getCellValues(datRow):
 	return [cell.val for cell in datRow]
 
 
+# TODO: StateRender shouldn't need to depend on deckCtrl and clipCtrl
 class StateRender:  # pylint: disable=too-many-instance-attributes
-	def __init__(self, ownerComponent, compCtrl, deckCtrl, clipCtrl):
+	def __init__(self, ownerComponent, logger, deckCtrl, clipCtrl):
 		self.ownerComponent = ownerComponent
+		self.logger = logger
 		self.renderState = ownerComponent.op('text_renderState')
 		self.errors = ownerComponent.op('error1')
-		self.compCtrl = compCtrl
 		self.deckCtrl = deckCtrl
 		self.clipCtrl = clipCtrl
 		self.state = None
 		self.dirty = False
 
-		self.dispatcher = OscDispatcher(
-			{
-				'/composition/layers/*/clips/*/connect': self.compCtrl.ConnectClip,
-				'/composition/layers/*/clips/*/clear': self.compCtrl.ClearClip,
-				'/composition/layers/*/clips/*/source/load': self.compCtrl.LoadClip,
-			}
-		)
-
 		# TODO: support "savable" compositions
 		self.InitalizeState()
+		self.logInfo('initilized')
 
 	def InitalizeState(self):
 		self.state = {'clips': [], 'decks': [], 'errors': []}
-		self.OnDeckStateChange(sendState=False)
-		self.OnClipStateChange(sendState=False)
+		# self.OnDeckStateChange(sendState=False)
+		# self.OnClipStateChange(sendState=False)
 		self.sendState()
 
-	def ReceiveMessage(self, address, *args):
-		self.dispatcher.dispatch(address, *args)
+	def Update(self, key, newState):
+		self.state[key] = newState
+		self.sendState()
 
-	def OnDeckStateChange(self, sendState=True):
-		state = []
-		for index, listRow in enumerate(self.deckCtrl.DeckList.rows()):
-			deck = self.deckCtrl.GetDeckOp(index)
+	# def OnDeckStateChange(self, sendState=True):
+	# 	state = []
+	# 	# TODO: get list of decks here rather than depending on the deckCtrl and clipCtrls
+	# 	for index, listRow in enumerate(self.deckCtrl.DeckList.rows()):
+	# 		deck = self.deckCtrl.GetDeckOp(index)
 
-			state.append(
-				{
-					'name': listRow[0].val,
-					'layers': [getCellValues(layer) for layer in deck.rows()],
-				}
-			)
+	# 		state.append(
+	# 			{
+	# 				'name': listRow[0].val,
+	# 				'layers': [getCellValues(layer) for layer in deck.rows()],
+	# 			}
+	# 		)
 
-		self.state['decks'] = state
-		if sendState:
-			self.sendState()
+	# 	self.state['decks'] = state
+	# 	if sendState:
+	# 		self.sendState()
 
 	def OnClipStateChange(self, sendState=True):
+		# TODO: can we just watch the clipState dat rather than each clip?
 		self.state['clips'] = [
 			getCellValues(clip) for clip in self.clipCtrl.ClipState.rows()
 		]
@@ -103,3 +76,6 @@ class StateRender:  # pylint: disable=too-many-instance-attributes
 
 		TDJ.jsonToDat(self.state, self.renderState)
 		self.dirty = False
+
+	def logInfo(self, *args):
+		self.logger.Info(self.ownerComponent, *args)

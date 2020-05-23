@@ -11,6 +11,7 @@ pre-commit = "*"
 unify = "*"
 isort = "*"
 pytest = "*"
+rope = "*"
 
 [packages]
 

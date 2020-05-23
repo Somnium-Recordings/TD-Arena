@@ -55,7 +55,7 @@ class Logger:
 		self.Info(self.ownerComp, '%s logger initialized', self.logName)
 
 	def Clear(self):
-		assert self.handler, 'RollLog cannot be called before the handler is inialized'
+		assert self.handler, 'Logger.Clear() cannot be called before the handler is inialized'
 		self.handler.doRollover()
 
 	def LogTouchError(self, message, absFrame, frame, severity, compType, source):  # pylint: disable=too-many-arguments

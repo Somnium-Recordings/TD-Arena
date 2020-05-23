@@ -1,6 +1,4 @@
-import math
-
-NETWORK_LAYOUT_COLUMNS = 4
+from tdaUtils import layoutComps
 
 
 def initMovieClip(name, path, clip, source):
@@ -18,49 +16,68 @@ class ClipCtrl:  # pylint: disable=too-many-instance-attributes
 	def StateDATs(self):
 		"""
         paths to DATs that RenderState should watch for changes
+		TODO: just hard code this over in the state component...
         """
 		return self.ClipState.path
 
-	def __init__(self, ownerComponent):
+	def __init__(self, ownerComponent, logger):
 		self.ownerComponent = ownerComponent
-		self.clipIDTable = ownerComponent.op('./table_clipIDs')
+		self.logger = logger
+
+		self.clipList = ownerComponent.op('./table_clipIDs')
 		self.clipTemplate = ownerComponent.op('./clipTemplate')
 		self.ClipState = ownerComponent.op('null_clipState')
 		self.sourceMap = {
 			'movie': {
 				'template': ownerComponent.op('./movieSourceTemplate'),
 				'init': initMovieClip,
-			}, 'tox': {
+			},
+			'tox': {
 				'template': ownerComponent.op('./toxSourceTemplate'),
 				'init': initToxClip,
 			}
 		}
 
+		# NOTE: These lines should be mirrored in Reinit
 		self.nextClipID = None
 		self.clipComps = None
 		self.composition = None
-		self.clips = None
+		self.clipContainer = None
+		self.logInfo('initialized')
 
-		# TODO: support "savable" compositions
-		self.loadComposition()
+	def Reinit(self):
+		self.nextClipID = None
+		self.clipComps = None
+		self.composition = None
+		self.clipContainer = None
+		self.clipList.clear()
+		self.logInfo('reinitialized')
 
-	def loadComposition(self):
+	def Load(self):
+		self.logInfo('loading composition')
+
 		self.composition = self.ownerComponent.op('../composition')
 		assert self.composition, 'could not find composition component'
 
-		self.clips = self.composition.op('clips')
-		assert self.clips, 'could not find clips container in composition/clips'
+		self.clipContainer = self.composition.op('clips')
+		if not self.clipContainer:
+			self.logInfo('clips op not found in composition, initalizing')
+			self.clipContainer = self.composition.create(baseCOMP, 'clips')
 
 		self.nextClipID = 0
 		self.clipComps = {}
-		self.clipIDTable.clear()
-		for clip in self.clips.findChildren(name='clip*', depth=1, type=COMP):
+		self.clipList.clear()
+		for clip in self.clipContainer.findChildren(
+			name='clip*', depth=1, type=COMP
+		):
 			clipID = clip.digits
 			self.clipComps[clipID] = clip
 			if clipID >= self.nextClipID:
 				self.nextClipID = clipID + 1
 
-			self.clipIDTable.appendRow([clipID])
+			self.clipList.appendRow([clipID])
+
+		self.logInfo('loaded {} clips in composition'.format(self.clipList.numRows))
 
 	def CreateClip(self, sourceType, name, path):
 		clip = self.createNextClip()
@@ -96,9 +113,9 @@ class ClipCtrl:  # pylint: disable=too-many-instance-attributes
 	def DeleteClip(self, clipID):
 		assert self.clipComps, 'could not delete clip, composition not loaded'
 
-		cell = self.clipIDTable.findCell(clipID)
+		cell = self.clipList.findCell(clipID)
 		if cell is not None:
-			self.clipIDTable.deleteRow(cell.row)
+			self.clipList.deleteRow(cell.row)
 
 		clip = self.clipComps.pop(clipID, None)
 		if clip is not None:
@@ -127,21 +144,23 @@ class ClipCtrl:  # pylint: disable=too-many-instance-attributes
 		return newSource
 
 	def createNextClip(self):
-		assert self.clips, 'could not create clip, composition not loaded'
+		assert self.clipContainer, 'could not create clip, composition not loaded'
 
 		clipID = self.nextClipID
-		clip = self.clips.copy(self.clipTemplate, name='clip{}'.format(clipID))
+		clip = self.clipContainer.copy(
+			self.clipTemplate, name='clip{}'.format(clipID)
+		)
 		self.clipComps[clipID] = clip
 		self.nextClipID += 1
 
-		self.clipIDTable.appendRow([clipID])
+		self.clipList.appendRow([clipID])
 
 		self.updateClipNetworkPositions()
 
 		return clip
 
 	def updateClipNetworkPositions(self):
-		# TODO: should we skip if ui.performMode == False?
-		for i, comp in enumerate(self.clipComps.values()):
-			comp.nodeX = 0 + (i % NETWORK_LAYOUT_COLUMNS) * 200
-			comp.nodeY = -130 - math.floor(i / NETWORK_LAYOUT_COLUMNS) * 200
+		layoutComps(self.clipComps.values())
+
+	def logInfo(self, *args):
+		self.logger.Info(self.ownerComponent, *args)

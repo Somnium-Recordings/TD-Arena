@@ -1,44 +1,90 @@
 valueMap = {
+	# Composition
+	'Compositionname': {
+		'target': 'both'
+	},
+	'Renderw': {
+		'target': 'both'
+	},
+	'Renderh': {
+		'target': 'both'
+	},
 	# State
-	'Activedeck': {'target': 'both'},
+	# TODO: move to osc/state out
+	'Activedeck': {
+		'target': 'both'
+	},
 	# Resolutions
-	'Renderw': {'target': 'both'},
-	'Renderh': {'target': 'both'},
-	'Renderlocal': {'target': 'none'},
-	'Uiw': {'target': 'ui', 'par': 'w'},
-	'Uih': {'target': 'ui', 'par': 'h'},
-	'Clipthumbw': {'target': 'both'},
-	'Clipthumbh': {'target': 'both'},
+	'Renderlocal': {
+		'target': 'none'
+	},
+	'Uiw': {
+		'target': 'ui',
+		'par': 'w'
+	},
+	'Uih': {
+		'target': 'ui',
+		'par': 'h'
+	},
+	'Clipthumbw': {
+		'target': 'both'
+	},
+	'Clipthumbh': {
+		'target': 'both'
+	},
 	# Networking
-	'Localoscinport': {'target': 'local', 'par': 'Oscinport'},
-	'Localstateoutport': {'target': 'local', 'par': 'Stateoutport'},
-	'Localerrorsoutport': {'target': 'local', 'par': 'Errorsoutport'},
-	'Engineoscinport': {'target': 'engine', 'par': 'Oscinport'},
-	'Enginestateoutport': {'target': 'engine', 'par': 'Stateoutport'},
-	'Engineerrorsoutport': {'target': 'engine', 'par': 'Errorsoutport'},
+	'Localoscinport': {
+		'target': 'local',
+		'par': 'Oscinport'
+	},
+	'Localstateoutport': {
+		'target': 'local',
+		'par': 'Stateoutport'
+	},
+	'Localerrorsoutport': {
+		'target': 'local',
+		'par': 'Errorsoutport'
+	},
+	'Engineoscinport': {
+		'target': 'engine',
+		'par': 'Oscinport'
+	},
+	'Enginestateoutport': {
+		'target': 'engine',
+		'par': 'Stateoutport'
+	},
+	'Engineerrorsoutport': {
+		'target': 'engine',
+		'par': 'Errorsoutport'
+	},
 	# Paths
-	'Compositionspath': {'target': 'both'},
-	'Effectspath': {'target': 'both'},
-	'Generatorspath': {'target': 'both'},
-	'Moviespath': {'target': 'both'},
-	'Libpath': {'target': 'both'},
+	'Compositionspath': {
+		'target': 'both'
+	},
+	'Effectspath': {
+		'target': 'both'
+	},
+	'Generatorspath': {
+		'target': 'both'
+	},
+	'Moviespath': {
+		'target': 'both'
+	},
+	'Libpath': {
+		'target': 'both'
+	},
 }
 
 pulseMap = {
-	'Clearrendererrors': {'target': 'active', 'par': 'Clearerrors'},
-	'Reloadengine': {'target': 'engine', 'par': 'reload'},
+	'Clearrendererrors': {
+		'target': 'active',
+		'par': 'Clearerrors'
+	},
+	'Reloadengine': {
+		'target': 'engine',
+		'par': 'reload'
+	},
 }
-
-
-def getTargetPar(targetOp, mapConfig):
-	target = getattr(targetOp.par, mapConfig['par'], None)
-	if target is None:
-		print(
-			'mapping expected {} to have paremeter {}, parameter will not be synced'.
-			format(targetOp.name, mapConfig['par'])
-		)
-
-	return target
 
 
 class TdArena:
@@ -46,20 +92,28 @@ class TdArena:
 	def par(self):
 		return self.ownerComponent.par
 
-	def __init__(self, ownerComponent):
+	def __init__(self, ownerComponent, logger):
 		self.ownerComponent = ownerComponent
+		self.logger = logger
 		self.localRender = ownerComponent.op('./render')
 		self.engineRender = ownerComponent.op('./engine_render')
 		self.ui = ownerComponent.op('./ui')
+
 		self.Sync()
+		self.logInfo('TdArena initialized')
 
 	def Sync(self):
 		self.SetLibPath()
 
 		for parName in valueMap:
-			par = getattr(self.par, parName)
-			# TODO: Could passing same value as prev cause issues?
-			self.SyncValueChange(par, par.val)
+			par = getattr(self.par, parName, None)
+			if par is not None:
+				# TODO: Could passing same value as prev cause issues?
+				self.SyncValueChange(par, par.val)
+			else:
+				self.logWarning(
+					'expected TdArena to have mapped parameter {}'.format(parName)
+				)
 
 	def SetLibPath(self):
 		# NOTE: os.path.join results in bothforward and backward slashes on Windows
@@ -110,9 +164,25 @@ class TdArena:
 		else:
 			raise AssertionError('unexpected mapType of {}'.format(mapConfig['target']))
 
-		targets = [getTargetPar(target, mapConfig) for target in targets]
+		targets = [self.getTargetPar(target, mapConfig) for target in targets]
 		return filter(lambda x: x is not None, targets)
+
+	def getTargetPar(self, targetOp, mapConfig):
+		target = getattr(targetOp.par, mapConfig['par'], None)
+		if target is None:
+			self.logWarning(
+				'mapping expected {} to have paremeter {}, parameter will not be synced'.
+				format(targetOp.name, mapConfig['par'])
+			)
+
+		return target
 
 	def toggleEngine(self, useEngine):
 		self.localRender.allowCooking = not useEngine
 		self.engineRender.par.power = useEngine
+
+	def logInfo(self, *args):
+		self.logger.Info(self.ownerComponent, *args)
+
+	def logWarning(self, *args):
+		self.logger.Warning(self.ownerComponent, *args)

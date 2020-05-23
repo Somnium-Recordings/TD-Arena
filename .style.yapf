@@ -5,5 +5,4 @@ dedent_closing_brackets = True
 indent_width = 1
 continuation_indent_width = 1
 continuation_align_style = valign-right
-each_dict_entry_on_separate_line = False
 split_complex_comprehension = True

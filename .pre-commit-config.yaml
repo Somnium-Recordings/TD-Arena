@@ -9,6 +9,11 @@ repos:
     -   id: mixed-line-ending
 - repo: local
   hooks:
+  -   id: check-large-files
+      name: Check Large Files
+      entry: python .pre-commit-hooks/check-large-files.py
+      args: ['--maxkb=350']
+      language: system
   - id: unify
     name: unify
     entry: pipenv run unify --in-place
@@ -25,8 +30,8 @@ repos:
     entry: yapf -i
     language: system
     types: [python]
-  - id: pylint
-    name: pylint
-    entry: pipenv run pylint
-    language: system
-    types: [python]
+  # - id: pylint
+  #   name: pylint
+  #   entry: pipenv run pylint
+  #   language: system
+  #   types: [python]
