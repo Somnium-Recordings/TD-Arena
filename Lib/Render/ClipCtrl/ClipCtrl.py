@@ -1,4 +1,5 @@
-from tdaUtils import layoutComps
+from tda import LoadableExt
+from tdaUtils import getCellValues, layoutComps
 
 
 def initMovieClip(name, path, clip, source):
@@ -11,22 +12,14 @@ def initToxClip(name, path, clip, source):
 	source.par.Toxpath = path
 
 
-class ClipCtrl:  # pylint: disable=too-many-instance-attributes
-	@property
-	def StateDATs(self):
-		"""
-        paths to DATs that RenderState should watch for changes
-		TODO: just hard code this over in the state component...
-        """
-		return self.ClipState.path
-
-	def __init__(self, ownerComponent, logger):
-		self.ownerComponent = ownerComponent
-		self.logger = logger
+class ClipCtrl(LoadableExt):
+	def __init__(self, ownerComponent, logger, state):
+		super().__init__(ownerComponent, logger)
+		self.state = state
 
 		self.clipList = ownerComponent.op('./table_clipIDs')
 		self.clipTemplate = ownerComponent.op('./clipTemplate')
-		self.ClipState = ownerComponent.op('null_clipState')
+		self.clipState = ownerComponent.op('null_clipState')
 		self.sourceMap = {
 			'movie': {
 				'template': ownerComponent.op('./movieSourceTemplate'),
@@ -39,21 +32,25 @@ class ClipCtrl:  # pylint: disable=too-many-instance-attributes
 		}
 
 		# NOTE: These lines should be mirrored in Reinit
+		self.composition = None
 		self.nextClipID = None
 		self.clipComps = None
-		self.composition = None
 		self.clipContainer = None
+		self.clipList.clear()
+		self.SendState()
 		self.logInfo('initialized')
 
 	def Reinit(self):
+		self.setUnloaded()
+		self.composition = None
 		self.nextClipID = None
 		self.clipComps = None
-		self.composition = None
 		self.clipContainer = None
 		self.clipList.clear()
 		self.logInfo('reinitialized')
 
 	def Load(self):
+		self.setLoading()
 		self.logInfo('loading composition')
 
 		self.composition = self.ownerComponent.op('../composition')
@@ -78,6 +75,16 @@ class ClipCtrl:  # pylint: disable=too-many-instance-attributes
 			self.clipList.appendRow([clipID])
 
 		self.logInfo('loaded {} clips in composition'.format(self.clipList.numRows))
+		self.setLoaded()
+		self.SendState()
+
+	def SendState(self):
+		self.logDebug('sending state')
+
+		self.state.Update('clips', self.getClipState() if self.Loaded else [])
+
+	def getClipState(self):
+		return [getCellValues(clip) for clip in self.clipState.rows()]
 
 	def CreateClip(self, sourceType, name, path):
 		clip = self.createNextClip()
@@ -161,6 +168,3 @@ class ClipCtrl:  # pylint: disable=too-many-instance-attributes
 
 	def updateClipNetworkPositions(self):
 		layoutComps(self.clipComps.values())
-
-	def logInfo(self, *args):
-		self.logger.Info(self.ownerComponent, *args)

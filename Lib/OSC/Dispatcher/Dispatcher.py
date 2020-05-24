@@ -1,13 +1,14 @@
 from collections import OrderedDict
 from fnmatch import fnmatchcase
 
+from tda import BaseExt
 
-class OSCDispatcher:
+
+class OSCDispatcher(BaseExt):
 	def __init__(self, ownerComponent, logger):
-		self.ownerComponent = ownerComponent
-		self.logger = logger
+		super().__init__(ownerComponent, logger)
 		self.mappings = OrderedDict({})
-		self.logInfo('OSC Dispatcher initialized')
+		self.logInfo('initialized')
 
 	def Map(self, address, handler):
 		self.mappings[address] = handler
@@ -22,6 +23,7 @@ class OSCDispatcher:
 		handler = mapping.get('handler', None)
 		assert handler, 'expected handler to be defined for {}'.format(address)
 
+		self.logDebug('dispatching {}'.format(address))
 		if mapping.get('sendAddress', True):
 			handler(address, *args)
 		else:
@@ -33,6 +35,3 @@ class OSCDispatcher:
 				return mapping
 
 		return None
-
-	def logInfo(self, *args):
-		self.logger.Info(self.ownerComponent, *args)

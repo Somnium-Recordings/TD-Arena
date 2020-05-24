@@ -15,10 +15,10 @@ class ClipUI:
 			self.ownerComponent.parent.layerUI.digits, self.ownerComponent.digits
 		)
 
-	def __init__(self, ownerComponent, browserUI, stateUI, compCtrl):
+	def __init__(self, ownerComponent, browserUI, uiState, compCtrl):
 		self.ownerComponent = ownerComponent
 		self.browserUI = browserUI
-		self.stateUI = stateUI
+		self.uiState = uiState
 		self.compCtrl = compCtrl
 
 	#
@@ -38,12 +38,12 @@ class ClipUI:
 		sourceType = getSourceType(droppedNode)
 		(fileName, filePath) = self.browserUI.GetPath(droppedNode)
 
-		self.stateUI.SendMessage(
+		self.uiState.SendMessage(
 			'{}/source/load'.format(self.ClipAddress), sourceType, fileName, filePath
 		)
 
 	def OnLeftClickThumb(self):
-		self.stateUI.SendMessage('{}/connect'.format(self.ClipAddress))
+		self.uiState.SendMessage('{}/connect'.format(self.ClipAddress))
 
 	def OnRightClickThumb(self):
-		self.stateUI.SendMessage('{}/clear'.format(self.ClipAddress))
+		self.uiState.SendMessage('{}/clear'.format(self.ClipAddress))

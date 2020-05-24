@@ -1,4 +1,6 @@
-valueMap = {
+from tda import BaseExt
+
+VALUE_MAP = {
 	# Composition
 	'Compositionname': {
 		'target': 'both'
@@ -7,11 +9,6 @@ valueMap = {
 		'target': 'both'
 	},
 	'Renderh': {
-		'target': 'both'
-	},
-	# State
-	# TODO: move to osc/state out
-	'Activedeck': {
 		'target': 'both'
 	},
 	# Resolutions
@@ -87,14 +84,13 @@ pulseMap = {
 }
 
 
-class TdArena:
+class TdArena(BaseExt):
 	@property
 	def par(self):
 		return self.ownerComponent.par
 
 	def __init__(self, ownerComponent, logger):
-		self.ownerComponent = ownerComponent
-		self.logger = logger
+		super().__init__(ownerComponent, logger)
 		self.localRender = ownerComponent.op('./render')
 		self.engineRender = ownerComponent.op('./engine_render')
 		self.ui = ownerComponent.op('./ui')
@@ -103,9 +99,13 @@ class TdArena:
 		self.logInfo('TdArena initialized')
 
 	def Sync(self):
+		self.logDebug('syncing render parameters')
 		self.SetLibPath()
 
-		for parName in valueMap:
+		# ensure Useengined is synced since it's not in the map
+		mappedPars = {'Useengine': {}, **VALUE_MAP}
+
+		for parName in mappedPars:
 			par = getattr(self.par, parName, None)
 			if par is not None:
 				# TODO: Could passing same value as prev cause issues?
@@ -126,7 +126,7 @@ class TdArena:
 			self.toggleEngine(newVal)
 			return
 
-		for targetPar in self.getUpdateTargets(par.name, valueMap):
+		for targetPar in self.getUpdateTargets(par.name, VALUE_MAP):
 			targetPar.val = newVal
 
 	def SyncPulse(self, par):
@@ -180,9 +180,3 @@ class TdArena:
 	def toggleEngine(self, useEngine):
 		self.localRender.allowCooking = not useEngine
 		self.engineRender.par.power = useEngine
-
-	def logInfo(self, *args):
-		self.logger.Info(self.ownerComponent, *args)
-
-	def logWarning(self, *args):
-		self.logger.Warning(self.ownerComponent, *args)

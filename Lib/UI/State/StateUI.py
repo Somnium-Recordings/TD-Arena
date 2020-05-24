@@ -1,4 +1,9 @@
+from typing import Union
+
+from tda import Par
+
 TDJ = op.TDModules.mod.TDJSON
+TDF = op.TDModules.mod.TDFunctions
 
 MAX_WAIT_CYCLES = 10
 
@@ -15,7 +20,9 @@ def syncToDat(data, targetDat):
 
 class StateUI:
 	"""
-    TODO: Use osc return values for things like active clip/deck to reduce UI delay
+	TODO: rename op shorcut to uiState to be consistent with renderState
+    TODO: Can we use osc return values for things like active clip/deck to reduce UI delay?
+
     """
 	def __init__(self, ownerComponent):
 		self.ownerComponent = ownerComponent
@@ -23,6 +30,10 @@ class StateUI:
 
 		self.deckState = ownerComponent.op('deckState')
 		self.deckList = self.deckState.op('table_deckList')
+		self.deckLayers = self.deckState.op('table_deckLayers')
+		self.SelectedDeck: Union(bool, None)
+		self._SelectedDeck: Par(bool)
+		TDF.createProperty(self, 'SelectedDeck', value=None, readOnly=True)
 
 		self.clipState = ownerComponent.op('clipState')
 		self.clipList = self.clipState.op('table_clipList')
@@ -37,53 +48,16 @@ class StateUI:
 
 	def OnChange(self):
 		state = TDJ.datToJSON(self.state)
-		self.updateDeckState(state['decks'])
-		self.updateClipState(state['clips'])
+		# TODO: map state props to dats rathar than doing this manually
+		if 'decks' in state:
+			self.updateDeckState(state['decks'])
+		if 'clips' in state:
+			self.updateClipState(state['clips'])
 
 	def updateClipState(self, clips):
 		syncToDat(clips, self.clipList)
 
 	def updateDeckState(self, decks):
-		deckNames = [[deck['name']] for deck in decks]
-		syncToDat(deckNames, self.deckList)
-
-		for index, deck in enumerate(decks):
-			# TODO: don't use replicator for decks so we avoid race
-			#       condition when creating decks
-			deckOp = self.getDeckOp(index)
-			if not deckOp:
-				self.updateAfterDeckCreation(decks)
-				return
-
-			syncToDat(deck['layers'], deckOp)
-
-		# self.deckList.setSize(len(decks), 1)
-		# for index, deck in enumerate(decks):
-		#     self.deckList[index, 0] = deck["name"]
-
-		#     syncToDat(deck["layers"], deckOp)
-
-	def getDeckOp(self, index):
-		return self.deckState.op('table_deck{}'.format(index))
-
-	def updateAfterDeckCreation(self, decks, waitCount=0):
-		"""
-		TODO: this sucks...
-		"""
-		if waitCount > MAX_WAIT_CYCLES:
-			raise AssertionError(
-				'expected replicator to create UIState deck storage in less than {} cycles'
-				.format(MAX_WAIT_CYCLES)
-			)
-
-		for index, _ in enumerate(decks):
-			if not self.getDeckOp(index):
-				return run(
-					'args[0].updateAfterDeckCreation(args[1], args[2])',
-					self,
-					decks,
-					waitCount + 1,
-					delayFrames=2,
-				)
-
-		return self.updateDeckState(decks)
+		syncToDat(decks['list'], self.deckList)
+		syncToDat(decks['layers'], self.deckLayers)
+		self._SelectedDeck.val = decks['selected']

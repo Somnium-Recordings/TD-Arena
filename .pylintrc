@@ -5,10 +5,12 @@ indent-string=\t
 indent-after-paren=1
 disable=invalid-name,
         bad-continuation,
+		duplicate-code,
         fixme,
         missing-class-docstring,
         missing-function-docstring,
-        missing-module-docstring
+        missing-module-docstring,
+        too-many-instance-attributes
 
 [VARIABLES]
 additional-builtins=COMP,

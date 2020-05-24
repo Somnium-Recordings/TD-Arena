@@ -1,48 +1,28 @@
+from tda import LoadableExt
 from tdaUtils import getCellValues, intIfSet, layoutComps
 
 
-class DeckCtrl:
+class DeckCtrl(LoadableExt):
 	@property
-	def DeckList(self):
-		return self.deckList
-
-	@property
-	def StateDATs(self):
-		"""
-        paths to DATs that RenderState should watch for changes
-        TODO: use dependency here and update when loadComposition is fired
-        """
-		compPath = self.composition.path
-		return ' '.join(
-			['{}/decks/deckList'.format(compPath), '{}/decks/deck*'.format(compPath)]
-		)
-
-	@property
-	def ActiveDeck(self):
-		"""
-        TODO: is there a better way to handle this than referencing
-              the par from self.render?
-		This should be stored on the composition and passed back through state.
-		Controlled through OSC.
-        """
-		return self.render.par.Activedeck.val
+	def SelectedDeck(self):
+		return self.composition.par.Selecteddeck.val
 
 	def __init__(self, ownerComponent, logger, state, render):
-		self.ownerComponent = ownerComponent
-		self.logger = logger
+		super().__init__(ownerComponent, logger)
 		self.render = render
 		self.state = state
 		self.deckTemplate = ownerComponent.op('deckTemplate')
 
-		# NOTE: These lines should be mirrored in Reinit
 		self.composition = None
 		self.deckContainer = None
 		self.deckList = None
 		self.decks = None
+		self.SendState()
 		self.logInfo('initialized')
-		# self.SendState()
 
 	def Reinit(self):
+		self.setUnloaded()
+		self.SendState()
 		self.composition = None
 		self.deckContainer = None
 		self.deckList = None
@@ -50,6 +30,7 @@ class DeckCtrl:
 		self.logInfo('reinitialized')
 
 	def Load(self):
+		self.setLoading()
 		self.logInfo('loading composition')
 
 		self.composition = self.ownerComponent.op('../composition')
@@ -65,20 +46,22 @@ class DeckCtrl:
 		if not self.deckList:
 			self.logInfo('decklist not found in composition, initalizing')
 			self.deckList = self.deckContainer.create(tableDAT, 'deckList')
-			self.deckList.replaceCol(0, ['deck0', 'deck1', 'deck2'])
+			self.deckList.replaceCol(0, ['One', 'Two', 'Three'])
 
-		self.decks = {}
-		for deckName in [d.val for d in self.deckList.col(0)]:
-			self.decks[deckName] = self.findOrCreateDeck(deckName)
+		self.decks = [
+			self.findOrCreateDeck(i) for i, _ in enumerate(self.deckList.col(0))
+		]
 
 		self.layoutDeckContainer()
 
-		self.logInfo('loaded {} decks in composition'.format(self.deckList.numRows))
+		self.logInfo('loaded {} decks in composition'.format(len(self.decks)))
+		self.setLoaded()
+		self.SendState()
 
 	def AddDeck(self):
 		# TODO: show add button if DeckCtrl not initialized
 		# TODO: find way to prompt for deck name
-		assert False, 'update AddDeck to work without replicator'
+		assert False, 'update AddDeck to work with new state system (sans replicator)'
 		self.deckList.appendRow(['Deck {}'.format(self.deckList.numRows)])
 		self.layoutDeckContainer()
 		# call layout after creating
@@ -98,19 +81,27 @@ class DeckCtrl:
 
 	def SendState(self):
 		self.logDebug('sending state')
-		newState = [] if not self.decks else [
-			{
-				'name': deckName,
-				'layers': [getCellValues(layer) for layer in deck.rows()],
-			} for deckName, deck in self.decks
+
+		state = {
+			'list': self.getDeckListState() if self.Loaded else [],
+			'layers': self.getLayerState() if self.Loaded else [],
+			'selected': self.SelectedDeck if self.Loaded else None
+		}
+
+		self.state.Update('decks', state)
+
+	def getLayerState(self):
+		return [
+			getCellValues(layer) for layer in self.decks[self.SelectedDeck].rows()
 		]
 
-		self.state.Update('decks', newState)
+	def getDeckListState(self):
+		return [getCellValues(deck) for deck in self.deckList.rows()]
 
 	def clipCell(self, clipLocation):
 		(layerNumber, clipNumber) = clipLocation
 
-		deckOpName = 'deck{}'.format(self.ActiveDeck)
+		deckOpName = 'deck{}'.format(self.SelectedDeck)
 		deck = self.deckContainer.op(deckOpName)
 		assert deck, 'could not find requested deck ({})to add clip to'.format(
 			deckOpName
@@ -118,23 +109,21 @@ class DeckCtrl:
 
 		return deck[layerNumber, clipNumber]
 
-	def createDeck(self, deckName):
-		self.logInfo('creating deck: {}'.format(deckName))
-		return self.deckContainer.copy(self.deckTemplate, name=deckName)
+	def createDeck(self, deckOpName: str):
+		self.logDebug('creating deck op: {}'.format(deckOpName))
+		return self.deckContainer.copy(self.deckTemplate, name=deckOpName)
 
-	def findOrCreateDeck(self, deckName):
-		existingDeck = self.deckContainer.op('./' + deckName)
+	def findOrCreateDeck(self, deckNumber: int):
+		deckOpName = 'deck{}'.format(deckNumber)
+		existingDeck = self.deckContainer.op('./{}'.format(deckOpName))
 
-		return existingDeck or self.createDeck(deckName)
+		return existingDeck or self.createDeck(deckOpName)
+
+	def deckName(self, deckNumber):
+		return self.deckList[deckNumber, 0].val
 
 	def layoutDeckContainer(self):
 		# TODO: my python foo is weak, there's gotta be a better way to combine lists...
 		comps = [self.deckList]
-		comps.extend(self.decks.values())
+		comps.extend(self.decks)
 		layoutComps(comps)
-
-	def logInfo(self, *args):
-		self.logger.Info(self.ownerComponent, *args)
-
-	def logDebug(self, *args):
-		self.logger.Debug(self.ownerComponent, *args)

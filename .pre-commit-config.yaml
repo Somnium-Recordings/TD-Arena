@@ -12,7 +12,7 @@ repos:
   -   id: check-large-files
       name: Check Large Files
       entry: python .pre-commit-hooks/check-large-files.py
-      args: ['--maxkb=350']
+      args: ['--maxkb=225']
       language: system
   - id: unify
     name: unify
@@ -30,8 +30,8 @@ repos:
     entry: yapf -i
     language: system
     types: [python]
-  # - id: pylint
-  #   name: pylint
-  #   entry: pipenv run pylint
-  #   language: system
-  #   types: [python]
+  - id: pylint
+    name: pylint
+    entry: pipenv run pylint
+    language: system
+    types: [python]
