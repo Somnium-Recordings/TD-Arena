@@ -1,32 +1,40 @@
+from tda import BaseExt
+
 LOAD_FRAME_DELAY = 2
 MAX_WAIT_CYCLES = 20
 
 
-class MovieSource:
-	def __init__(self, ownerComponent):
-		self.ownerComponent = ownerComponent
+class MovieSource(BaseExt):
+	def __init__(self, ownerComponent, logger):
+		super().__init__(ownerComponent, logger)
 		self.movie = ownerComponent.op('./moviefilein1')
 		self.thumb = ownerComponent.op('./null_thumb')
-		self.state = ownerComponent.op('./constant_state')
-		self.statusText = ownerComponent.op('./text_status')
+		self.state = ownerComponent.op('./table_state')
 
 	def Load(self):
+		self.setLoading()
+		self.logInfo('loading movie')
 		self.movie.preload()
 		self.waitForPreload()
 
 	def waitForPreload(self, waitCount=0):
 		if waitCount > MAX_WAIT_CYCLES:
-			self.statusText.par.text = 'Error'
-			raise AssertionError(
+			self.setLoaded(wasSuccessful=False)
+			self.logError(
 				'preloading video took more than {} cycles, aborting'.
 				format(MAX_WAIT_CYCLES)
 			)
+			return
 
-		if not self.movie.isFullyPreRead:
+		if not self.isSourceLoaded():
 			run('args[0].waitForPreload(args[1])', self, waitCount + 1, delayFrames=2)
 			return
 
+		self.logDebug('movie loaded, setting thumbnail')
 		self.setThumbail()
+
+	def isSourceLoaded(self):
+		return self.movie.isFullyPreRead
 
 	def setThumbail(self):
 		# seek to middle of clip for thumbnail
@@ -34,7 +42,7 @@ class MovieSource:
 		self.movie.par.cue = 1
 
 		# switch output to loaded video so we can capture as thumb
-		self.setIsLoaded()
+		self.setLoaded()
 
 		# wait frames so thumbnail null has image in it it to "lock"
 		run('args[0].lockThumbnail()', self, delayFrames=3)
@@ -43,6 +51,17 @@ class MovieSource:
 		self.thumb.lock = True
 		self.movie.par.cuepoint = 0
 		self.movie.par.cue = 0
+		self.logDebug('thumbnail locked')
 
-	def setIsLoaded(self):
-		self.state.par.value0 = 0
+	def setLoading(self):
+		self.state['Loaded', 1] = 0
+		self.setStatusText('Loading...')
+
+	def setLoaded(self, wasSuccessful=True):
+		if not wasSuccessful:
+			self.setStatusText('Error')
+
+		self.state['Loaded', 1] = int(wasSuccessful)
+
+	def setStatusText(self, text):
+		self.state['Status Text', 1] = text

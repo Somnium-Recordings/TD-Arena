@@ -35,6 +35,9 @@ class BaseExt():
 	def logWarning(self, *args):
 		self.logger.Warning(self.ownerComponent, *args)
 
+	def logError(self, *args):
+		self.logger.Error(self.ownerComponent, *args)
+
 
 class LoadableExt(BaseExt):
 	def __init__(self, ownerComponent, logger):

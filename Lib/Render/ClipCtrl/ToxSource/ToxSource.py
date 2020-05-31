@@ -1,48 +1,66 @@
+from tda import BaseExt
+
 LOAD_FRAME_DELAY = 2
 MAX_WAIT_CYCLES = 20
 
 
-class ToxSource:
-	def __init__(self, ownerComponent):
-		self.ownerComponent = ownerComponent
-		# self.engine = ownerComponent.op("./engine1")
+# TODO: maybe use ABC and create a base "Source" class?
+class ToxSource(BaseExt):
+	@property
+	def tox(self):
+		return self.ownerComponent.op('./tox')
+
+	def __init__(self, ownerComponent, logger):
+		super().__init__(ownerComponent, logger)
+		# TODO: support running a tox in an engine
 		self.thumb = ownerComponent.op('./null_thumb')
-		self.state = ownerComponent.op('./constant_state')
-		self.tox = ownerComponent.op('./tox')
+		self.state = ownerComponent.op('./table_state')
 
 	def Load(self):
-		print('loading tox')
+		self.setLoading()
+		self.logInfo('loading tox')
 		self.tox.par.reinitnet.pulse()
-		self.setIsLoaded()
-		# self.movie.preload()
-		# self.waitForPreload()
+		self.waitForPreload()
 
-	# def waitForPreload(self, waitCount=0):
-	#     assert (
-	#         waitCount < MAX_WAIT_CYCLES
-	#     ), "preloading video took more than {} cycles".format(MAX_WAIT_CYCLES)
+	def waitForPreload(self, waitCount=0):
+		if waitCount > MAX_WAIT_CYCLES:
+			self.setLoaded(wasSuccessful=False)
+			self.logError(
+				'preloading tox took more than {} cycles, aborting. Does the tox contain null_final?'
+				.format(MAX_WAIT_CYCLES)
+			)
+			return
 
-	#     if not self.movie.isFullyPreRead:
-	#         run("args[0].waitForPreload(args[1])", self, waitCount + 1, delayFrames=2)
-	#         return
+		if not self.isSourceLoaded():
+			run('args[0].waitForPreload(args[1])', self, waitCount + 1, delayFrames=1)
+			return
 
-	#     self.setThumbail()
+		self.logDebug('tox loaded, setting thumbnail')
+		self.setThumbail()
 
-	# def setThumbail(self):
-	#     # seek to middle of clip for thumbnail
-	#     self.movie.par.cuepoint = 0.5
-	#     self.movie.par.cue = 1
+	def isSourceLoaded(self):
+		return bool(self.tox.op('./null_final'))
 
-	#     # switch output to loaded video so we can capture as thumb
-	#     self.setIsLoaded()
+	def setThumbail(self):
+		# switch output to loaded video so we can capture as thumb if needed
+		self.setLoaded()
 
-	#     # wait frames so thumbnail null has image in it it to "lock"
-	#     run("args[0].lockThumbnail()", self, delayFrames=3)
+		# wait frames so thumbnail null has image in it it to "lock"
+		run('args[0].lockThumbnail()', self, delayFrames=3)
 
-	# def lockThumbnail(self):
-	#     self.thumb.lock = True
-	#     self.movie.par.cuepoint = 0
-	#     self.movie.par.cue = 0
+	def lockThumbnail(self):
+		self.thumb.lock = True
+		self.logDebug('thumbnail locked')
 
-	def setIsLoaded(self):
-		self.state.par.value0 = 0
+	def setLoading(self):
+		self.state['Loaded', 1] = 0
+		self.setStatusText('Loading...')
+
+	def setLoaded(self, wasSuccessful=True):
+		if not wasSuccessful:
+			self.setStatusText('Error')
+
+		self.state['Loaded', 1] = int(wasSuccessful)
+
+	def setStatusText(self, text):
+		self.state['Status Text', 1] = text
