@@ -7,14 +7,17 @@ class LayerCtrl(LoadableExt):
 	def LayerCount(self):
 		return self.composition.par.Layers
 
-	def __init__(self, ownerComponent, logger):
+	def __init__(self, ownerComponent, logger, state, clipCtrl):
 		super().__init__(ownerComponent, logger)
+		self.state = state
+		self.clipCtrl = clipCtrl
 		self.deckTemplate = ownerComponent.op('./layerTemplate0')
 
 		# NOTE: These lines should be mirrored in Reinit
 		self.composition = None
 		self.layerContainer = None
 		self.layers = None
+		self.SendState()
 		self.logInfo('initialized')
 
 	def Reinit(self):
@@ -22,6 +25,7 @@ class LayerCtrl(LoadableExt):
 		self.composition = None
 		self.layerContainer = None
 		self.layers = None
+		self.SendState()
 		self.logInfo('reinitialized')
 
 	def Load(self):
@@ -42,6 +46,7 @@ class LayerCtrl(LoadableExt):
 
 		self.logInfo('loaded {} layers in composition'.format(self.LayerCount))
 		self.setLoaded()
+		self.SendState()
 
 	def ClearClipID(self, clipID):
 		assert self.layers, 'cloud not clear clip ID, layers not loaded'
@@ -74,3 +79,23 @@ class LayerCtrl(LoadableExt):
 
 	def layoutLayerContainer(self):
 		layoutComps(self.layers, columns=1)
+
+	def SendState(self):
+		self.logDebug('sending state')
+
+		self.state.Update('layers', self.getState())
+
+	def getState(self):
+		if not self.Loaded:
+			return []
+
+		# layer 0 is master so doesn't have state that we need to send
+		state = [['clipName', 'operand']]
+		state.extend([self.getLayerState(layer) for layer in self.layers[1:]])
+
+		return state
+
+	def getLayerState(self, layer):
+		clipID = intIfSet(layer.par.Clipid.eval())
+
+		return [self.clipCtrl.GetClipProp(clipID, 'name'), layer.par.Operand.eval()]

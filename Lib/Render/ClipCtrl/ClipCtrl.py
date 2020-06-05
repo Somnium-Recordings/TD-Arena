@@ -81,10 +81,20 @@ class ClipCtrl(LoadableExt):
 	def SendState(self):
 		self.logDebug('sending state')
 
-		self.state.Update('clips', self.getClipState() if self.Loaded else [])
+		self.state.Update('clips', self.getState())
 
-	def getClipState(self):
+	def getState(self):
+		if not self.Loaded:
+			return []
+
 		return [getCellValues(clip) for clip in self.clipState.rows()]
+
+	def GetClipProp(self, clipID, propName):
+		if not self.Loaded:
+			return None
+
+		prop = self.clipState[str(clipID), propName]
+		return prop.val if prop is not None else None
 
 	def CreateClip(self, sourceType, name, path):
 		clip = self.createNextClip()

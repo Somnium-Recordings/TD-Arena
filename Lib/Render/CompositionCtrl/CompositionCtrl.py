@@ -1,6 +1,6 @@
 """
 TODO: this would probably be much simpler with an FSM...
-Or at least some sort of base Ctrl base class
+Or at least some sort of Ctrl base class
 """
 import os
 import re
@@ -57,7 +57,7 @@ class CompositionCtrl(LoadableExt):
 
 	def __init__(
 		self, ownerComponent, logger, dispatcher, render, clipCtrl, deckCtrl,
-		layerCtrl
+		layerCtrl, thumbnails
 	):  # pylint: disable=too-many-arguments
 		super().__init__(ownerComponent, logger)
 		self.dispatcher = dispatcher
@@ -65,6 +65,7 @@ class CompositionCtrl(LoadableExt):
 		self.clipCtrl = clipCtrl
 		self.deckCtrl = deckCtrl
 		self.layerCtrl = layerCtrl
+		self.thumbnails = thumbnails
 
 		self.initTemplate = ownerComponent.op('execute_initTemplate')
 		# TODO: should we initialize/reset this to None this like in the other controllers?
@@ -157,6 +158,7 @@ class CompositionCtrl(LoadableExt):
 
 		self.loadControllers()
 		self.setLoaded()
+		self.thumbnails.Sync()
 		self.logInfo('loaded')
 
 	# TODO: saveAs
@@ -199,8 +201,7 @@ class CompositionCtrl(LoadableExt):
 		clipLocation = getClipLocation(clipAddress)
 		clipID = self.deckCtrl.GetClipID(clipLocation)
 
-		# TODO: return None from DeckCtrl to avoid runnig into this again
-		if isinstance(clipID, int):  # clipID is "" when empty clip
+		if clipID is not None:
 			self.clipCtrl.ReplaceSource(sourceType, name, path, clipID)
 		else:
 			clip = self.clipCtrl.CreateClip(sourceType, name, path)
@@ -210,7 +211,7 @@ class CompositionCtrl(LoadableExt):
 		clipLocation = getClipLocation(clipAddress)
 		clipID = self.deckCtrl.ClearClip(clipLocation)
 
-		if isinstance(clipID, int):  # clipID is "" if an empty clip
+		if clipID is not None:
 			self.clipCtrl.DeleteClip(clipID)
 			self.layerCtrl.ClearClipID(clipID)
 
@@ -219,10 +220,10 @@ class CompositionCtrl(LoadableExt):
 		clipID = self.deckCtrl.GetClipID(clipLocation)
 		previousClipID = self.layerCtrl.SetClip(clipLocation[0], clipID)
 
-		if isinstance(clipID, int):  # clipID is "" when launching an empty clip
+		if clipID is not None:
 			self.clipCtrl.ActivateClip(clipID)
 
-		if isinstance(previousClipID, int) and previousClipID != clipID:
+		if previousClipID is not None and previousClipID != clipID:
 			self.clipCtrl.DeactivateClip(previousClipID)
 
 	def layoutCompositionContainer(self):

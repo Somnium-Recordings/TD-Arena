@@ -38,6 +38,9 @@ class StateUI:
 		self.clipState = ownerComponent.op('clipState')
 		self.clipList = self.clipState.op('table_clipList')
 
+		self.layerState = ownerComponent.op('layerState')
+		self.layerList = self.layerState.op('table_layers')
+
 		self.oscOut = ownerComponent.op('oscout1')
 
 	def SendMessage(self, address, *args):
@@ -53,6 +56,8 @@ class StateUI:
 			self.updateDeckState(state['decks'])
 		if 'clips' in state:
 			self.updateClipState(state['clips'])
+		if 'layers' in state:
+			self.updateLayerState(state['layers'])
 
 	def updateClipState(self, clips):
 		syncToDat(clips, self.clipList)
@@ -61,3 +66,6 @@ class StateUI:
 		syncToDat(decks['list'], self.deckList)
 		syncToDat(decks['layers'], self.deckLayers)
 		self._SelectedDeck.val = decks['selected']
+
+	def updateLayerState(self, layers):
+		syncToDat(layers, self.layerList)
