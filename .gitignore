@@ -2,9 +2,8 @@
 
 /Backup
 /Backup-Original
-TD-Arena.*.toe
-CrashAutoSave.TD-Arena.*.toe
-CrashAutoSave.Render.*.toe
+TD-Arena*.*.toe
+CrashAutoSave.TD-Arena*.*.toe
 TouchDesignerCrash.*
 
 /Compositions

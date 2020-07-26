@@ -6,6 +6,7 @@ def intIfSet(stringNumber):
 
 
 def layoutComps(compList, columns=4):
+	# TODO: use TDF.arrangeNode instead
 	# TODO: should we skip if ui.performMode == False?
 	for i, comp in enumerate(compList):
 		comp.nodeX = 0 + (i % columns) * 200

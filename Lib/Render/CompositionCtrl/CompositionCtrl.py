@@ -16,6 +16,13 @@ def getClipLocation(address):
 	return (int(m.group(1)), int(m.group(2)))
 
 
+def getLayerId(address):
+	m = re.match(r'/composition/layers/(\d+)?.*', address)
+	assert m, 'expected to match layer id in {}'.format(address)
+
+	return int(m.group(1))
+
+
 def toxPath(toxName):
 	return 'composition://{}.tox'.format(toxName)
 
@@ -66,6 +73,8 @@ class CompositionCtrl(LoadableExt):
 		self.deckCtrl = deckCtrl
 		self.layerCtrl = layerCtrl
 		self.thumbnails = thumbnails
+		self.selectPrevis = ownerComponent.op('../select_previs')
+		self.nullControls = ownerComponent.op('../null_controls')
 
 		self.initTemplate = ownerComponent.op('execute_initTemplate')
 		# TODO: should we initialize/reset this to None this like in the other controllers?
@@ -89,6 +98,9 @@ class CompositionCtrl(LoadableExt):
 					'handler': self.Save,
 					'sendAddress': False
 				},
+				'/composition/layers/*/select': {
+					'handler': self.SelectLayer
+				},
 				'/composition/layers/*/clips/*/connect': {
 					'handler': self.ConnectClip
 				},
@@ -102,6 +114,7 @@ class CompositionCtrl(LoadableExt):
 		)
 
 		self.logInfo('initialized')
+		self.nullControls.export = 0
 		autoloadIfNecessary(self)
 
 	def reinit(self):
@@ -111,6 +124,7 @@ class CompositionCtrl(LoadableExt):
 		self.setUnloaded()
 		self.reinitControllers()
 		self.clearCompositionContents()
+		self.nullControls.export = 0
 		self.logInfo('reinitialized')
 
 	def New(self):
@@ -159,6 +173,7 @@ class CompositionCtrl(LoadableExt):
 		self.loadControllers()
 		self.setLoaded()
 		self.thumbnails.Sync()
+		self.nullControls.export = 1
 		self.logInfo('loaded')
 
 	# TODO: saveAs
@@ -226,5 +241,16 @@ class CompositionCtrl(LoadableExt):
 		if previousClipID is not None and previousClipID != clipID:
 			self.clipCtrl.DeactivateClip(previousClipID)
 
+	def SelectLayer(self, address):
+		layerId = getLayerId(address)
+		self.selectPrevis.par.top = 'composition/layers/layer{}/null_previs'.format(
+			layerId
+		)
+
 	def layoutCompositionContainer(self):
 		layoutComps(self.compositionContainer.findChildren(depth=1))
+
+	def AddressToOpPath(self, address):  # pylint: disable=no-self-use
+		layerId = getLayerId(address)
+
+		return 'composition/layers/layer{}'.format(layerId)

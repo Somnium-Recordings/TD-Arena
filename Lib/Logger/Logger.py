@@ -1,5 +1,6 @@
 import logging
 import logging.handlers
+import sys
 
 LOG_FORMAT = '{source}\t{message}\t{absframe}\t{frame}\t{type}'
 
@@ -32,7 +33,7 @@ class Logger:
 
 		if self.logger.hasHandlers():
 			if not self.debug:
-				self.handler = self.logger.handlers[0]
+				self.fileHandler = self.logger.handlers[0]
 
 				self.Debug(self.ownerComp, 'logger already inialized, skipping re-init')
 				return
@@ -40,23 +41,29 @@ class Logger:
 			for handler in self.logger.handlers:
 				self.logger.removeHandler(handler)
 
-		handler = logging.handlers.RotatingFileHandler(
+		fileHandler = logging.handlers.RotatingFileHandler(
 			self.logFile,
 			maxBytes=1024 * 256,
 			backupCount=1,
 		)
 		formatter = logging.Formatter('%(levelname)s\t%(message)s\t%(asctime)s')
-		handler.setFormatter(formatter)
-		self.handler = handler
+		fileHandler.setFormatter(formatter)
+		self.fileHandler = fileHandler
 
-		self.logger.addHandler(self.handler)
+		self.logger.addHandler(self.fileHandler)
+
+		if self.debug:
+			consoleHandler = logging.StreamHandler(sys.stdout)
+			consoleHandler.setFormatter(formatter)
+			self.logger.addHandler(consoleHandler)
+
 		self.logger.setLevel(logging.DEBUG)
 
 		self.Info(self.ownerComp, '%s logger initialized', self.logName)
 
 	def Clear(self):
-		assert self.handler, 'Logger.Clear() cannot be called before the handler is inialized'
-		self.handler.doRollover()
+		assert self.fileHandler, 'Logger.Clear() cannot be called before the handler is inialized'
+		self.fileHandler.doRollover()
 
 	def LogTouchError(self, message, absFrame, frame, severity, compType, source):  # pylint: disable=too-many-arguments
 		message = LOG_FORMAT.format(

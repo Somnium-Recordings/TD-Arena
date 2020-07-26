@@ -34,6 +34,10 @@ VALUE_MAP = {
 		'target': 'local',
 		'par': 'Oscinport'
 	},
+	'Localoscctrlinport': {
+		'target': 'local',
+		'par': 'Oscctrlinport'
+	},
 	'Localstateoutport': {
 		'target': 'local',
 		'par': 'Stateoutport'
@@ -45,6 +49,10 @@ VALUE_MAP = {
 	'Engineoscinport': {
 		'target': 'engine',
 		'par': 'Oscinport'
+	},
+	'Engineoscctrlinport': {
+		'target': 'engine',
+		'par': 'Oscctrlinport'
 	},
 	'Enginestateoutport': {
 		'target': 'engine',
