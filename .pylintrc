@@ -10,7 +10,8 @@ disable=invalid-name,
         missing-class-docstring,
         missing-function-docstring,
         missing-module-docstring,
-        too-many-instance-attributes
+        too-many-instance-attributes,
+		attribute-defined-outside-init
 
 [VARIABLES]
 additional-builtins=COMP,

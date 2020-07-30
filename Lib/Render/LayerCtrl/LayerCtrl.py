@@ -1,50 +1,53 @@
 from tda import LoadableExt
-from tdaUtils import intIfSet, layoutComps
+from tdaUtils import clearChildren, intIfSet, layoutComps
+
+DEFAULT_STATE = [
+	['Clipid', 'Operand'], [None, 'add'], [None, 'add'], [None, 'add']
+]
+STATE_KEY = 'layers'
 
 
 class LayerCtrl(LoadableExt):
 	@property
 	def LayerCount(self):
-		return self.composition.par.Layers
+		return max(0, len(self.layers) - 1) if self.Loaded else 0
 
-	def __init__(self, ownerComponent, logger, state, clipCtrl):
+	def __init__(self, ownerComponent, logger, state, clipCtrl, thumbnails):  # pylint: disable=too-many-arguments
 		super().__init__(ownerComponent, logger)
 		self.state = state
 		self.clipCtrl = clipCtrl
-		self.deckTemplate = ownerComponent.op('./layerTemplate0')
+		self.thumbnails = thumbnails
+		self.layerTemplate = ownerComponent.op('./layerTemplate0')
+		self.composition = ownerComponent.op('../composition')
+		assert self.composition, 'could not find composition component'
 
-		# NOTE: These lines should be mirrored in Reinit
-		self.composition = None
-		self.layerContainer = None
-		self.layers = None
-		self.SendState()
-		self.logInfo('initialized')
-
-	def Reinit(self):
+	def Init(self):
 		self.setUnloaded()
-		self.composition = None
-		self.layerContainer = None
-		self.layers = None
+
+		self.layerContainer = self.composition.op('layers')
+		if self.layerContainer:
+			self.logDebug('clearing layers in composition')
+			clearChildren(self.layerContainer)
+		else:
+			self.logInfo('layers op not found in composition, initalizing')
+			self.layerContainer = self.composition.create(baseCOMP, 'layers')
+
+		self.layers = []
 		self.SendState()
-		self.logInfo('reinitialized')
+
+		self.logInfo('initialized')
 
 	def Load(self):
 		self.setLoading()
 		self.logInfo('loading composition')
 
-		self.composition = self.ownerComponent.op('../composition')
-		assert self.composition, 'could not find composition component'
+		for layerNumber, layer in enumerate(
+			self.state.Get(STATE_KEY, DEFAULT_STATE)[1:]
+		):
+			(clipID, Operand) = layer
+			self.createLayer(layerNumber, clipID, Operand)
 
-		self.layerContainer = self.composition.op('layers')
-		if not self.layerContainer:
-			self.logInfo('layers op not found in composition, initalizing')
-			self.layerContainer = self.composition.create(baseCOMP, 'layers')
-
-		# NOTE: count + 1 since layer 0 is the "master" layer
-		self.layers = [self.findOrCreateLayer(i) for i in range(self.LayerCount + 1)]
-		self.layoutLayerContainer()
-
-		self.logInfo('loaded {} layers in composition'.format(self.LayerCount))
+		self.logInfo('loaded {} layers in composition'.format(len(self.layers)))
 		self.setLoaded()
 		self.SendState()
 
@@ -55,27 +58,38 @@ class LayerCtrl(LoadableExt):
 			if layer.par.Clipid == str(clipID):
 				layer.par.Clipid = None
 
-	def SetClip(self, layerID, clipID):
-		offsetLayerID = layerID + 1  # layer 0 is master
+		self.clipCtrl.DeleteClip(clipID)
+
+	def SetClip(self, layerNumber, clipID):
+		offsetLayerID = layerNumber + 1  # layer 0 is master
 		assert offsetLayerID < len(
 			self.layers
-		), 'could not set clip for unknown layer ID {}'.format(layerID)
+		), 'could not set clip for unknown layer ID {}'.format(layerNumber)
 		layer = self.layers[offsetLayerID]
 
 		previousClipID = intIfSet(layer.par.Clipid.val)
 		layer.par.Clipid = clipID
 
-		return previousClipID
+		if clipID is not None:
+			self.clipCtrl.ActivateClip(clipID)
 
-	def createLayer(self, layerName):
-		self.logDebug('creating layer: {}'.format(layerName))
-		return self.layerContainer.copy(self.deckTemplate, name=layerName)
+		if previousClipID is not None and previousClipID != clipID:
+			self.clipCtrl.DeactivateClip(previousClipID)
 
-	def findOrCreateLayer(self, layerNumber):
+	def createLayer(self, layerNumber, clipId, operand):
 		layerName = 'layer{}'.format(layerNumber)
-		existingDeck = self.layerContainer.op('./' + layerName)
+		self.logDebug('creating layer: {}'.format(layerName))
 
-		return existingDeck or self.createLayer(layerName)
+		newLayer = self.layerContainer.copy(self.layerTemplate, name=layerName)
+		# TODO: be smarter about this, direct map?
+		newLayer.par.Clipid = clipId
+		newLayer.par.Operand = operand
+
+		self.layers.append(newLayer)
+
+		self.layoutLayerContainer()
+
+		return newLayer
 
 	def layoutLayerContainer(self):
 		layoutComps(self.layers, columns=1)
@@ -83,19 +97,27 @@ class LayerCtrl(LoadableExt):
 	def SendState(self):
 		self.logDebug('sending state')
 
-		self.state.Update('layers', self.getState())
+		currentState = self.getState()
+		self.state.Update('layers', currentState)
+
+		clipIds = [
+			# Skip title row and "master" layer for now
+			[layer[0]] for layer in currentState[2:]
+		] if currentState else None
+		self.thumbnails.OnLayerStateUpdate(clipIds)
 
 	def getState(self):
 		if not self.Loaded:
-			return []
+			return None
 
-		# layer 0 is master so doesn't have state that we need to send
-		state = [['clipName', 'operand']]
-		state.extend([self.getLayerState(layer) for layer in self.layers[1:]])
+		# NOTE: layer 0 is master
+		# TODO: clipName -> Clipname, operand -> Operand
+		state = [['Clipid', 'Operand']]
+		state.extend([self.getLayerState(layer) for layer in self.layers])
 
 		return state
 
-	def getLayerState(self, layer):
+	def getLayerState(self, layer):  # pylint: disable=no-self-use
 		clipID = intIfSet(layer.par.Clipid.eval())
 
-		return [self.clipCtrl.GetClipProp(clipID, 'name'), layer.par.Operand.eval()]
+		return [clipID, layer.par.Operand.eval()]

@@ -1,19 +1,32 @@
 from tda import BaseExt
+from tdaUtils import syncToDat
 
 
 class Thumbnails(BaseExt):
 	def __init__(self, ownerComponent, logger):
 		super().__init__(ownerComponent, logger)
-		self.deckCells = ownerComponent.op('table_deckCells')
-		self.deckClips = ownerComponent.op('null_deckClips')
+		self.selectedDeckClips = ownerComponent.op('table_selectedDeckClips')
+		self.layerClips = ownerComponent.op('table_layerClips')
+		self.thumbnailClips = ownerComponent.op('null_thumbnailClips')
+
+		self.thumbnailClipIds = ownerComponent.op('table_thumbnailClipIds')
+		self.thumbnailClipIds.clear()
 
 	def Sync(self):
-		self.deckCells.setSize(self.deckClips.numRows * self.deckClips.numCols, 1)
+		self.thumbnailClipIds.setSize(
+			self.thumbnailClips.numRows * self.thumbnailClips.numCols, 1
+		)
 
 		nextRow = 0
-		for row in self.deckClips.rows():
+		for row in self.thumbnailClips.rows():
 			for cell in row:
-				self.deckCells[nextRow, 0] = cell
+				self.thumbnailClipIds[nextRow, 0] = cell
 				nextRow += 1
 
 		self.logDebug('synced')
+
+	def OnSelectedDeckStateUpdate(self, selectedDeckClipIds):
+		syncToDat(selectedDeckClipIds, self.selectedDeckClips)
+
+	def OnLayerStateUpdate(self, layerClipIds):
+		syncToDat(layerClipIds, self.layerClips)

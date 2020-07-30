@@ -1,21 +1,10 @@
+import json
 from typing import Union
 
 from tda import Par
+from tdaUtils import syncToDat
 
-TDJ = op.TDModules.mod.TDJSON
 TDF = op.TDModules.mod.TDFunctions
-
-MAX_WAIT_CYCLES = 10
-
-
-def syncToDat(data, targetDat):
-	rowCount = len(data)
-	columnCount = len(data[0]) if rowCount > 0 else 0
-	targetDat.setSize(rowCount, columnCount)
-
-	for rowIndex, row in enumerate(data):
-		for columnIndex, cell in enumerate(row):
-			targetDat[rowIndex, columnIndex] = cell or ''
 
 
 class StateUI:
@@ -31,8 +20,8 @@ class StateUI:
 		self.deckState = ownerComponent.op('deckState')
 		self.deckList = self.deckState.op('table_deckList')
 		self.deckLayers = self.deckState.op('table_deckLayers')
-		self.SelectedDeck: Union(bool, None)
-		self._SelectedDeck: Par(bool)
+		self.SelectedDeck: Union(int, None)
+		self._SelectedDeck: Par(Union(int, None))
 		TDF.createProperty(self, 'SelectedDeck', value=None, readOnly=True)
 
 		self.clipState = ownerComponent.op('clipState')
@@ -49,8 +38,8 @@ class StateUI:
 		"""
 		self.oscOut.sendOSC(address, args)
 
-	def OnChange(self):
-		state = TDJ.datToJSON(self.state)
+	def OnChange(self, message):
+		state = json.loads(message)
 		# TODO: map state props to dats rathar than doing this manually
 		if 'decks' in state:
 			self.updateDeckState(state['decks'])
@@ -63,9 +52,17 @@ class StateUI:
 		syncToDat(clips, self.clipList)
 
 	def updateDeckState(self, decks):
-		syncToDat(decks['list'], self.deckList)
-		syncToDat(decks['layers'], self.deckLayers)
-		self._SelectedDeck.val = decks['selected']
+		if decks is None:
+			syncToDat(None, self.deckList)
+			syncToDat(None, self.deckLayers)
+			self._SelectedDeck.val = None
+			return
+
+		selectedIndex = int(decks['selected'])
+
+		syncToDat([[deck['name']] for deck in decks['list']], self.deckList)
+		syncToDat(decks['list'][selectedIndex]['layers'], self.deckLayers)
+		self._SelectedDeck.val = selectedIndex
 
 	def updateLayerState(self, layers):
 		syncToDat(layers, self.layerList)

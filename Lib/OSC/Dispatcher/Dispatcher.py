@@ -7,6 +7,9 @@ from tda import BaseExt
 class OSCDispatcher(BaseExt):
 	def __init__(self, ownerComponent, logger):
 		super().__init__(ownerComponent, logger)
+		self.Init()
+
+	def Init(self):
 		self.mappings = OrderedDict({})
 		self.logInfo('initialized')
 
@@ -24,6 +27,10 @@ class OSCDispatcher(BaseExt):
 		assert handler, 'expected handler to be defined for {}'.format(address)
 
 		self.logDebug('dispatching {}'.format(address))
+
+		if 'mapAddress' in mapping:
+			address = mapping['mapAddress'](address)
+
 		if mapping.get('sendAddress', True):
 			handler(address, *args)
 		else:

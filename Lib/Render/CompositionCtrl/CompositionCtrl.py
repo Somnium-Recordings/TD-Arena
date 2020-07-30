@@ -2,69 +2,25 @@
 TODO: this would probably be much simpler with an FSM...
 Or at least some sort of Ctrl base class
 """
-import os
-import re
 
 from tda import LoadableExt
-from tdaUtils import layoutComps
-
-
-def getClipLocation(address):
-	m = re.match(r'/composition/layers/(\d+)/clips/(\d+)/?.*', address)
-	assert m, 'expected to match layer and clip number in {}'.format(address)
-
-	return (int(m.group(1)), int(m.group(2)))
-
-
-def getLayerId(address):
-	m = re.match(r'/composition/layers/(\d+)?.*', address)
-	assert m, 'expected to match layer id in {}'.format(address)
-
-	return int(m.group(1))
-
-
-def toxPath(toxName):
-	return 'composition://{}.tox'.format(toxName)
-
-
-def autoloadIfNecessary(compositionCtrl, waitTime=0, waitUntil=5):
-	if compositionCtrl.Loaded:
-		compositionCtrl.logDebug(
-			'autoload unncessary, composition Loaded by other means'
-		)
-		return
-
-	if waitTime < waitUntil:
-		compositionCtrl.logDebug(
-			'waiting {}/{} frames before autoloading'.format(waitTime, waitUntil)
-		)
-		run(
-			'args[0](args[1], waitTime=args[2])',
-			autoloadIfNecessary,
-			compositionCtrl,
-			waitTime + 1,
-			delayFrames=1
-		)
-		return
-
-	compositionCtrl.logInfo(
-		'autolating composition after waiting {} frames'.format(waitUntil)
-	)
-	compositionCtrl.Reload()
+from tdaUtils import (
+	clearChildren,
+	getLayerId,
+	layoutComps,
+	mapAddressToClipLocation
+)
 
 
 class CompositionCtrl(LoadableExt):
 	@property
-	def compositionToxPath(self):
-		return toxPath(self.render.par.Compositionname)
+	def compositionName(self):
+		return self.render.par.Compositionname
 
-	@property
-	def compositionFilePath(self):
-		return tdu.expandPath(self.compositionToxPath)
-
+	# TODO: This is gross. Decompose this into smaller classes.
 	def __init__(
 		self, ownerComponent, logger, dispatcher, render, clipCtrl, deckCtrl,
-		layerCtrl, thumbnails
+		layerCtrl, thumbnails, renderState
 	):  # pylint: disable=too-many-arguments
 		super().__init__(ownerComponent, logger)
 		self.dispatcher = dispatcher
@@ -73,21 +29,78 @@ class CompositionCtrl(LoadableExt):
 		self.deckCtrl = deckCtrl
 		self.layerCtrl = layerCtrl
 		self.thumbnails = thumbnails
+		self.renderState = renderState
 		self.selectPrevis = ownerComponent.op('../select_previs')
-		self.nullControls = ownerComponent.op('../null_controls')
-
-		self.initTemplate = ownerComponent.op('execute_initTemplate')
-		# TODO: should we initialize/reset this to None this like in the other controllers?
+		# self.nullControls = ownerComponent.op('../null_controls')
 		self.compositionContainer = ownerComponent.op('../composition')
 
-		dispatcher.MapMultiple(
+		self.logInfo('clearing composition container')
+		self.Init()
+
+		# self.nullControls.export = 0
+		# self.Reload()
+
+	def Init(self):
+		self.setUnloaded()
+		self.clearCompositionContents()
+		self.initControllers()
+		self.bindOSCHandlers()
+		self.layoutCompositionContainer()
+
+		# TODO: manage previs selection
+		# self.nullControls.export = 0
+		self.logInfo('initialized')
+
+	def New(self):
+		self.logInfo('TODO: New')
+		# self.Reload(createNew=True)
+
+	def Reload(self, createNew=False):
+		self.logInfo('TODO: Reload? Do we still need this {}'.format(createNew))
+		# self.setLoading()
+
+		# self.reinitControllers()
+		# self.clearCompositionContents()
+
+		# # TODO: if not createNew and not os.path.isfile(self.compositionFilePath):
+		# # what do?
+
+		# if createNew:
+		# 	# TODO: load state from file?
+		# 	self.logInfo('creating new composition')
+		# else:
+		# 	# TODO: re-initialize state?
+		# 	self.logInfo('reloading composition')
+
+		# self.Load()
+		# self.layoutCompositionContainer()
+
+	def Load(self):
+		self.Init()
+		self.setLoading()
+		self.logInfo('loading composition')
+
+		# TODO: what happens if state file doesn't exist?
+		self.renderState.Load(self.compositionName)
+		self.loadControllers()
+		self.setLoaded()
+
+		# TODO: why don't we treat thumbnails as a ctrl?
+		self.thumbnails.Sync()
+
+		# self.nullControls.export = 1
+		self.logInfo('loaded')
+
+	def bindOSCHandlers(self):
+		self.dispatcher.Init()
+		self.dispatcher.MapMultiple(
 			{
 				'/composition/reload': {
-					'handler': self.Reload,
+					'handler': self.Load,
 					'sendAddress': False
 				},
 				'/composition/reinit': {
-					'handler': self.reinit,
+					'handler': self.Init,
 					'sendAddress': False
 				},
 				'/composition/new': {
@@ -102,79 +115,20 @@ class CompositionCtrl(LoadableExt):
 					'handler': self.SelectLayer
 				},
 				'/composition/layers/*/clips/*/connect': {
-					'handler': self.ConnectClip
+					'handler': self.deckCtrl.ConnectClip,
+					'mapAddress': mapAddressToClipLocation
 				},
 				'/composition/layers/*/clips/*/clear': {
-					'handler': self.ClearClip
+					'handler': self.deckCtrl.ClearClip,
+					'mapAddress': mapAddressToClipLocation
 				},
 				'/composition/layers/*/clips/*/source/load': {
-					'handler': self.LoadClip
+					'handler': self.deckCtrl.LoadClip,
+					'mapAddress': mapAddressToClipLocation
 				},
 			}
 		)
-
-		self.logInfo('initialized')
-		self.nullControls.export = 0
-		autoloadIfNecessary(self)
-
-	def reinit(self):
-		"""
-		This is mainly for debugging the initial state before things are loaded
-		"""
-		self.setUnloaded()
-		self.reinitControllers()
-		self.clearCompositionContents()
-		self.nullControls.export = 0
-		self.logInfo('reinitialized')
-
-	def New(self):
-		self.Reload(createNew=True)
-
-	def Reload(self, createNew=False):
-		self.setLoading()
-
-		if not createNew and not os.path.isfile(self.compositionFilePath):
-			self.logDebug(
-				'configured composition does not exist, creating new instead of loading'
-			)
-			createNew = True
-
-		if createNew:
-			self.logInfo('creating new composition')
-		else:
-			self.logInfo('reloading composition')
-
-		self.reinitControllers()
-		self.clearCompositionContents()
-		self.compositionContainer.par.externaltox = self.compositionToxPath
-
-		if not createNew:
-			self.logDebug('calling reinitnet on composition')
-			self.compositionContainer.par.reinitnet.pulse()
-			# NOTE: composition init script will call "Load"
-			return
-
-		self.logDebug('copying init script into composition')
-		initScript = self.compositionContainer.copy(
-			self.initTemplate, name='execute_onInit'
-		)
-		initScript.par.active = 1
-
-		self.Load()
-		self.layoutCompositionContainer()
-
-	def Load(self, fromComp=False):
-		"""
-		NOTE: This is called in the init script injection into compositions
-		to finish bootstraping
-		"""
-		self.logger.Info(fromComp or self.ownerComponent, 'loading composition')
-
-		self.loadControllers()
-		self.setLoaded()
-		self.thumbnails.Sync()
-		self.nullControls.export = 1
-		self.logInfo('loaded')
+		self.logInfo('osc handlers bound')
 
 	# TODO: saveAs
 	def Save(self):
@@ -182,22 +136,23 @@ class CompositionCtrl(LoadableExt):
 			self.logWarning('composition not loaded, cannot save')
 			return
 
-		savePath = self.compositionFilePath
-		self.logInfo('saving composition to {}'.format(savePath))
-		self.compositionContainer.save(savePath)
+		self.renderState.Save(self.compositionName)
 
 	def OnCompNameChange(self):
 		# TODO: noop if not different?
-		setPath = self.compositionContainer.par.externaltox
-		newPath = self.compositionToxPath
-		self.logInfo('composition changed from {} to {}'.format(setPath, newPath))
+		# setPath = self.compositionContainer.par.externaltox
+		# newPath = self.compositionToxPath
+		# self.logInfo('composition changed from {} to {}'.format(setPath, newPath))
+		self.logInfo(
+			'TODO: is there anything we need to do here other than call Reload?'
+		)
 		self.Reload()
 
-	def reinitControllers(self):
+	def initControllers(self):
 		self.logInfo('reinitilizing controllers')
-		self.clipCtrl.Reinit()
-		self.deckCtrl.Reinit()
-		self.layerCtrl.Reinit()
+		self.clipCtrl.Init()
+		self.deckCtrl.Init()
+		self.layerCtrl.Init()
 
 	def loadControllers(self):
 		self.logInfo('loading controllers')
@@ -207,41 +162,12 @@ class CompositionCtrl(LoadableExt):
 
 	def clearCompositionContents(self):
 		self.logInfo('clearing composition container')
-		for op in self.compositionContainer.findChildren(depth=1):
-			self.logDebug('clearing {}'.format(op.path))
-			op.destroy()
-		self.compositionContainer.par.externaltox = ''
-
-	def LoadClip(self, clipAddress, sourceType, name, path):
-		clipLocation = getClipLocation(clipAddress)
-		clipID = self.deckCtrl.GetClipID(clipLocation)
-
-		if clipID is not None:
-			self.clipCtrl.ReplaceSource(sourceType, name, path, clipID)
-		else:
-			clip = self.clipCtrl.CreateClip(sourceType, name, path)
-			self.deckCtrl.SetClip(clipLocation, clip.digits)
-
-	def ClearClip(self, clipAddress):
-		clipLocation = getClipLocation(clipAddress)
-		clipID = self.deckCtrl.ClearClip(clipLocation)
-
-		if clipID is not None:
-			self.clipCtrl.DeleteClip(clipID)
-			self.layerCtrl.ClearClipID(clipID)
-
-	def ConnectClip(self, clipAddress):
-		clipLocation = getClipLocation(clipAddress)
-		clipID = self.deckCtrl.GetClipID(clipLocation)
-		previousClipID = self.layerCtrl.SetClip(clipLocation[0], clipID)
-
-		if clipID is not None:
-			self.clipCtrl.ActivateClip(clipID)
-
-		if previousClipID is not None and previousClipID != clipID:
-			self.clipCtrl.DeactivateClip(previousClipID)
+		clearChildren(self.compositionContainer)
 
 	def SelectLayer(self, address):
+		"""
+		TODO: move this into layerCtrl?
+		"""
 		layerId = getLayerId(address)
 		self.selectPrevis.par.top = 'composition/layers/layer{}/null_previs'.format(
 			layerId

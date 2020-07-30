@@ -1,53 +1,45 @@
+import json
+
 from tda import BaseExt
 from tdaUtils import getCellValues
 
-TDJ = op.TDModules.mod.TDJSON
+
+def compositionPath(name):
+	return tdu.expandPath('composition://{}.json'.format(name))
 
 
 # TODO: StateRender shouldn't need to depend on deckCtrl and clipCtrl
 class StateRender(BaseExt):
 	def __init__(self, ownerComponent, logger, deckCtrl, clipCtrl):
 		super().__init__(ownerComponent, logger)
-		self.renderState = ownerComponent.op('text_renderState')
+		self.stateOut = ownerComponent.op('udpout_state')
 		self.errors = ownerComponent.op('error1')
 		self.deckCtrl = deckCtrl
 		self.clipCtrl = clipCtrl
-		self.state = None
-		self.dirty = False
 
-		self.InitalizeState()
+		self.CurrentState = {}  # track state for saving/loading
 		self.logInfo('initilized')
 
-	def InitalizeState(self):
-		self.state = {'errors': []}
-		self.sendState()
-
 	def Update(self, key, newState):
-		self.state[key] = newState
-		self.sendState()
+		self.CurrentState[key] = newState
+		self.stateOut.send(json.dumps({key: newState}))
 
-	def OnErrorStateChange(self, sendState=True):
-		self.state['errors'] = [getCellValues(error) for error in self.errors.rows()]
+	def Get(self, key, default):
+		return self.CurrentState[key] if key in self.CurrentState else default
 
-		if sendState:
-			self.sendState()
+	def OnErrorStateChange(self):
+		self.Update('errors', [getCellValues(error) for error in self.errors.rows()])
 
-	def sendState(self):
-		"""
-		TODO: can we use storage and an exec dat -> tdOut to let touch manage emitting changes?
-		alternatively, waht if we create a run loop to check every frame?
-		   - would that loop keep going if the comp is re-initilized?
-		"""
-		self.dirty = True
-		# Batch state changes to once per frame, this also helps
-		# with races from multiple changes occuring close together
-		# TODO: I think there might still be a race here
-		run('args[0].flushState()', self, delayFrames=1)
+	def Save(self, compositionName):
+		filePath = compositionPath(compositionName)
+		self.logInfo('saving state to {}'.format(filePath))
 
-	def flushState(self):
-		if not self.dirty:
-			return
+		with open(filePath, 'w') as compositionFile:
+			json.dump(self.CurrentState, compositionFile, indent='\t')
 
-		self.logDebug('flushing satate')
-		TDJ.jsonToDat(self.state, self.renderState)
-		self.dirty = False
+	def Load(self, compositionName):
+		filePath = compositionPath(compositionName)
+		self.logInfo('loading state from {}'.format(filePath))
+
+		with open(filePath) as compositionFile:
+			self.CurrentState = json.load(compositionFile)

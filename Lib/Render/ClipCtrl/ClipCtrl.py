@@ -1,15 +1,20 @@
 from tda import LoadableExt
-from tdaUtils import getCellValues, layoutComps
+from tdaUtils import clearChildren, getCellValues, layoutComps
 
 
+# TODO: be smarter about this, direct map?
 def initMovieClip(name, path, clip, source):
 	clip.par.Clipname = name
-	source.par.Moviepath = path
+	source.par.Sourcepath = path
 
 
 def initToxClip(name, path, clip, source):
 	clip.par.Clipname = name
-	source.par.Toxpath = path
+	source.par.Sourcepath = path
+
+
+DEFAULT_STATE = []
+STATE_KEY = 'clips'
 
 
 class ClipCtrl(LoadableExt):
@@ -19,7 +24,10 @@ class ClipCtrl(LoadableExt):
 
 		self.clipList = ownerComponent.op('./table_clipIDs')
 		self.clipTemplate = ownerComponent.op('./clipTemplate')
-		self.clipState = ownerComponent.op('null_clipState')
+		self.clipOpState = ownerComponent.op('null_clipState')
+		self.composition = ownerComponent.op('../composition')
+		assert self.composition, 'could not find composition component'
+
 		self.sourceMap = {
 			'movie': {
 				'template': ownerComponent.op('./movieSourceTemplate'),
@@ -31,48 +39,37 @@ class ClipCtrl(LoadableExt):
 			}
 		}
 
-		# NOTE: These lines should be mirrored in Reinit
-		self.composition = None
-		self.nextClipID = None
-		self.clipComps = None
-		self.clipContainer = None
-		self.clipList.clear()
-		self.SendState()
-		self.logInfo('initialized')
-
-	def Reinit(self):
+	def Init(self):
 		self.setUnloaded()
-		self.composition = None
-		self.nextClipID = None
-		self.clipComps = None
-		self.clipContainer = None
-		self.clipList.clear()
-		self.logInfo('reinitialized')
-
-	def Load(self):
-		self.setLoading()
-		self.logInfo('loading composition')
-
-		self.composition = self.ownerComponent.op('../composition')
-		assert self.composition, 'could not find composition component'
 
 		self.clipContainer = self.composition.op('clips')
-		if not self.clipContainer:
+		if self.clipContainer:
+			self.logDebug('clearing clips in composition')
+			clearChildren(self.clipContainer)
+		else:
 			self.logInfo('clips op not found in composition, initalizing')
 			self.clipContainer = self.composition.create(baseCOMP, 'clips')
 
 		self.nextClipID = 0
 		self.clipComps = {}
 		self.clipList.clear()
-		for clip in self.clipContainer.findChildren(
-			name='clip*', depth=1, type=COMP
-		):
-			clipID = clip.digits
-			self.clipComps[clipID] = clip
-			if clipID >= self.nextClipID:
-				self.nextClipID = clipID + 1
+		self.SendState()
 
-			self.clipList.appendRow([clipID])
+		self.logInfo('initialized')
+
+	def Load(self):
+		self.setLoading()
+		self.logInfo('loading composition')
+
+		for clip in self.state.Get(STATE_KEY, DEFAULT_STATE)[1:]:
+			(clipID, clipName, active, sourceType, path) = clip
+			clipID = int(clipID)
+
+			self.CreateClip(sourceType, clipName, path, clipID)
+			# TODO: should we even be doing this?
+			# It currently causes thumbnail generation to choke
+			if bool(int(active)):
+				self.ActivateClip(clipID)
 
 		self.logInfo('loaded {} clips in composition'.format(self.clipList.numRows))
 		self.setLoaded()
@@ -81,23 +78,21 @@ class ClipCtrl(LoadableExt):
 	def SendState(self):
 		self.logDebug('sending state')
 
-		self.state.Update('clips', self.getState())
+		state = [
+			getCellValues(clip) for clip in self.clipOpState.rows()
+		] if self.Loaded else None
 
-	def getState(self):
-		if not self.Loaded:
-			return []
-
-		return [getCellValues(clip) for clip in self.clipState.rows()]
+		self.state.Update(STATE_KEY, state)
 
 	def GetClipProp(self, clipID, propName):
 		if not self.Loaded:
 			return None
 
-		prop = self.clipState[str(clipID), propName]
+		prop = self.clipOpState[str(clipID), propName]
 		return prop.val if prop is not None else None
 
-	def CreateClip(self, sourceType, name, path):
-		clip = self.createNextClip()
+	def CreateClip(self, sourceType, name, path, clipID=None):
+		clip = self.createNextClip(clipID)
 		self.loadSource(sourceType, name, path, clip)
 
 		return clip
@@ -152,23 +147,23 @@ class ClipCtrl(LoadableExt):
 			existingSource.destroy()
 
 		newSource = clip.copy(sourceTemplate, name='source')
-		# TODO: figure out a better way to handle this.
-		# Right now if we don't do this the source looses its Moviepath property on reload
-		newSource.par.externaltox = None
-
 		initSourceFn(name, path, clip, newSource)
 
 		return newSource
 
-	def createNextClip(self):
+	def createNextClip(self, clipID=None):
 		assert self.clipContainer, 'could not create clip, composition not loaded'
 
-		clipID = self.nextClipID
+		if clipID is None:
+			clipID = self.nextClipID
+			self.nextClipID += 1
+		elif clipID >= self.nextClipID:
+			self.nextClipID = clipID + 1
+
 		clip = self.clipContainer.copy(
 			self.clipTemplate, name='clip{}'.format(clipID)
 		)
 		self.clipComps[clipID] = clip
-		self.nextClipID += 1
 
 		self.clipList.appendRow([clipID])
 
