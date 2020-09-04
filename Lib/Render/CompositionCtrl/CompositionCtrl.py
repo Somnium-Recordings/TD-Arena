@@ -4,12 +4,8 @@ Or at least some sort of Ctrl base class
 """
 
 from tda import LoadableExt
-from tdaUtils import (
-	clearChildren,
-	getLayerId,
-	layoutComps,
-	mapAddressToClipLocation
-)
+from tdaUtils import (clearChildren, getLayerId, layoutComps,
+                      mapAddressToClipLocation)
 
 
 class CompositionCtrl(LoadableExt):
