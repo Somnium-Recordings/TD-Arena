@@ -106,7 +106,8 @@ class DeckCtrl(LoadableExt):
 
 	def getClipID(self, clipLocation):
 		(layerNumber, clipNumber) = clipLocation
-		return self.selectedDeckLayerState[layerNumber][clipNumber]
+		selectedDeck = self.selectedDeckLayerState
+		return selectedDeck[layerNumber][clipNumber] if selectedDeck else None
 
 	def setClipID(self, clipLocation, clipID):
 		(layerNumber, clipNumber) = clipLocation
@@ -121,25 +122,3 @@ class DeckCtrl(LoadableExt):
 
 	def getState(self):
 		return self.state.Get(STATE_KEY, None)
-
-	# def getLayerState(self):
-	# 	return [
-	# 		getCellValues(layer) for layer in self.decks[self.SelectedDeck].rows()
-	# 	]
-
-	# def getDeckListState(self):
-	# 	return [getCellValues(deck) for deck in self.deckList.rows()]
-
-	# def clipCell(self, clipLocation):
-	# 	(layerNumber, clipNumber) = clipLocation
-
-	# 	deckOpName = 'deck{}'.format(self.SelectedDeck)
-	# 	deck = self.deckContainer.op(deckOpName)
-	# 	assert deck, 'could not find requested deck ({})to add clip to'.format(
-	# 		deckOpName
-	# 	)
-
-	# 	return deck[layerNumber, clipNumber]
-
-	# def deckName(self, deckNumber):
-	# 	return self.deckList[deckNumber, 0].val

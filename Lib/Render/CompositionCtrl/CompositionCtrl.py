@@ -51,26 +51,6 @@ class CompositionCtrl(LoadableExt):
 		self.logInfo('TODO: New')
 		# self.Reload(createNew=True)
 
-	def Reload(self, createNew=False):
-		self.logInfo('TODO: Reload? Do we still need this {}'.format(createNew))
-		# self.setLoading()
-
-		# self.reinitControllers()
-		# self.clearCompositionContents()
-
-		# # TODO: if not createNew and not os.path.isfile(self.compositionFilePath):
-		# # what do?
-
-		# if createNew:
-		# 	# TODO: load state from file?
-		# 	self.logInfo('creating new composition')
-		# else:
-		# 	# TODO: re-initialize state?
-		# 	self.logInfo('reloading composition')
-
-		# self.Load()
-		# self.layoutCompositionContainer()
-
 	def Load(self):
 		self.Init()
 		self.setLoading()
@@ -91,7 +71,7 @@ class CompositionCtrl(LoadableExt):
 		self.dispatcher.Init()
 		self.dispatcher.MapMultiple(
 			{
-				'/composition/reload': {
+				'/composition/load': {
 					'handler': self.Load,
 					'sendAddress': False
 				},
@@ -140,9 +120,8 @@ class CompositionCtrl(LoadableExt):
 		# newPath = self.compositionToxPath
 		# self.logInfo('composition changed from {} to {}'.format(setPath, newPath))
 		self.logInfo(
-			'TODO: is there anything we need to do here other than call Reload?'
+			'TODO: is there anything we need to do here other than call Load?'
 		)
-		self.Reload()
 
 	def initControllers(self):
 		self.logInfo('reinitilizing controllers')

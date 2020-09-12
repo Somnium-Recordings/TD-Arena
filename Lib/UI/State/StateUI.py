@@ -39,14 +39,22 @@ class StateUI:
 		self.oscOut.sendOSC(address, args)
 
 	def OnChange(self, message):
+		if absTime.seconds < 5:
+			# TODO: Figure out why updateDeckState(None) causes crash
+			# For some reason if the project is saved with a compositon
+			# loaded, then re-opened, touch will hang when
+			# syncToDat(None, self.deckLayers) is called
+			print('ignoring state updates during init')
+			return
+
 		state = json.loads(message)
 		# TODO: map state props to dats rathar than doing this manually
+		if 'layers' in state:
+			self.updateLayerState(state['layers'])
 		if 'decks' in state:
 			self.updateDeckState(state['decks'])
 		if 'clips' in state:
 			self.updateClipState(state['clips'])
-		if 'layers' in state:
-			self.updateLayerState(state['layers'])
 
 	def updateClipState(self, clips):
 		syncToDat(clips, self.clipList)
@@ -59,7 +67,6 @@ class StateUI:
 			return
 
 		selectedIndex = int(decks['selected'])
-
 		syncToDat([[deck['name']] for deck in decks['list']], self.deckList)
 		syncToDat(decks['list'][selectedIndex]['layers'], self.deckLayers)
 		self._SelectedDeck.val = selectedIndex
