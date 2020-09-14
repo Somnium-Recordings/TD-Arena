@@ -1,27 +1,25 @@
 import json
 from typing import Union
 
-from tda import Par
+from tda import BaseExt, Par
 from tdaUtils import syncToDat
 
-TDF = op.TDModules.mod.TDFunctions
 
-
-class StateUI:
+class State(BaseExt):
 	"""
-	TODO: rename op shorcut to uiState to be consistent with renderState
     TODO: Can we use osc return values for things like active clip/deck to reduce UI delay?
-
     """
-	def __init__(self, ownerComponent):
-		self.ownerComponent = ownerComponent
+	def __init__(self, ownerComponent, logger):
+		super().__init__(ownerComponent, logger)
 		self.state = ownerComponent.op('touchin_state')
 
 		self.deckState = ownerComponent.op('deckState')
 		self.deckList = self.deckState.op('table_deckList')
 		self.deckLayers = self.deckState.op('table_deckLayers')
+
 		self.SelectedDeck: Union(int, None)
 		self._SelectedDeck: Par(Union(int, None))
+		TDF = op.TDModules.mod.TDFunctions
 		TDF.createProperty(self, 'SelectedDeck', value=None, readOnly=True)
 
 		self.clipState = ownerComponent.op('clipState')
@@ -32,11 +30,26 @@ class StateUI:
 
 		self.oscOut = ownerComponent.op('oscout1')
 
+		self.oscControlList = ownerComponent.op('opfind_oscControls')
+		self.initializedControlList = ownerComponent.op('table_initializedControls')
+		self.InitOSCControls()
+
+		self.logInfo('UIState initialized')
+
+	def InitOSCControls(self):
+		"""
+		TODO: call this on composition [re]load
+		"""
+		self.oscControlState = {}
+		self.initializedControlList.clear()
+		self.OnCtrlOPListChange()
+
 	def SendMessage(self, address, *args):
 		"""
 		TODO: move this out of State and into OSC/Client?
 		"""
-		self.oscOut.sendOSC(address, args)
+		if address:
+			self.oscOut.sendOSC(address, args)
 
 	def OnChange(self, message):
 		if absTime.seconds < 5:
@@ -44,7 +57,7 @@ class StateUI:
 			# For some reason if the project is saved with a compositon
 			# loaded, then re-opened, touch will hang when
 			# syncToDat(None, self.deckLayers) is called
-			print('ignoring state updates during init')
+			self.logInfo('ignoring state updates during init')
 			return
 
 		state = json.loads(message)
@@ -55,6 +68,43 @@ class StateUI:
 			self.updateDeckState(state['decks'])
 		if 'clips' in state:
 			self.updateClipState(state['clips'])
+
+	def OnCtrlOPListChange(self):
+		activeAddresses = set()
+		for row in self.oscControlList.rows()[1:]:
+			[path, address] = [c.val for c in row]
+
+			activeAddresses.add(address)
+			if address not in self.oscControlState:
+				self.logDebug('initilizing ui state for {}'.format(address))
+				self.oscControlState[address] = {'op': op(path)}
+				self.SendMessage(address, '?')  # request initial value
+
+		inactiveAddresses = set(self.oscControlState.keys()) - activeAddresses
+		for address in inactiveAddresses:
+			self.logDebug('clearing ui state for {}'.format(address))
+			del self.oscControlState[address]
+			if self.initializedControlList.row(address) is not None:
+				self.initializedControlList.deleteRow(address)
+
+	def OnOSCReply(self, address, *args):
+		if address not in self.oscControlState:
+			self.logWarning('recieved OSC reply for unkonwn address {}'.format(address))
+			return
+
+		if len(args) != 1:
+			self.logWarning(
+				'expected OSC reply to have exactly 1 arg but got {}, ignoring message'.
+				format(len(args))
+			)
+			return
+
+		self.logDebug('setting initial value for {}'.format(address))
+		ctrlState = self.oscControlState[address]
+		ctrlState['op'].par.Value0 = args[0]
+		self.initializedControlList.appendRow(
+			[address, '{}/valueOut'.format(ctrlState['op'].path)]
+		)
 
 	def updateClipState(self, clips):
 		syncToDat(clips, self.clipList)

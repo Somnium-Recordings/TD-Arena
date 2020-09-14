@@ -4,8 +4,8 @@ Or at least some sort of Ctrl base class
 """
 
 from tda import LoadableExt
-from tdaUtils import (clearChildren, getLayerId, layoutComps,
-                      mapAddressToClipLocation)
+from tdaUtils import (addressToValueLocation, clearChildren, getLayerId,
+                      layoutComps, mapAddressToClipLocation)
 
 
 class CompositionCtrl(LoadableExt):
@@ -71,6 +71,9 @@ class CompositionCtrl(LoadableExt):
 		self.dispatcher.Init()
 		self.dispatcher.MapMultiple(
 			{
+				'?': {
+					'handler': self.returnCurrentValueAtAddress
+				},
 				'/composition/load': {
 					'handler': self.Load,
 					'sendAddress': False
@@ -155,3 +158,27 @@ class CompositionCtrl(LoadableExt):
 		layerId = getLayerId(address)
 
 		return 'composition/layers/layer{}'.format(layerId)
+
+	def returnCurrentValueAtAddress(self, address, _):
+		(controlPath, parName) = addressToValueLocation(
+			address,
+			self.compositionContainer.path
+		) # yapf: disable
+
+		controlOp = op(controlPath)
+		if controlOp is None:
+			self.logWarning(
+				'could not lookup current value for non-existent op {}'.
+				format(controlPath)
+			)
+			return
+
+		par = getattr(controlOp.par, parName, None)
+		if par is None:
+			self.logWarning(
+				'requested par {} does not exist on {}'.format(parName, controlPath)
+			)
+			return
+
+		self.logDebug('replying with current value at {}'.format(address))
+		self.dispatcher.OSCReply(address, par.eval())

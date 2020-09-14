@@ -7,6 +7,7 @@ from tda import BaseExt
 class OSCDispatcher(BaseExt):
 	def __init__(self, ownerComponent, logger):
 		super().__init__(ownerComponent, logger)
+		self.oscIn = ownerComponent.op('./oscin1')
 		self.Init()
 
 	def Init(self):
@@ -21,8 +22,9 @@ class OSCDispatcher(BaseExt):
 			self.Map(address, handler)
 
 	def Dispatch(self, address, *args):
-		mapping = self.getMapping(address)
+		mapping = self.getMapping(address, args)
 		assert mapping, 'unmapped osc address {}'.format(address)
+
 		handler = mapping.get('handler', None)
 		assert handler, 'expected handler to be defined for {}'.format(address)
 
@@ -36,7 +38,16 @@ class OSCDispatcher(BaseExt):
 		else:
 			handler(*args)
 
-	def getMapping(self, address):
+	def OSCReply(self, address, *args):
+		"""
+		TODO: does this really belong here?
+		"""
+		self.oscIn.sendOSC(address, args)
+
+	def getMapping(self, address, args):
+		if (len(args) == 1 and args[0] == '?'):
+			return self.getMapping('?', [])
+
 		for mappedAddress, mapping in self.mappings.items():
 			if fnmatchcase(address, mappedAddress):
 				return mapping

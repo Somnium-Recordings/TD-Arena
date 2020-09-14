@@ -49,3 +49,11 @@ def getLayerId(address):
 	assert m, 'expected to match layer id in {}'.format(address)
 
 	return int(m.group(1))
+
+
+def addressToValueLocation(address, compositionPath):
+	p = re.compile(r'(layer|clip)s/([\d]+)')
+
+	fullPath = p.sub(r'\1s/\1\2', address)
+
+	return tuple(fullPath.replace('/composition', compositionPath).rsplit('/', 1))

@@ -1,7 +1,5 @@
 from typing import Generic, TypeVar
 
-TDF = op.TDModules.mod.TDFunctions
-
 T = TypeVar('T')
 
 
@@ -44,6 +42,8 @@ class LoadableExt(BaseExt):
 		super().__init__(ownerComponent, logger)
 		self.Loaded: bool
 		self._Loaded: Par[bool]
+
+		TDF = op.TDModules.mod.TDFunctions
 		TDF.createProperty(self, 'Loaded', value=False, readOnly=True)
 
 		self.Loading: bool

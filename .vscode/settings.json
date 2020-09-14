@@ -2,9 +2,14 @@
   "editor.tabSize": 4,
   "editor.insertSpaces": false,
   "editor.detectIndentation": false,
-  "python.linting.pylintEnabled": true,
   "editor.formatOnSave": true,
+  "files.exclude": {
+    ".pytest_cache": true,
+    "**/__pycache__": true
+  },
+  "python.linting.pylintEnabled": true,
   "python.formatting.provider": "yapf",
-"python.pythonPath": "C:\\Users\\steve\\.virtualenvs\\TD-Arena-ES96ELvL\\Scripts\\python.exe",
-"python.linting.enabled": true
+  "python.linting.enabled": true,
+  "python.testing.pytestEnabled": true,
+  "python.envFile": "${workspaceFolder}\\.env"
 }

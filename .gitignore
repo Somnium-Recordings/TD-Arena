@@ -9,3 +9,6 @@ TouchDesignerCrash.*
 /Compositions
 /Logs
 !/Logs/.gitkeep
+
+__pycache__
+.pytest_cache
