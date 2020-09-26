@@ -12,9 +12,6 @@ VALUE_MAP = {
 		'target': 'both'
 	},
 	# Resolutions
-	'Renderlocal': {
-		'target': 'none'
-	},
 	'Uiw': {
 		'target': 'ui',
 		'par': 'w'

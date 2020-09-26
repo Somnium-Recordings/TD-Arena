@@ -41,3 +41,9 @@ repos:
     entry: pipenv run pylint
     language: system
     types: [python]
+  - id: pytest
+    name: Run Tests
+    entry: pipenv run pytest
+    language: system
+    pass_filenames: false
+    always_run: true

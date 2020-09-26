@@ -57,3 +57,8 @@ def addressToValueLocation(address, compositionPath):
 	fullPath = p.sub(r'\1s/\1\2', address)
 
 	return tuple(fullPath.replace('/composition', compositionPath).rsplit('/', 1))
+
+
+def addressToExport(address):
+	(path, prop) = addressToValueLocation(address, '')
+	return '{}:{}'.format(path.lstrip('/'), prop)
