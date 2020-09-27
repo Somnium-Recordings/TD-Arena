@@ -4,6 +4,11 @@ import sys
 
 LOG_FORMAT = '{source}\t{message}\t{absframe}\t{frame}\t{type}'
 
+IGNORED_ERROR_SOURCES = [
+	'/probe/instance',
+	'/probe/dataType/items',
+]
+
 
 def formatLog(comp, message):
 	return LOG_FORMAT.format(
@@ -66,6 +71,9 @@ class Logger:
 		self.fileHandler.doRollover()
 
 	def LogTouchError(self, message, absFrame, frame, severity, compType, source):  # pylint: disable=too-many-arguments
+		if source in IGNORED_ERROR_SOURCES:
+			return
+
 		message = LOG_FORMAT.format(
 			source=source,
 			message=message.replace('\n', ''),
