@@ -1,71 +1,84 @@
 from tda import LoadableExt
+from tdaUtils import clearChildren, getCellValues, intIfSet, layoutComps
 
 # TODO: make this configurable ?
 # TODO: derive row count from layers?
 DECK_ROW_COUNT = 3
 DECK_COLUMN_COUNT = 10
 
-STATE_KEY = 'decks'
+
+def createDeckState(deckID, deckName):
+	return [
+		deckID, deckName,
+		[[None] * DECK_COLUMN_COUNT for _ in range(DECK_ROW_COUNT)]
+	]
 
 
-def createDeckState(deckName: str):
-	return {
-		'name': deckName,
-		'layers': [[None] * DECK_COLUMN_COUNT for _ in range(DECK_ROW_COUNT)]
-	}
-
-
-def createInitalState():
-	return {
-		'list': [createDeckState(n) for n in ['Deck One', 'Deck Two', 'Deck Three']],
-		'selected': 0
-	}
+def createDefaultState():
+	return ['Id', 'Deckname', 'State'] + [
+		createDeckState(i, n)
+		for i, n in enumerate(['Deck One', 'Deck Two', 'Deck Three'])
+	]
 
 
 class DeckCtrl(LoadableExt):
 	@property
-	def selectedDeckLayerState(self):
-		state = self.getState()
-		if state is None:
-			return None
-		return state['list'][state['selected']]['layers']
+	def selectedDeckState(self):
+		# TODO: make this dynamic
+		return self.decks[0]['state']
 
-	def __init__(
-		self, ownerComponent, logger, state, render, clipCtrl, layerCtrl, thumbnails
-	):  # pylint: disable=too-many-arguments
+	def __init__(self, ownerComponent, logger, render, clipCtrl, layerCtrl):  # pylint: disable=too-many-arguments
 		super().__init__(ownerComponent, logger)
 		self.render = render
-		self.state = state
 		self.clipCtrl = clipCtrl
 		self.layerCtrl = layerCtrl
-		self.thumbnails = thumbnails
+		self.deckTemplate = ownerComponent.op('./deckTemplate')
+		self.deckList = ownerComponent.op('./table_deckIDs')
+		self.deckState = ownerComponent.op('./null_deckState')
 		self.composition = ownerComponent.op('../composition')
 		assert self.composition, 'could not find composition component'
 
-	# Set default state
 	def Init(self):
 		self.setUnloaded()
-		self.sendState(None)
+
+		self.deckContainer = self.composition.op('decks')
+		if self.deckContainer:
+			self.logDebug('clearing decks in composition')
+			clearChildren(self.deckContainer)
+		else:
+			self.logInfo('decks op not found in composition, initalizing')
+			self.deckContainer = self.composition.create(baseCOMP, 'decks')
+
+		self.decks = []
+		self.deckList.clear()
+
 		self.logInfo('initialized')
 
-	def Load(self, saveState=None):  # pylint: disable=unused-argument
+	def Load(self, saveState=None):
 		self.setLoading()
 		self.logInfo('loading composition')
 
-		state = self.getState()
-		if state is None:
-			self.logInfo('no existing deck state. Initalizing...')
-			state = createInitalState()
-		else:
-			self.logInfo('existing deck state found. Skipping init.')
+		state = saveState or createDefaultState()
+		for deck in state[1:]:
+			(deckID, deckName, deckState) = deck
+			self.createDeck(deckID, deckName, deckState)
 
-		self.sendState(state)
-
-		self.logInfo('loaded {} decks in composition'.format(len(state['list'])))
+		self.logInfo('loaded {} decks in composition'.format(len(self.decks)))
 		self.setLoaded()
 
 	def GetSaveState(self):
-		return self.getState()
+		if not self.Loaded:
+			return None
+
+		saveState = [getCellValues(deck) for deck in self.deckState.rows()]
+		saveState[0].append('state')
+		for deck in saveState[1:]:
+			deckId = int(deck[0])
+			deck.append(
+				[getCellValues(layer) for layer in self.decks[deckId]['state'].rows()]
+			)
+
+		return saveState
 
 	def AddDeck(self):
 		self.logInfo('TODO: add Deck')
@@ -109,19 +122,32 @@ class DeckCtrl(LoadableExt):
 
 	def getClipID(self, clipLocation):
 		(layerNumber, clipNumber) = clipLocation
-		selectedDeck = self.selectedDeckLayerState
-		return selectedDeck[layerNumber][clipNumber] if selectedDeck else None
+		return intIfSet(self.selectedDeckState[layerNumber, clipNumber])
 
 	def setClipID(self, clipLocation, clipID):
 		(layerNumber, clipNumber) = clipLocation
-		# TODO: this mutation is kind of gross but the alternative is also gross
-		self.selectedDeckLayerState[layerNumber][clipNumber] = clipID
-		self.sendState(self.getState())
+		cellValue = clipID if clipID is not None else ''
+		self.selectedDeckState[layerNumber, clipNumber] = cellValue
 
-	def sendState(self, state):
-		self.logDebug('sending state')
-		self.state.Update(STATE_KEY, state)
-		self.thumbnails.OnSelectedDeckStateUpdate(self.selectedDeckLayerState)
+	def createDeck(self, deckID, deckName, deckState):
+		opName = 'deck{}'.format(deckID)
+		self.logDebug('creating deck: {}'.format(opName))
 
-	def getState(self):
-		return self.state.Get(STATE_KEY, None)
+		newDeck = self.deckContainer.copy(self.deckTemplate, name=opName)
+		# TODO: be smarter about this, direct map?
+		newDeck.par.Deckname = deckName
+
+		newDeckState = newDeck.op('table_deckState')
+		for r, row in enumerate(deckState):
+			for c, clipId in enumerate(row):
+				newDeckState[r, c] = clipId or ''
+
+		self.decks.append({'op': newDeck, 'state': newDeckState})
+		self.deckList.appendRow([deckID])
+
+		self.layoutDeckContainer()
+
+		return newDeck
+
+	def layoutDeckContainer(self):
+		layoutComps([d['op'] for d in self.decks], columns=3)

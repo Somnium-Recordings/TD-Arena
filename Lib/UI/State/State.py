@@ -1,8 +1,4 @@
-import json
-from typing import Union
-
-from tda import BaseExt, Par
-from tdaUtils import syncToDat
+from tda import BaseExt
 
 
 class State(BaseExt):
@@ -11,19 +7,6 @@ class State(BaseExt):
     """
 	def __init__(self, ownerComponent, logger):
 		super().__init__(ownerComponent, logger)
-		self.state = ownerComponent.op('touchin_state')
-
-		self.deckState = ownerComponent.op('deckState')
-		self.deckList = self.deckState.op('table_deckList')
-		self.deckLayers = self.deckState.op('table_deckLayers')
-
-		self.SelectedDeck: Union(int, None)
-		self._SelectedDeck: Par(Union(int, None))
-		TDF = op.TDModules.mod.TDFunctions
-		TDF.createProperty(self, 'SelectedDeck', value=None, readOnly=True)
-
-		self.layerState = ownerComponent.op('layerState')
-
 		self.oscOut = ownerComponent.op('oscout1')
 
 		self.oscControlList = ownerComponent.op('opfind_oscControls')
@@ -49,20 +32,6 @@ class State(BaseExt):
 			self.oscOut.sendOSC(address, args)
 		else:
 			self.logWarning('attempted to send to invalid address {}'.format(address))
-
-	def OnChange(self, message):
-		if absTime.seconds < 5:
-			# TODO: Figure out why updateDeckState(None) causes crash
-			# For some reason if the project is saved with a compositon
-			# loaded, then re-opened, touch will hang when
-			# syncToDat(None, self.deckLayers) is called
-			self.logInfo('ignoring state updates during init')
-			return
-
-		state = json.loads(message)
-		# TODO: map state props to dats rathar than doing this manually
-		if 'decks' in state:
-			self.updateDeckState(state['decks'])
 
 	def OnCtrlOPListChange(self):
 		activeAddresses = set()
@@ -100,15 +69,3 @@ class State(BaseExt):
 		self.initializedControlList.appendRow(
 			[address, '{}/valueOut'.format(ctrlState['op'].path)]
 		)
-
-	def updateDeckState(self, decks):
-		if decks is None:
-			syncToDat(None, self.deckList)
-			syncToDat(None, self.deckLayers)
-			self._SelectedDeck.val = None
-			return
-
-		selectedIndex = int(decks['selected'])
-		syncToDat([[deck['name']] for deck in decks['list']], self.deckList)
-		syncToDat(decks['list'][selectedIndex]['layers'], self.deckLayers)
-		self._SelectedDeck.val = selectedIndex

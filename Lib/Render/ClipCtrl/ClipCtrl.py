@@ -14,17 +14,15 @@ def initToxClip(name, path, clip, source):
 
 
 DEFAULT_STATE = []
-STATE_KEY = 'clips'
 
 
 class ClipCtrl(LoadableExt):
-	def __init__(self, ownerComponent, logger, state):
+	def __init__(self, ownerComponent, logger):
 		super().__init__(ownerComponent, logger)
-		self.state = state
 
 		self.clipList = ownerComponent.op('./table_clipIDs')
 		self.clipTemplate = ownerComponent.op('./clipTemplate')
-		self.clipOpState = ownerComponent.op('null_clipState')
+		self.clipState = ownerComponent.op('null_clipState')
 		self.composition = ownerComponent.op('../composition')
 		assert self.composition, 'could not find composition component'
 
@@ -56,11 +54,12 @@ class ClipCtrl(LoadableExt):
 
 		self.logInfo('initialized')
 
-	def Load(self, saveState=None):  # pylint: disable=unused-argument
+	def Load(self, saveState=None):
 		self.setLoading()
 		self.logInfo('loading composition')
 
-		for clip in self.state.Get(STATE_KEY, DEFAULT_STATE)[1:]:
+		state = saveState or DEFAULT_STATE
+		for clip in state[1:]:
 			(clipID, clipName, active, sourceType, path) = clip
 			clipID = int(clipID)
 
@@ -75,14 +74,14 @@ class ClipCtrl(LoadableExt):
 
 	def GetSaveState(self):
 		return [
-			getCellValues(clip) for clip in self.clipOpState.rows()
+			getCellValues(clip) for clip in self.clipState.rows()
 		] if self.Loaded else None
 
 	def GetClipProp(self, clipID, propName):
 		if not self.Loaded:
 			return None
 
-		prop = self.clipOpState[str(clipID), propName]
+		prop = self.clipState[str(clipID), propName]
 		return prop.val if prop is not None else None
 
 	def CreateClip(self, sourceType, name, path, clipID=None):

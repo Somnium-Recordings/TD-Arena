@@ -22,7 +22,7 @@ class CompositionCtrl(LoadableExt):
 	# TODO: This is gross. Decompose this into smaller classes.
 	def __init__(
 		self, ownerComponent, logger, dispatcher, render, clipCtrl, deckCtrl,
-		layerCtrl, thumbnails, renderState
+		layerCtrl, thumbnails
 	):  # pylint: disable=too-many-arguments
 		super().__init__(ownerComponent, logger)
 		self.dispatcher = dispatcher
@@ -38,7 +38,6 @@ class CompositionCtrl(LoadableExt):
 				'layers': self.layerCtrl
 			}
 		)
-		self.renderState = renderState
 		self.selectPrevis = ownerComponent.op('../select_previs')
 		# self.nullControls = ownerComponent.op('../null_controls')
 		self.compositionContainer = ownerComponent.op('../composition')
@@ -70,8 +69,7 @@ class CompositionCtrl(LoadableExt):
 		self.setLoading()
 		self.logInfo('loading composition')
 
-		# TODO: what happens if state file doesn't exist?
-		self.renderState.Load(self.compositionName)
+		# TODO: handle case wherestate file doesn't exist
 		saveState = self.readSaveFile()
 		self.loadControllers(saveState)
 		self.setLoaded()
@@ -201,9 +199,6 @@ class CompositionCtrl(LoadableExt):
 
 	def writeSaveFile(self, saveState):
 		filePath = self.saveFilePath
-		# filePath = tdu.expandPath(
-		# 	'composition://{}-temp.json'.format(self.compositionName)
-		# )
 		self.logInfo('saving state to {}'.format(filePath))
 
 		with open(filePath, 'w') as saveFile:

@@ -35,10 +35,6 @@ VALUE_MAP = {
 		'target': 'local',
 		'par': 'Oscctrlinport'
 	},
-	'Localstateoutport': {
-		'target': 'local',
-		'par': 'Stateoutport'
-	},
 	'Localerrorsoutport': {
 		'target': 'local',
 		'par': 'Errorsoutport'
@@ -50,10 +46,6 @@ VALUE_MAP = {
 	'Engineoscctrlinport': {
 		'target': 'engine',
 		'par': 'Oscctrlinport'
-	},
-	'Enginestateoutport': {
-		'target': 'engine',
-		'par': 'Stateoutport'
 	},
 	'Engineerrorsoutport': {
 		'target': 'engine',

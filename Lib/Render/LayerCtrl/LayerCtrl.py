@@ -58,7 +58,7 @@ class LayerCtrl(LoadableExt):
 			getCellValues(layer) for layer in self.layerState.rows()
 		] if self.Loaded else None
 
-	def ClearClipID(self, clipID):
+	def ClearClipID(self, clipID: int):
 		assert self.layers, 'cloud not clear clip ID, layers not loaded'
 
 		for layer in self.layers:
@@ -67,7 +67,7 @@ class LayerCtrl(LoadableExt):
 
 		self.clipCtrl.DeleteClip(clipID)
 
-	def SetClip(self, layerNumber, clipID):
+	def SetClip(self, layerNumber, clipID: int):
 		offsetLayerID = layerNumber + 1  # layer 0 is master
 		assert offsetLayerID < len(
 			self.layers
