@@ -1,10 +1,13 @@
 from tda import LoadableExt
-from tdaUtils import clearChildren, intIfSet, layoutComps
+from tdaUtils import clearChildren, getCellValues, intIfSet, layoutComps
 
 DEFAULT_STATE = [
-	['Clipid', 'Operand'], [None, 'add'], [None, 'add'], [None, 'add']
-]
-STATE_KEY = 'layers'
+	['Id', 'Layername', 'Clipid'],
+	['0', 'Composition', ''],
+	['1', 'Layer1', ''],
+	['2', 'Layer2', ''],
+	['3', 'Layer3', '']
+] # yapf: disable
 
 
 class LayerCtrl(LoadableExt):
@@ -12,13 +15,14 @@ class LayerCtrl(LoadableExt):
 	def LayerCount(self):
 		return max(0, len(self.layers) - 1) if self.Loaded else 0
 
-	def __init__(self, ownerComponent, logger, state, clipCtrl, thumbnails):  # pylint: disable=too-many-arguments
+	def __init__(self, ownerComponent, logger, clipCtrl, thumbnails):  # pylint: disable=too-many-arguments
 		super().__init__(ownerComponent, logger)
-		self.state = state
 		self.clipCtrl = clipCtrl
 		self.thumbnails = thumbnails
 		self.layerTemplate = ownerComponent.op('./layerTemplate0')
 		self.composition = ownerComponent.op('../composition')
+		self.layerList = ownerComponent.op('./table_layerIDs')
+		self.layerState = ownerComponent.op('./null_layerState')
 		assert self.composition, 'could not find composition component'
 
 	def Init(self):
@@ -33,23 +37,26 @@ class LayerCtrl(LoadableExt):
 			self.layerContainer = self.composition.create(baseCOMP, 'layers')
 
 		self.layers = []
-		self.SendState()
+		self.layerList.clear()
 
 		self.logInfo('initialized')
 
-	def Load(self):
+	def Load(self, saveState=None):
 		self.setLoading()
-		self.logInfo('loading composition')
+		self.logInfo('loading composition from state {}')
 
-		for layerNumber, layer in enumerate(
-			self.state.Get(STATE_KEY, DEFAULT_STATE)[1:]
-		):
-			(clipID, Operand) = layer
-			self.createLayer(layerNumber, clipID, Operand)
+		state = saveState or DEFAULT_STATE
+		for layer in state[1:]:
+			(layerID, layerName, clipID) = layer
+			self.createLayer(layerID, layerName, clipID, 'add')
 
 		self.logInfo('loaded {} layers in composition'.format(len(self.layers)))
 		self.setLoaded()
-		self.SendState()
+
+	def GetSaveState(self):
+		return [
+			getCellValues(layer) for layer in self.layerState.rows()
+		] if self.Loaded else None
 
 	def ClearClipID(self, clipID):
 		assert self.layers, 'cloud not clear clip ID, layers not loaded'
@@ -76,16 +83,18 @@ class LayerCtrl(LoadableExt):
 		if previousClipID is not None and previousClipID != clipID:
 			self.clipCtrl.DeactivateClip(previousClipID)
 
-	def createLayer(self, layerNumber, clipId, operand):
-		layerName = 'layer{}'.format(layerNumber)
-		self.logDebug('creating layer: {}'.format(layerName))
+	def createLayer(self, layerNumber, layerName, clipId, operand):
+		opName = 'layer{}'.format(layerNumber)
+		self.logDebug('creating layer: {}'.format(opName))
 
-		newLayer = self.layerContainer.copy(self.layerTemplate, name=layerName)
+		newLayer = self.layerContainer.copy(self.layerTemplate, name=opName)
 		# TODO: be smarter about this, direct map?
 		newLayer.par.Clipid = clipId
 		newLayer.par.Operand = operand
+		newLayer.par.Layername = layerName
 
 		self.layers.append(newLayer)
+		self.layerList.appendRow([layerNumber])
 
 		self.layoutLayerContainer()
 
@@ -93,31 +102,3 @@ class LayerCtrl(LoadableExt):
 
 	def layoutLayerContainer(self):
 		layoutComps(self.layers, columns=1)
-
-	def SendState(self):
-		self.logDebug('sending state')
-
-		currentState = self.getState()
-		self.state.Update('layers', currentState)
-
-		clipIds = [
-			# Skip title row and "master" layer for now
-			[layer[0]] for layer in currentState[2:]
-		] if currentState else None
-		self.thumbnails.OnLayerStateUpdate(clipIds)
-
-	def getState(self):
-		if not self.Loaded:
-			return None
-
-		# NOTE: layer 0 is master
-		# TODO: clipName -> Clipname, operand -> Operand
-		state = [['Clipid', 'Operand']]
-		state.extend([self.getLayerState(layer) for layer in self.layers])
-
-		return state
-
-	def getLayerState(self, layer):  # pylint: disable=no-self-use
-		clipID = intIfSet(layer.par.Clipid.eval())
-
-		return [clipID, layer.par.Operand.eval()]

@@ -26,7 +26,6 @@ class State(BaseExt):
 		self.clipList = self.clipState.op('table_clipList')
 
 		self.layerState = ownerComponent.op('layerState')
-		self.layerList = self.layerState.op('table_layers')
 
 		self.oscOut = ownerComponent.op('oscout1')
 
@@ -49,7 +48,10 @@ class State(BaseExt):
 		TODO: move this out of State and into OSC/Client?
 		"""
 		if address:
+			self.logDebug('sending message to {}: {}'.format(address, args))
 			self.oscOut.sendOSC(address, args)
+		else:
+			self.logWarning('attempted to send to invalid address {}'.format(address))
 
 	def OnChange(self, message):
 		if absTime.seconds < 5:
@@ -62,8 +64,6 @@ class State(BaseExt):
 
 		state = json.loads(message)
 		# TODO: map state props to dats rathar than doing this manually
-		if 'layers' in state:
-			self.updateLayerState(state['layers'])
 		if 'decks' in state:
 			self.updateDeckState(state['decks'])
 		if 'clips' in state:
@@ -99,7 +99,7 @@ class State(BaseExt):
 			)
 			return
 
-		self.logDebug('setting initial value for {}'.format(address))
+		self.logDebug('setting initial value for {} to {}'.format(address, args[0]))
 		ctrlState = self.oscControlState[address]
 		ctrlState['op'].par.Value0 = args[0]
 		self.initializedControlList.appendRow(
@@ -120,6 +120,3 @@ class State(BaseExt):
 		syncToDat([[deck['name']] for deck in decks['list']], self.deckList)
 		syncToDat(decks['list'][selectedIndex]['layers'], self.deckLayers)
 		self._SelectedDeck.val = selectedIndex
-
-	def updateLayerState(self, layers):
-		syncToDat(layers, self.layerList)

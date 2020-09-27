@@ -48,7 +48,7 @@ class DeckCtrl(LoadableExt):
 		self.sendState(None)
 		self.logInfo('initialized')
 
-	def Load(self):
+	def Load(self, saveState=None):  # pylint: disable=unused-argument
 		self.setLoading()
 		self.logInfo('loading composition')
 
@@ -63,6 +63,9 @@ class DeckCtrl(LoadableExt):
 
 		self.logInfo('loaded {} decks in composition'.format(len(state['list'])))
 		self.setLoaded()
+
+	def GetSaveState(self):
+		return self.getState()
 
 	def AddDeck(self):
 		self.logInfo('TODO: add Deck')

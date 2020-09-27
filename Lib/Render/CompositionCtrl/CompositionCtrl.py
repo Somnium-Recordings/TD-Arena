@@ -2,6 +2,8 @@
 TODO: this would probably be much simpler with an FSM...
 Or at least some sort of Ctrl base class
 """
+import json
+from collections import OrderedDict
 
 from tda import LoadableExt
 from tdaUtils import (addressToValueLocation, clearChildren, getLayerId,
@@ -12,6 +14,10 @@ class CompositionCtrl(LoadableExt):
 	@property
 	def compositionName(self):
 		return self.render.par.Compositionname
+
+	@property
+	def saveFilePath(self):
+		return tdu.expandPath('composition://{}.json'.format(self.compositionName))
 
 	# TODO: This is gross. Decompose this into smaller classes.
 	def __init__(
@@ -25,6 +31,13 @@ class CompositionCtrl(LoadableExt):
 		self.deckCtrl = deckCtrl
 		self.layerCtrl = layerCtrl
 		self.thumbnails = thumbnails
+		self.ctrls = OrderedDict(
+			{
+				'clips': self.clipCtrl,
+				'decks': self.deckCtrl,
+				'layers': self.layerCtrl
+			}
+		)
 		self.renderState = renderState
 		self.selectPrevis = ownerComponent.op('../select_previs')
 		# self.nullControls = ownerComponent.op('../null_controls')
@@ -48,6 +61,7 @@ class CompositionCtrl(LoadableExt):
 		self.logInfo('initialized')
 
 	def New(self):
+		# Call loadControllers with `None` save state?
 		self.logInfo('TODO: New')
 		# self.Reload(createNew=True)
 
@@ -58,7 +72,8 @@ class CompositionCtrl(LoadableExt):
 
 		# TODO: what happens if state file doesn't exist?
 		self.renderState.Load(self.compositionName)
-		self.loadControllers()
+		saveState = self.readSaveFile()
+		self.loadControllers(saveState)
 		self.setLoaded()
 
 		# TODO: why don't we treat thumbnails as a ctrl?
@@ -66,6 +81,26 @@ class CompositionCtrl(LoadableExt):
 
 		# self.nullControls.export = 1
 		self.logInfo('loaded')
+
+	# TODO: saveAs
+	def Save(self):
+		if not self.Loaded:
+			self.logWarning('composition not loaded, cannot save')
+			return
+
+		saveState = {}
+		for ctrlName, ctrl in self.ctrls.items():
+			saveState[ctrlName] = ctrl.GetSaveState()
+		self.writeSaveFile(saveState)
+
+	def OnCompNameChange(self):
+		# TODO: noop if not different?
+		# setPath = self.compositionContainer.par.externaltox
+		# newPath = self.compositionToxPath
+		# self.logInfo('composition changed from {} to {}'.format(setPath, newPath))
+		self.logInfo(
+			'TODO: is there anything we need to do here other than call Load?'
+		)
 
 	def bindOSCHandlers(self):
 		self.dispatcher.Init()
@@ -109,34 +144,15 @@ class CompositionCtrl(LoadableExt):
 		)
 		self.logInfo('osc handlers bound')
 
-	# TODO: saveAs
-	def Save(self):
-		if not self.Loaded:
-			self.logWarning('composition not loaded, cannot save')
-			return
-
-		self.renderState.Save(self.compositionName)
-
-	def OnCompNameChange(self):
-		# TODO: noop if not different?
-		# setPath = self.compositionContainer.par.externaltox
-		# newPath = self.compositionToxPath
-		# self.logInfo('composition changed from {} to {}'.format(setPath, newPath))
-		self.logInfo(
-			'TODO: is there anything we need to do here other than call Load?'
-		)
-
 	def initControllers(self):
 		self.logInfo('reinitilizing controllers')
-		self.clipCtrl.Init()
-		self.deckCtrl.Init()
-		self.layerCtrl.Init()
+		for ctrl in self.ctrls.values():
+			ctrl.Init()
 
-	def loadControllers(self):
+	def loadControllers(self, saveState):
 		self.logInfo('loading controllers')
-		self.clipCtrl.Load()
-		self.deckCtrl.Load()
-		self.layerCtrl.Load()
+		for ctrlName, ctrl in self.ctrls.items():
+			ctrl.Load(saveState[ctrlName])
 
 	def clearCompositionContents(self):
 		self.logInfo('clearing composition container')
@@ -182,3 +198,20 @@ class CompositionCtrl(LoadableExt):
 
 		self.logDebug('replying with current value at {}'.format(address))
 		self.dispatcher.OSCReply(address, par.eval())
+
+	def writeSaveFile(self, saveState):
+		filePath = self.saveFilePath
+		# filePath = tdu.expandPath(
+		# 	'composition://{}-temp.json'.format(self.compositionName)
+		# )
+		self.logInfo('saving state to {}'.format(filePath))
+
+		with open(filePath, 'w') as saveFile:
+			json.dump(saveState, saveFile, indent='\t')
+
+	def readSaveFile(self):
+		filePath = self.saveFilePath
+		self.logInfo('loading save file from {}'.format(filePath))
+
+		with open(filePath) as saveFile:
+			return json.load(saveFile)

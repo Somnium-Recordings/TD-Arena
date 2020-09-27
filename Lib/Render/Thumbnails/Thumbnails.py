@@ -6,7 +6,6 @@ class Thumbnails(BaseExt):
 	def __init__(self, ownerComponent, logger):
 		super().__init__(ownerComponent, logger)
 		self.selectedDeckClips = ownerComponent.op('table_selectedDeckClips')
-		self.layerClips = ownerComponent.op('table_layerClips')
 		self.thumbnailClips = ownerComponent.op('null_thumbnailClips')
 
 		self.thumbnailClipIds = ownerComponent.op('table_thumbnailClipIds')
@@ -27,6 +26,3 @@ class Thumbnails(BaseExt):
 
 	def OnSelectedDeckStateUpdate(self, selectedDeckClipIds):
 		syncToDat(selectedDeckClipIds, self.selectedDeckClips)
-
-	def OnLayerStateUpdate(self, layerClipIds):
-		syncToDat(layerClipIds, self.layerClips)

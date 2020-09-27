@@ -57,7 +57,7 @@ class ClipCtrl(LoadableExt):
 
 		self.logInfo('initialized')
 
-	def Load(self):
+	def Load(self, saveState=None):  # pylint: disable=unused-argument
 		self.setLoading()
 		self.logInfo('loading composition')
 
@@ -74,6 +74,11 @@ class ClipCtrl(LoadableExt):
 		self.logInfo('loaded {} clips in composition'.format(self.clipList.numRows))
 		self.setLoaded()
 		self.SendState()
+
+	def GetSaveState(self):
+		return [
+			getCellValues(clip) for clip in self.clipOpState.rows()
+		] if self.Loaded else None
 
 	def SendState(self):
 		self.logDebug('sending state')

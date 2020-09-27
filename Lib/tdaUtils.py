@@ -52,6 +52,10 @@ def getLayerId(address):
 
 
 def addressToValueLocation(address, compositionPath):
+	"""
+	from: /composition/layers/1/...
+	to  : /composition/layers/layer1/...
+	"""
 	p = re.compile(r'(layer|clip)s/([\d]+)')
 
 	fullPath = p.sub(r'\1s/\1\2', address)
