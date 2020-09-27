@@ -22,9 +22,6 @@ class State(BaseExt):
 		TDF = op.TDModules.mod.TDFunctions
 		TDF.createProperty(self, 'SelectedDeck', value=None, readOnly=True)
 
-		self.clipState = ownerComponent.op('clipState')
-		self.clipList = self.clipState.op('table_clipList')
-
 		self.layerState = ownerComponent.op('layerState')
 
 		self.oscOut = ownerComponent.op('oscout1')
@@ -66,8 +63,6 @@ class State(BaseExt):
 		# TODO: map state props to dats rathar than doing this manually
 		if 'decks' in state:
 			self.updateDeckState(state['decks'])
-		if 'clips' in state:
-			self.updateClipState(state['clips'])
 
 	def OnCtrlOPListChange(self):
 		activeAddresses = set()
@@ -105,9 +100,6 @@ class State(BaseExt):
 		self.initializedControlList.appendRow(
 			[address, '{}/valueOut'.format(ctrlState['op'].path)]
 		)
-
-	def updateClipState(self, clips):
-		syncToDat(clips, self.clipList)
 
 	def updateDeckState(self, decks):
 		if decks is None:

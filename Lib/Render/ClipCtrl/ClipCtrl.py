@@ -53,7 +53,6 @@ class ClipCtrl(LoadableExt):
 		self.nextClipID = 0
 		self.clipComps = {}
 		self.clipList.clear()
-		self.SendState()
 
 		self.logInfo('initialized')
 
@@ -73,21 +72,11 @@ class ClipCtrl(LoadableExt):
 
 		self.logInfo('loaded {} clips in composition'.format(self.clipList.numRows))
 		self.setLoaded()
-		self.SendState()
 
 	def GetSaveState(self):
 		return [
 			getCellValues(clip) for clip in self.clipOpState.rows()
 		] if self.Loaded else None
-
-	def SendState(self):
-		self.logDebug('sending state')
-
-		state = [
-			getCellValues(clip) for clip in self.clipOpState.rows()
-		] if self.Loaded else None
-
-		self.state.Update(STATE_KEY, state)
 
 	def GetClipProp(self, clipID, propName):
 		if not self.Loaded:
