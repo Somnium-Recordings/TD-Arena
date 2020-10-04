@@ -22,7 +22,7 @@ class CompositionCtrl(LoadableExt):
 	# TODO: This is gross. Decompose this into smaller classes.
 	def __init__(
 		self, ownerComponent, logger, dispatcher, render, clipCtrl, deckCtrl,
-		layerCtrl, thumbnails
+		layerCtrl
 	):  # pylint: disable=too-many-arguments
 		super().__init__(ownerComponent, logger)
 		self.dispatcher = dispatcher
@@ -30,7 +30,6 @@ class CompositionCtrl(LoadableExt):
 		self.clipCtrl = clipCtrl
 		self.deckCtrl = deckCtrl
 		self.layerCtrl = layerCtrl
-		self.thumbnails = thumbnails
 		self.ctrls = OrderedDict(
 			{
 				'clips': self.clipCtrl,
@@ -39,14 +38,10 @@ class CompositionCtrl(LoadableExt):
 			}
 		)
 		self.selectPrevis = ownerComponent.op('../select_previs')
-		# self.nullControls = ownerComponent.op('../null_controls')
 		self.compositionContainer = ownerComponent.op('../composition')
 
 		self.logInfo('clearing composition container')
 		self.Init()
-
-		# self.nullControls.export = 0
-		# self.Reload()
 
 	def Init(self):
 		self.setUnloaded()
@@ -56,13 +51,18 @@ class CompositionCtrl(LoadableExt):
 		self.layoutCompositionContainer()
 
 		# TODO: manage previs selection
-		# self.nullControls.export = 0
 		self.logInfo('initialized')
 
 	def New(self):
-		# Call loadControllers with `None` save state?
-		self.logInfo('TODO: New')
-		# self.Reload(createNew=True)
+		self.Init()
+		self.setLoading()
+		self.logInfo('creating new composition')
+
+		newState = {k: None for k in self.ctrls.keys()}
+		self.loadControllers(newState)
+
+		self.setLoaded()
+		self.logInfo('new composition loaded')
 
 	def Load(self):
 		self.Init()
@@ -74,10 +74,6 @@ class CompositionCtrl(LoadableExt):
 		self.loadControllers(saveState)
 		self.setLoaded()
 
-		# TODO: why don't we treat thumbnails as a ctrl?
-		self.thumbnails.Sync()
-
-		# self.nullControls.export = 1
 		self.logInfo('loaded')
 
 	# TODO: saveAs

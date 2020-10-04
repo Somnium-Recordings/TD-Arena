@@ -3,7 +3,8 @@ import re
 
 
 def intIfSet(stringNumber):
-	return int(stringNumber) if stringNumber else None
+	# NOTE: the == 0 check is to support touch table cells with a value of 0
+	return int(stringNumber) if stringNumber or stringNumber == 0 else None
 
 
 def layoutComps(compList, columns=4):

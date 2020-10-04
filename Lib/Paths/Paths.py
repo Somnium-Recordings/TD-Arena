@@ -10,8 +10,6 @@ class Paths:  # pylint: disable=too-few-public-methods
 		self.setPaths = ownerComp.op('table_setPaths')
 		self.Apply()
 
-		logger.Debug(ownerComp, 'initialized paths are: {}'.format(project.paths))
-
 	def Apply(self):
 		newPaths = {}
 		for protocol, path in self.configuredPaths.rows():
@@ -23,6 +21,7 @@ class Paths:  # pylint: disable=too-few-public-methods
 				)
 				continue
 			newPaths[protocol.val] = expanded
+			self.logger.Debug(self.ownerComp, '{}:// set to {}'.format(protocol, path))
 
 		# clear any project paths that are no longer configured
 		for protocol in project.paths.copy():

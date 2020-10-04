@@ -1,14 +1,6 @@
 from tda import LoadableExt
 from tdaUtils import clearChildren, getCellValues, intIfSet, layoutComps
 
-DEFAULT_STATE = [
-	['Id', 'Layername', 'Clipid'],
-	['0', 'Composition', ''],
-	['1', 'Layer1', ''],
-	['2', 'Layer2', ''],
-	['3', 'Layer3', '']
-] # yapf: disable
-
 
 class LayerCtrl(LoadableExt):
 	@property
@@ -45,7 +37,7 @@ class LayerCtrl(LoadableExt):
 		self.setLoading()
 		self.logInfo('loading composition from state {}')
 
-		state = saveState or DEFAULT_STATE
+		state = saveState or self.createDefaultState()
 		for layer in state[1:]:
 			(layerID, layerName, clipID) = layer
 			self.createLayer(layerID, layerName, clipID, 'add')
@@ -57,6 +49,18 @@ class LayerCtrl(LoadableExt):
 		return [
 			getCellValues(layer) for layer in self.layerState.rows()
 		] if self.Loaded else None
+
+	def createDefaultState(self):
+		state = [
+			['Id', 'Layername', 'Clipid'],
+			['0', 'Composition', ''],
+		]
+
+		for i in range(self.composition.par.Layercount.eval()):
+			layerID = i + 1
+			state.append([str(layerID), 'Layer{}'.format(layerID), ''])
+
+		return state
 
 	def ClearClipID(self, clipID: int):
 		assert self.layers, 'cloud not clear clip ID, layers not loaded'

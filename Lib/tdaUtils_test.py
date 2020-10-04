@@ -7,6 +7,7 @@ from tdaUtils import (addressToValueLocation, getLayerId, intIfSet,
 def test_intIfSet():
 	assert intIfSet('4') == 4
 	assert intIfSet('') is None
+	assert intIfSet(0) == 0
 
 
 def test_mapAddressToClipLocation():

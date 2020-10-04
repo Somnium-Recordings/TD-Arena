@@ -1,25 +1,6 @@
 from tda import LoadableExt
 from tdaUtils import clearChildren, getCellValues, intIfSet, layoutComps
 
-# TODO: make this configurable ?
-# TODO: derive row count from layers?
-DECK_ROW_COUNT = 3
-DECK_COLUMN_COUNT = 10
-
-
-def createDeckState(deckID, deckName):
-	return [
-		deckID, deckName,
-		[[None] * DECK_COLUMN_COUNT for _ in range(DECK_ROW_COUNT)]
-	]
-
-
-def createDefaultState():
-	return ['Id', 'Deckname', 'State'] + [
-		createDeckState(i, n)
-		for i, n in enumerate(['Deck One', 'Deck Two', 'Deck Three'])
-	]
-
 
 class DeckCtrl(LoadableExt):
 	@property
@@ -58,7 +39,7 @@ class DeckCtrl(LoadableExt):
 		self.setLoading()
 		self.logInfo('loading composition')
 
-		state = saveState or createDefaultState()
+		state = saveState or self.createDefaultState()
 		for deck in state[1:]:
 			(deckID, deckName, deckState) = deck
 			self.createDeck(deckID, deckName, deckState)
@@ -79,6 +60,21 @@ class DeckCtrl(LoadableExt):
 			)
 
 		return saveState
+
+	def createDeckState(self, deckID, deckName):
+		return [
+			deckID, deckName,
+			[
+				[None] * self.composition.par.Deckcolumncount.eval()
+				for _ in range(self.composition.par.Layercount.eval())
+			]
+		]
+
+	def createDefaultState(self):
+		return [['Id', 'Deckname', 'State']] + [
+			self.createDeckState(i, n)
+			for i, n in enumerate(['Deck One', 'Deck Two', 'Deck Three'])
+		]
 
 	def AddDeck(self):
 		self.logInfo('TODO: add Deck')
