@@ -45,7 +45,14 @@ def mapAddressToClipLocation(address):
 	return (int(m.group(1)), int(m.group(2)))
 
 
-def getLayerId(address):
+def getDeckID(address):
+	m = re.match(r'/composition/decks/(\d+)?.*', address)
+	assert m, 'expected to match deck id in {}'.format(address)
+
+	return int(m.group(1))
+
+
+def getLayerID(address):
 	m = re.match(r'/composition/layers/(\d+)?.*', address)
 	assert m, 'expected to match layer id in {}'.format(address)
 

@@ -2,151 +2,41 @@
 TODO: this would probably be much simpler with an FSM...
 Or at least some sort of Ctrl base class
 """
-import json
-from collections import OrderedDict
-
 from tda import LoadableExt
-from tdaUtils import (addressToValueLocation, clearChildren, getLayerId,
-                      layoutComps, mapAddressToClipLocation)
+from tdaUtils import clearChildren, getDeckID, getLayerID, layoutComps
 
 
 class CompositionCtrl(LoadableExt):
-	@property
-	def compositionName(self):
-		return self.render.par.Compositionname
-
-	@property
-	def saveFilePath(self):
-		return tdu.expandPath('composition://{}.json'.format(self.compositionName))
-
-	# TODO: This is gross. Decompose this into smaller classes.
-	def __init__(
-		self, ownerComponent, logger, dispatcher, render, clipCtrl, deckCtrl,
-		layerCtrl
-	):  # pylint: disable=too-many-arguments
+	def __init__(self, ownerComponent, logger):
 		super().__init__(ownerComponent, logger)
-		self.dispatcher = dispatcher
-		self.render = render
-		self.clipCtrl = clipCtrl
-		self.deckCtrl = deckCtrl
-		self.layerCtrl = layerCtrl
-		self.ctrls = OrderedDict(
-			{
-				'clips': self.clipCtrl,
-				'decks': self.deckCtrl,
-				'layers': self.layerCtrl
-			}
-		)
 		self.selectPrevis = ownerComponent.op('../select_previs')
 		self.compositionContainer = ownerComponent.op('../composition')
 
-		self.logInfo('clearing composition container')
 		self.Init()
 
 	def Init(self):
 		self.setUnloaded()
 		self.clearCompositionContents()
-		self.initControllers()
-		self.bindOSCHandlers()
 		self.layoutCompositionContainer()
 
-		# TODO: manage previs selection
+		# TODO: Set defaults on compositionContainer
+
 		self.logInfo('initialized')
 
-	def New(self):
-		self.Init()
-		self.setLoading()
-		self.logInfo('creating new composition')
-
-		newState = {k: None for k in self.ctrls.keys()}
-		self.loadControllers(newState)
-
-		self.setLoaded()
-		self.logInfo('new composition loaded')
-
-	def Load(self):
-		self.Init()
+	def Load(self, state=None):  # pylint: disable=unused-argument
 		self.setLoading()
 		self.logInfo('loading composition')
 
-		# TODO: handle case wherestate file doesn't exist
-		saveState = self.readSaveFile()
-		self.loadControllers(saveState)
+		# TODO: process state
+		# TODO: set values from state on compositionContainer
+		# TODO: set previs selection from state? (can we derive from prop comCtrl prop instead)
+
 		self.setLoaded()
 
 		self.logInfo('loaded')
 
-	# TODO: saveAs
-	def Save(self):
-		if not self.Loaded:
-			self.logWarning('composition not loaded, cannot save')
-			return
-
-		saveState = {}
-		for ctrlName, ctrl in self.ctrls.items():
-			saveState[ctrlName] = ctrl.GetSaveState()
-		self.writeSaveFile(saveState)
-
-	def OnCompNameChange(self):
-		# TODO: noop if not different?
-		# setPath = self.compositionContainer.par.externaltox
-		# newPath = self.compositionToxPath
-		# self.logInfo('composition changed from {} to {}'.format(setPath, newPath))
-		self.logInfo(
-			'TODO: is there anything we need to do here other than call Load?'
-		)
-
-	def bindOSCHandlers(self):
-		self.dispatcher.Init()
-		self.dispatcher.MapMultiple(
-			{
-				'?': {
-					'handler': self.returnCurrentValueAtAddress
-				},
-				'/composition/load': {
-					'handler': self.Load,
-					'sendAddress': False
-				},
-				'/composition/reinit': {
-					'handler': self.Init,
-					'sendAddress': False
-				},
-				'/composition/new': {
-					'handler': self.New,
-					'sendAddress': False
-				},
-				'/composition/save': {
-					'handler': self.Save,
-					'sendAddress': False
-				},
-				'/composition/layers/*/select': {
-					'handler': self.SelectLayer
-				},
-				'/composition/layers/*/clips/*/connect': {
-					'handler': self.deckCtrl.ConnectClip,
-					'mapAddress': mapAddressToClipLocation
-				},
-				'/composition/layers/*/clips/*/clear': {
-					'handler': self.deckCtrl.ClearClip,
-					'mapAddress': mapAddressToClipLocation
-				},
-				'/composition/layers/*/clips/*/source/load': {
-					'handler': self.deckCtrl.LoadClip,
-					'mapAddress': mapAddressToClipLocation
-				},
-			}
-		)
-		self.logInfo('osc handlers bound')
-
-	def initControllers(self):
-		self.logInfo('reinitilizing controllers')
-		for ctrl in self.ctrls.values():
-			ctrl.Init()
-
-	def loadControllers(self, saveState):
-		self.logInfo('loading controllers')
-		for ctrlName, ctrl in self.ctrls.items():
-			ctrl.Load(saveState[ctrlName])
+	def GetSaveState(self):  # pylint: disable=no-self-use
+		return {}
 
 	def clearCompositionContents(self):
 		self.logInfo('clearing composition container')
@@ -156,53 +46,19 @@ class CompositionCtrl(LoadableExt):
 		"""
 		TODO: move this into layerCtrl?
 		"""
-		layerId = getLayerId(address)
+		layerId = getLayerID(address)
 		self.selectPrevis.par.top = 'composition/layers/layer{}/null_previs'.format(
 			layerId
 		)
 
+	def SelectDeck(self, address):
+		self.compositionContainer.par.Selecteddeck = getDeckID(address)
+
 	def layoutCompositionContainer(self):
-		layoutComps(self.compositionContainer.findChildren(depth=1))
-
-	def AddressToOpPath(self, address):  # pylint: disable=no-self-use
-		layerId = getLayerId(address)
-
-		return 'composition/layers/layer{}'.format(layerId)
-
-	def returnCurrentValueAtAddress(self, address, _):
-		(controlPath, parName) = addressToValueLocation(
-			address,
-			self.compositionContainer.path
-		) # yapf: disable
-
-		controlOp = op(controlPath)
-		if controlOp is None:
-			self.logWarning(
-				'could not lookup current value for non-existent op {}'.
-				format(controlPath)
-			)
-			return
-
-		par = getattr(controlOp.par, parName, None)
-		if par is None:
-			self.logWarning(
-				'requested par {} does not exist on {}'.format(parName, controlPath)
-			)
-			return
-
-		self.logDebug('replying with current value at {}'.format(address))
-		self.dispatcher.OSCReply(address, par.eval())
-
-	def writeSaveFile(self, saveState):
-		filePath = self.saveFilePath
-		self.logInfo('saving state to {}'.format(filePath))
-
-		with open(filePath, 'w') as saveFile:
-			json.dump(saveState, saveFile, indent='\t')
-
-	def readSaveFile(self):
-		filePath = self.saveFilePath
-		self.logInfo('loading save file from {}'.format(filePath))
-
-		with open(filePath) as saveFile:
-			return json.load(saveFile)
+		# delay a frame so that other controlls can create their ops
+		run(
+			'args[0](args[1].findChildren(depth=1))',
+			layoutComps,
+			self.compositionContainer,
+			delayFrames=1
+		)

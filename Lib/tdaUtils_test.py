@@ -1,6 +1,6 @@
 import pytest
 
-from tdaUtils import (addressToValueLocation, getLayerId, intIfSet,
+from tdaUtils import (addressToValueLocation, getDeckID, getLayerID, intIfSet,
                       mapAddressToClipLocation)
 
 
@@ -17,11 +17,18 @@ def test_mapAddressToClipLocation():
 		mapAddressToClipLocation('/foo')
 
 
-def test_getLayerId():
-	assert getLayerId('/composition/layers/5/clips/4') == 5
-	assert getLayerId('/composition/layers/6') == 6
+def test_getLayerID():
+	assert getLayerID('/composition/layers/5/clips/4') == 5
+	assert getLayerID('/composition/layers/6') == 6
 	with pytest.raises(AssertionError):
-		getLayerId('/foo')
+		getLayerID('/foo')
+
+
+def test_getDeckID():
+	assert getDeckID('/composition/decks/5') == 5
+	assert getDeckID('/composition/decks/6/connect') == 6
+	with pytest.raises(AssertionError):
+		getDeckID('/foo')
 
 
 def test_addressToValueLocation():
