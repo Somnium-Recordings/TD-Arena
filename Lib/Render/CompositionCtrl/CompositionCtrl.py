@@ -10,7 +10,6 @@ from tdaUtils import (clearChildren, getCellValues, getDeckID, getLayerID,
 class CompositionCtrl(LoadableExt):
 	def __init__(self, ownerComponent, logger):
 		super().__init__(ownerComponent, logger)
-		self.selectPrevis = ownerComponent.op('../select_previs')
 		self.compositionContainer = ownerComponent.op('../composition')
 		self.compositionState = ownerComponent.op('./null_compositionState')
 
@@ -45,8 +44,6 @@ class CompositionCtrl(LoadableExt):
 						'could not set composition config for unkown name {}'.format(config)
 					)
 
-		# TODO: set previs selection from state? (can we derive from prop comCtrl prop instead)
-
 		self.setLoaded()
 
 		self.logInfo('loaded')
@@ -64,10 +61,11 @@ class CompositionCtrl(LoadableExt):
 		"""
 		TODO: move this into layerCtrl?
 		"""
-		layerId = getLayerID(address)
-		self.selectPrevis.par.top = 'composition/layers/layer{}/null_previs'.format(
-			layerId
+		layerID = getLayerID(address)
+		self.compositionContainer.par.Previstarget = 'composition/layers/layer{}/null_previs'.format(
+			layerID
 		)
+		self.compositionContainer.par.Selectedlayer = layerID
 
 	def SelectDeck(self, address):
 		self.compositionContainer.par.Selecteddeck = getDeckID(address)
