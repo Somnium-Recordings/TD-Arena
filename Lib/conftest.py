@@ -1,13 +1,31 @@
+# pylint: disable=redefined-outer-name
 from unittest.mock import MagicMock
 
 import pytest
 
-from tdaTesting import mockOp
+from tdaTesting import MockOP
 
 
 @pytest.fixture
-def op():
-	return mockOp()
+def uiThemeSectionTemplate():
+	return MagicMock()
+
+
+@pytest.fixture
+def uiTheme(uiThemeSectionTemplate):
+	uiTheme = MagicMock()
+	uiTheme.op = MockOP()
+	uiTheme.op.addPath('sectionTemplate', uiThemeSectionTemplate)
+
+	return uiTheme
+
+
+@pytest.fixture
+def op(uiTheme):
+	op = MockOP()
+	op.uiTheme = uiTheme
+
+	return op
 
 
 @pytest.fixture
@@ -19,6 +37,6 @@ def logger():
 def ownerComponent():
 	comp = MagicMock()
 
-	comp.op = mockOp()
+	comp.op = MockOP()
 
 	return comp

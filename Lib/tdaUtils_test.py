@@ -1,7 +1,7 @@
 import pytest
 
 from tdaUtils import (addressToValueLocation, getDeckID, getLayerID, intIfSet,
-                      mapAddressToClipLocation)
+                      mapAddressToClipLocation, parameterPathToAddress)
 
 
 def test_intIfSet():
@@ -40,4 +40,16 @@ def test_addressToValueLocation():
 	assert addressToValueLocation(
 		'/composition/clips/5/Active', '/tdArena/render/composition'
 	) == ('/tdArena/render/composition/clips/clip5', 'Active')
+	assert addressToValueLocation(
+		'/composition/decks/1/Deckname', '/tdArena/render/composition'
+	) == ('/tdArena/render/composition/decks/deck1', 'Deckname')
 	# yapf: enable
+
+
+def test_parameterPathToAddress():
+	assert parameterPathToAddress(
+		'/tdArena/render/composition/decks/deck0', 'foo'
+	) == '/composition/decks/0/foo'
+	assert parameterPathToAddress(
+		'/render/composition/decks/deck0', 'foo'
+	) == '/composition/decks/0/foo'

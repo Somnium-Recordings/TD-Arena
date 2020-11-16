@@ -126,4 +126,5 @@ class OSCDispatcher(BaseExt):
 			return
 
 		self.logDebug('replying with current value at {}'.format(address))
-		self.OSCReply(address, par.eval())
+		currentValue = par.menuIndex if par.isMenu else par.eval()
+		self.OSCReply(address, currentValue)

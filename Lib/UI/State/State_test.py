@@ -3,8 +3,8 @@ from unittest.mock import MagicMock, call
 
 import pytest
 
-import State
-from tdaTesting import MockTable, mockOp
+from tdaTesting import MockOP, MockTable
+from UI.State import State
 
 
 class TestState():
@@ -27,7 +27,7 @@ class TestState():
 	):
 		State.op = op
 
-		ownerComponent.op = mockOp()
+		ownerComponent.op = MockOP()
 		ownerComponent.op.addPath('opfind_oscControls', oscControlList)
 		ownerComponent.op.addPath('oscout1', oscOut)
 		ownerComponent.op.addPath(

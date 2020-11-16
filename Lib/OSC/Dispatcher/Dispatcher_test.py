@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from Dispatcher import OSCDispatcher
+from OSC.Dispatcher.Dispatcher import OSCDispatcher
 
 
 class TestDispatcher():

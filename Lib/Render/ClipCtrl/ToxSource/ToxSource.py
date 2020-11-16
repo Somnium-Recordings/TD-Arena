@@ -4,7 +4,8 @@ LOAD_FRAME_DELAY = 2
 MAX_WAIT_CYCLES = 20
 
 
-# TODO: maybe use ABC and create a base "Source" class?
+# TODO: use ABC and create a base "Source" class?
+# TODO: Move ToxSource and MovieSource out of cloned base
 class ToxSource(BaseExt):
 	@property
 	def tox(self):
