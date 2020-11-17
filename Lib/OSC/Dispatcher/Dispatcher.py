@@ -42,11 +42,14 @@ class OSCDispatcher(BaseExt):
 					'handler': self.renderState.Save,
 					'sendAddress': False
 				},
+				'/composition/clips/*/select': {
+					'handler': self.deckCtrl.SelectClip
+				},
 				'/composition/decks/*/select': {
-					'handler': self.compositionCtrl.SelectDeck
+					'handler': self.deckCtrl.SelectDeck
 				},
 				'/composition/layers/*/select': {
-					'handler': self.compositionCtrl.SelectLayer
+					'handler': self.layerCtrl.SelectLayer
 				},
 				'/composition/layers/*/clips/*/connect': {
 					'handler': self.deckCtrl.ConnectClip,

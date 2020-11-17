@@ -1,5 +1,6 @@
 from tda import LoadableExt
-from tdaUtils import clearChildren, getCellValues, intIfSet, layoutComps
+from tdaUtils import (clearChildren, getCellValues, getLayerID, intIfSet,
+                      layoutComps)
 
 
 class LayerCtrl(LoadableExt):
@@ -86,6 +87,11 @@ class LayerCtrl(LoadableExt):
 
 		if previousClipID is not None and previousClipID != clipID:
 			self.clipCtrl.DeactivateClip(previousClipID)
+
+	def SelectLayer(self, address):
+		layerID = getLayerID(address)
+		self.composition.par.Previstarget = f'composition/layers/layer{layerID}/null_previs'
+		self.composition.par.Selectedlayer = layerID
 
 	def createLayer(self, layerNumber, layerName, clipId, operand):
 		opName = 'layer{}'.format(layerNumber)

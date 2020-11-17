@@ -1,7 +1,8 @@
 import pytest
 
-from tdaUtils import (addressToValueLocation, getDeckID, getLayerID, intIfSet,
-                      mapAddressToClipLocation, parameterPathToAddress)
+from tdaUtils import (
+    addressToValueLocation, getClipID, getDeckID, getLayerID, intIfSet,
+    mapAddressToClipLocation, parameterPathToAddress)
 
 
 def test_intIfSet():
@@ -22,6 +23,13 @@ def test_getLayerID():
 	assert getLayerID('/composition/layers/6') == 6
 	with pytest.raises(AssertionError):
 		getLayerID('/foo')
+
+
+def test_getClipID():
+	assert getClipID('/composition/clips/4') == 4
+	assert getClipID('/composition/clips/6/source/foo') == 6
+	with pytest.raises(AssertionError):
+		getClipID('/foo')
 
 
 def test_getDeckID():

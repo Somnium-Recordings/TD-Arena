@@ -100,14 +100,16 @@ class ClipCtrl(LoadableExt):
 
 		return clip
 
-	def ActivateClip(self, clipID):
+	def ActivateClip(self, clipID, fromSelect=False):
 		clip = self.clipComps[clipID]
-		assert clip, 'could not activate unknown clip id {}'.format(clipID)
+		assert clip, f'could not activate unknown clip id {clipID}'
 		source = clip.op('source')
 
-		clip.par.Active = 1
+		if not fromSelect:
+			clip.par.Active = 1
 
-		source.par.Onactivate.pulse()
+		if not fromSelect or clip.par.Active.eval() == 0:
+			source.par.Onactivate.pulse()
 
 	def DeactivateClip(self, clipID):
 		clip = self.clipComps[clipID]

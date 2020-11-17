@@ -3,8 +3,7 @@ TODO: this would probably be much simpler with an FSM...
 Or at least some sort of Ctrl base class
 """
 from tda import LoadableExt
-from tdaUtils import (clearChildren, getCellValues, getDeckID, getLayerID,
-                      layoutComps)
+from tdaUtils import clearChildren, getCellValues, layoutComps
 
 
 class CompositionCtrl(LoadableExt):
@@ -38,10 +37,10 @@ class CompositionCtrl(LoadableExt):
 				par = getattr(self.compositionContainer.par, config)
 				if par is not None:
 					par.val = value
-					self.logDebug('setting coomposition {} to {}'.format(config, value))
+					self.logDebug(f'setting coomposition {config} to {value}')
 				else:
 					self.logWarning(
-						'could not set composition config for unkown name {}'.format(config)
+						f'could not set composition config for unkown name {config}'
 					)
 
 		self.setLoaded()
@@ -56,19 +55,6 @@ class CompositionCtrl(LoadableExt):
 	def clearCompositionContents(self):
 		self.logInfo('clearing composition container')
 		clearChildren(self.compositionContainer)
-
-	def SelectLayer(self, address):
-		"""
-		TODO: move this into layerCtrl?
-		"""
-		layerID = getLayerID(address)
-		self.compositionContainer.par.Previstarget = 'composition/layers/layer{}/null_previs'.format(
-			layerID
-		)
-		self.compositionContainer.par.Selectedlayer = layerID
-
-	def SelectDeck(self, address):
-		self.compositionContainer.par.Selecteddeck = getDeckID(address)
 
 	def layoutCompositionContainer(self):
 		# delay a frame so that other controlls can create their ops

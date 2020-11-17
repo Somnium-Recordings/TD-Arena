@@ -59,6 +59,13 @@ def getLayerID(address):
 	return int(m.group(1))
 
 
+def getClipID(address):
+	m = re.match(r'/composition/clips/(\d+)?.*', address)
+	assert m, 'expected to match clip id in {}'.format(address)
+
+	return int(m.group(1))
+
+
 def addressToValueLocation(address, compositionPath):
 	"""
 	from: /composition/layers/1/...

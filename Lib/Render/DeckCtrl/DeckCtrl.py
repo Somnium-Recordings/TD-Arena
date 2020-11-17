@@ -1,5 +1,8 @@
+import typing as T
+
 from tda import LoadableExt
-from tdaUtils import clearChildren, getCellValues, intIfSet, layoutComps
+from tdaUtils import (clearChildren, getCellValues, getClipID, getDeckID,
+                      intIfSet, layoutComps)
 
 
 class DeckCtrl(LoadableExt):
@@ -95,6 +98,7 @@ class DeckCtrl(LoadableExt):
 			)
 		)
 		self.layerCtrl.SetClip(layerNumber, clipID)
+		self.SelectClip(clipID)
 
 	def LoadClip(self, clipLocation, sourceType, name, path):
 		clipID = self.getClipID(clipLocation)
@@ -115,6 +119,15 @@ class DeckCtrl(LoadableExt):
 		if clipID is not None:
 			self.setClipID(clipLocation, None)
 			self.layerCtrl.ClearClipID(clipID)
+
+	def SelectDeck(self, address):
+		self.composition.par.Selecteddeck = getDeckID(address)
+
+	def SelectClip(self, address: T.Union[str, int]):
+		clipID = getClipID(address) if isinstance(address, str) else address
+		self.clipCtrl.ActivateClip(clipID, fromSelect=True)
+		self.composition.par.Previstarget = f'composition/clips/clip{clipID}/null_previs'
+		self.composition.par.Selectedclip = clipID
 
 	def getClipID(self, clipLocation):
 		(layerNumber, clipNumber) = clipLocation
