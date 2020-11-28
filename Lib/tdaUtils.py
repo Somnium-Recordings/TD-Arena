@@ -84,9 +84,9 @@ def parameterPathToAddress(path: str, parameter: str):
 	from: /tdArena/render/composition/layers/layer1/...
 	to  : /composition/layers/1/...
 	"""
-	p = re.compile(r'.*/composition/(layer|clip|deck)s/.+([\d]+)')
+	p = re.compile(r'.*/composition/(layer|clip|deck)s/(layer|clip|deck)(\d+)')
 
-	address = p.sub(r'/composition/\1s/\2', path)
+	address = p.sub(r'/composition/\1s/\3', path)
 
 	return '{}/{}'.format(address, parameter)
 

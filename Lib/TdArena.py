@@ -20,6 +20,12 @@ VALUE_MAP = {
 		'target': 'ui',
 		'par': 'h'
 	},
+	'Debuguiw': {
+		'target': 'none'
+	},
+	'Debuguih': {
+		'target': 'none'
+	},
 	'Clipthumbw': {
 		'target': 'both'
 	},

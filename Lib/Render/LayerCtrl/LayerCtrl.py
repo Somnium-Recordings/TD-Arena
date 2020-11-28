@@ -41,6 +41,7 @@ class LayerCtrl(LoadableExt):
 		state = saveState or self.createDefaultState()
 		for layer in state[1:]:
 			(layerID, layerName, clipID) = layer
+			# TODO: remove blendMode, let parameter init handle it
 			self.createLayer(layerID, layerName, clipID, 'add')
 
 		self.logInfo('loaded {} layers in composition'.format(len(self.layers)))
@@ -90,18 +91,20 @@ class LayerCtrl(LoadableExt):
 
 	def SelectLayer(self, address):
 		layerID = getLayerID(address)
-		self.composition.par.Previstarget = f'composition/layers/layer{layerID}/null_previs'
+		self.composition.par.Previstarget = f'composition/layers/layer{layerID}/video/null_previs'
 		self.composition.par.Selectedlayer = layerID
 
-	def createLayer(self, layerNumber, layerName, clipId, operand):
+	def createLayer(self, layerNumber, layerName, clipId, blendMode):
 		opName = 'layer{}'.format(layerNumber)
 		self.logDebug('creating layer: {}'.format(opName))
 
 		newLayer = self.layerContainer.copy(self.layerTemplate, name=opName)
 		# TODO: be smarter about this, direct map?
 		newLayer.par.Clipid = clipId
-		newLayer.par.Operand = operand
 		newLayer.par.Layername = layerName
+
+		videoContainer = newLayer.op('./video')
+		videoContainer.par.Blendmode = blendMode
 
 		self.layers.append(newLayer)
 		self.layerList.appendRow([layerNumber])

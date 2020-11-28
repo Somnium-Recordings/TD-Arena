@@ -98,7 +98,9 @@ class DeckCtrl(LoadableExt):
 			)
 		)
 		self.layerCtrl.SetClip(layerNumber, clipID)
-		self.SelectClip(clipID)
+
+		if clipID is not None:
+			self.SelectClip(clipID)
 
 	def LoadClip(self, clipLocation, sourceType, name, path):
 		clipID = self.getClipID(clipLocation)
@@ -126,7 +128,7 @@ class DeckCtrl(LoadableExt):
 	def SelectClip(self, address: T.Union[str, int]):
 		clipID = getClipID(address) if isinstance(address, str) else address
 		self.clipCtrl.ActivateClip(clipID, fromSelect=True)
-		self.composition.par.Previstarget = f'composition/clips/clip{clipID}/null_previs'
+		self.composition.par.Previstarget = f'composition/clips/clip{clipID}/video/null_previs'
 		self.composition.par.Selectedclip = clipID
 
 	def getClipID(self, clipLocation):

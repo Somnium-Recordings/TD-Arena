@@ -61,3 +61,6 @@ def test_parameterPathToAddress():
 	assert parameterPathToAddress(
 		'/render/composition/decks/deck0', 'foo'
 	) == '/composition/decks/0/foo'
+	assert parameterPathToAddress(
+		'/render/composition/clips/clip14', 'foo'
+	) == '/composition/clips/14/foo'

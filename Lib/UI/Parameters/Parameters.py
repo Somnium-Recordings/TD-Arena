@@ -1,5 +1,5 @@
 from tda import BaseExt
-from tdaUtils import clearChildren
+from tdaUtils import clearChildren, layoutComps
 
 
 class ParameterContainer(BaseExt):
@@ -12,7 +12,10 @@ class ParameterContainer(BaseExt):
 		self.sectionTemplate = op.uiTheme.op('sectionTemplate')
 		self.parameterTemplates = {
 			'Float': op.uiTheme.op('sliderHorzTemplate'),
-			'StrMenu': op.uiTheme.op('dropDownMenuTemplate')
+			'Header': op.uiTheme.op('labelTemplate'),
+			'StrMenu': op.uiTheme.op('dropDownMenuTemplate'),
+			'Menu': op.uiTheme.op('dropDownMenuTemplate'),
+			'Toggle': op.uiTheme.op('buttonRockerTemplate')
 		}
 
 		assert hasattr(
@@ -28,9 +31,9 @@ class ParameterContainer(BaseExt):
 		self.activeAddresses = set()
 		clearChildren(self.sectionContainer)
 
-		# Create "root" section
-		# TODO: Change this based on container type
-		self.SyncSection(self.address, 'Layer')
+		# # Create "root" section
+		# # TODO: Change this based on container type
+		# self.SyncSection(self.address, 'Layer')
 
 		self.logInfo('initialized')
 
@@ -42,6 +45,9 @@ class ParameterContainer(BaseExt):
 		section = self.sectionContainer.copy(self.sectionTemplate, name=label)
 		section.par.Label = label
 		self.sections[address] = section
+		layoutComps(self.sections.values(), columns=1)
+
+		# TODO: request Sectionorder parameter over OSC return channel?
 
 	def ResetActiveParameterList(self):
 		self.activeAddresses = set()
@@ -50,16 +56,22 @@ class ParameterContainer(BaseExt):
 		sectionAddress, _ = address.rsplit('/', 1)  # The last value is the parameter
 
 		if sectionAddress not in self.sections:
-			raise KeyError(f'no section matching parameter at {address}')
+			self.logDebug(f'section not found for {address}, initializing')
+			_, label = sectionAddress.rsplit('/', 1)
+			self.SyncSection(sectionAddress, label.title())
 
 		return self.sections[sectionAddress]
 
 	def SyncParameter(
-		self, address, label, style, minValue, maxValue, menuLabels
+		self, address, label, style, minValue, maxValue, menuLabels, order
 	):  # pylint: disable=too-many-arguments
 		if address in self.parameters:
 			# if parameter in self.paths, do we need to do anything?
 			#    will parameters change over time? Or only values?
+			return
+
+		if style == 'WH':
+			self.logDebug(f'TODO: figure out what to do with WH parameters: {address}')
 			return
 
 		self.logDebug(f'creating parameter {address}')
@@ -67,19 +79,24 @@ class ParameterContainer(BaseExt):
 		section = self.getParameterSection(address)
 		sectionContents = section.op('sectionContents')
 
-		assert style in self.parameterTemplates, f'no template defined for {style} parameters'
+		assert style in self.parameterTemplates, f'no template defined for "{style}" parameters'
 		parameter = sectionContents.copy(self.parameterTemplates[style], name=label)
+		self.parameters[address] = parameter
+		layoutComps(self.parameters.values(), columns=1)
 
+		parameter.par.alignorder = order
 		parameter.par.Widgetlabel = label
+
+		if style == 'Header':
+			return  # don't try and set parameters that don't exist
+
 		parameter.par.Valname0 = address
 
-		if style == 'StrMenu':
+		if style in ('StrMenu', 'Menu'):
 			parameter.par.Menunames.expr = menuLabels
 		elif style == 'Float':
 			parameter.par.Value0.max = maxValue
 			parameter.par.Value0.min = minValue
-
-		self.parameters[address] = parameter
 
 
 class Parameters(BaseExt):
@@ -103,7 +120,7 @@ class Parameters(BaseExt):
 			nextAddress = str(self.containerList[i + 1, 'address'])
 
 			container = self.syncContainerState(containerAddress, containerPath)
-			# container.ResetActiveParameterState()
+			# TODO: container.ResetActiveParameterState()
 			activeAddresses.add(containerAddress)
 
 			# group parameters into "containers" if par address starts
@@ -117,9 +134,10 @@ class Parameters(BaseExt):
 						parAddress,
 						label=str(self.parameterList[j, 'label']),
 						style=str(self.parameterList[j, 'style']),
-						minValue=str(self.parameterList[j, 'min']),
-						maxValue=str(self.parameterList[j, 'max']),
+						minValue=str(self.parameterList[j, 'normmin']),
+						maxValue=str(self.parameterList[j, 'normmax']),
 						menuLabels=str(self.parameterList[j, 'menulabels']),
+						order=str(self.parameterList[j, 'order']),
 					)
 					lastMatchedParameter = j
 					hasMatched = True
@@ -131,7 +149,7 @@ class Parameters(BaseExt):
 					# We know that the rest won't since the lists are sorted
 					break
 
-			# container.clearInactiveParamaters
+			# TODO: container.clearInactiveParamaters
 
 		inactiveAddresses = set(self.containerState.keys()) - activeAddresses
 		for address in inactiveAddresses:

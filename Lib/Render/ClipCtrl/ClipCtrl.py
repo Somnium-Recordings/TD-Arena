@@ -103,7 +103,7 @@ class ClipCtrl(LoadableExt):
 	def ActivateClip(self, clipID, fromSelect=False):
 		clip = self.clipComps[clipID]
 		assert clip, f'could not activate unknown clip id {clipID}'
-		source = clip.op('source')
+		source = clip.op('./video/source')
 
 		if not fromSelect:
 			clip.par.Active = 1
@@ -135,13 +135,15 @@ class ClipCtrl(LoadableExt):
 		sourceTemplate = sourceMap['template']
 		initSourceFn = sourceMap['init']
 
-		existingSource = clip.op('source')
+		video = clip.op('video')
+
+		existingSource = video.op('source')
 		if existingSource:
 			# TODO: is there a more performant way to do this?
 			# How does this perform if clip is active?
 			existingSource.destroy()
 
-		newSource = clip.copy(sourceTemplate, name='source')
+		newSource = video.copy(sourceTemplate, name='source')
 		initSourceFn(name, path, clip, newSource)
 
 		return newSource

@@ -12,11 +12,11 @@ class TestParameters():
 	def parameterList(self):
 		return MockTable(
 			[ # yapf: disable
-				['address',                       'label',   'style', 'min', 'max', 'menulabels'],
-				['/composition/layers/0/Opacity', 'Opacity', 'Float', '0',   '1',   ''],
-				['/composition/layers/1/Opacity', 'Opacity', 'Float', '0',   '1',   ''],
-				['/composition/layers/2/Opacity', 'Opacity', 'Float', '0',   '1',   ''],
-				['/composition/layers/3/Opacity', 'Opacity', 'Float', '0',   '1',   '']
+				['address',                       'label',   'style', 'normmin', 'normmax', 'menulabels', 'order'],
+				['/composition/layers/0/Opacity', 'Opacity', 'Float', '0',       '1',       '',           '1'],
+				['/composition/layers/1/Opacity', 'Opacity', 'Float', '0',       '1',       '',           '2'],
+				['/composition/layers/2/Opacity', 'Opacity', 'Float', '0',       '1',       '',           '3'],
+				['/composition/layers/3/Opacity', 'Opacity', 'Float', '0',       '1',       '',           '4']
 			]
 		)
 
@@ -70,7 +70,8 @@ class TestParameters():
 					style='Float',
 					minValue='0',
 					maxValue='1',
-					menuLabels=''
+					menuLabels='',
+					order='2'
 				)
 			]
 		)
@@ -84,7 +85,8 @@ class TestParameters():
 					style='Float',
 					minValue='0',
 					maxValue='1',
-					menuLabels=''
+					menuLabels='',
+					order='4'
 				)
 			]
 		)
