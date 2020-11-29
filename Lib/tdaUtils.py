@@ -94,3 +94,13 @@ def parameterPathToAddress(path: str, parameter: str):
 def addressToExport(address):
 	(path, prop) = addressToValueLocation(address, '')
 	return '{}:{}'.format(path.lstrip('/'), prop)
+
+
+def addSectionParameters(op, order: int):
+	page = op.appendCustomPage('Section')
+
+	expanded, = page.appendToggle('Sectionexpanded', label='Section Expanded')
+	expanded.val = True
+
+	sectionOrder, = page.appendFloat('Sectionorder', label='Section Order')
+	sectionOrder.val = order

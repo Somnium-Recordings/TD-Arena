@@ -43,7 +43,14 @@ class ParameterContainer(BaseExt):
 
 		self.logDebug('creating "{}" section for {}'.format(label, address))
 		section = self.sectionContainer.copy(self.sectionTemplate, name=label)
-		section.par.Label = label
+
+		sectionHeading = section.op('section')
+		sectionHeading.par.Sectionlabel = label
+		sectionHeading.par.Valname0 = f'{address}/Sectionexpanded'
+
+		sectionOrder = section.op('sectionOrder')
+		sectionOrder.par.Valname0 = f'{address}/Sectionorder'
+
 		self.sections[address] = section
 		layoutComps(self.sections.values(), columns=1)
 
@@ -65,6 +72,10 @@ class ParameterContainer(BaseExt):
 	def SyncParameter(
 		self, address, label, style, minValue, maxValue, menuLabels, order
 	):  # pylint: disable=too-many-arguments
+		if label.startswith('Section'):
+			# We manually manage section parameters
+			return
+
 		if address in self.parameters:
 			# if parameter in self.paths, do we need to do anything?
 			#    will parameters change over time? Or only values?

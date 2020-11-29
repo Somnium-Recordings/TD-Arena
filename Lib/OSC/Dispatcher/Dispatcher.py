@@ -92,9 +92,6 @@ class OSCDispatcher(BaseExt):
 			handler(*args)
 
 	def OSCReply(self, address, *args):
-		"""
-		TODO: does this really belong here?
-		"""
 		self.oscIn.sendOSC(address, args)
 
 	def getMapping(self, address, args):

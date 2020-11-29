@@ -1,6 +1,6 @@
 from tda import LoadableExt
-from tdaUtils import (clearChildren, getCellValues, getLayerID, intIfSet,
-                      layoutComps)
+from tdaUtils import (addSectionParameters, clearChildren, getCellValues,
+                      getLayerID, intIfSet, layoutComps)
 
 
 class LayerCtrl(LoadableExt):
@@ -104,6 +104,7 @@ class LayerCtrl(LoadableExt):
 		newLayer.par.Layername = layerName
 
 		videoContainer = newLayer.op('./video')
+		addSectionParameters(videoContainer, order=-1)
 		videoContainer.par.Blendmode = blendMode
 
 		self.layers.append(newLayer)

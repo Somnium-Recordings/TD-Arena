@@ -1,4 +1,5 @@
 from tda import BaseExt
+from tdaUtils import addSectionParameters
 
 LOAD_FRAME_DELAY = 2
 MAX_WAIT_CYCLES = 20
@@ -38,6 +39,9 @@ class ToxSource(BaseExt):
 
 		self.logDebug('tox loaded, setting thumbnail')
 		self.setThumbail()
+
+		# TODO: Are we going to have a race condition w/ the parameterCtrl initialization?
+		addSectionParameters(self.tox, order=-2)
 
 	def isSourceLoaded(self):
 		return bool(self.tox.op('./null_final'))

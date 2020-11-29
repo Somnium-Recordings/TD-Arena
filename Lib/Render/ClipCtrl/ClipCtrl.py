@@ -1,5 +1,6 @@
 from tda import LoadableExt
-from tdaUtils import clearChildren, getCellValues, layoutComps
+from tdaUtils import (addSectionParameters, clearChildren, getCellValues,
+                      layoutComps)
 
 
 # TODO: be smarter about this, direct map?
@@ -160,6 +161,9 @@ class ClipCtrl(LoadableExt):
 		clip = self.clipContainer.copy(
 			self.clipTemplate, name='clip{}'.format(clipID)
 		)
+		videoContainer = clip.op('video')
+		addSectionParameters(videoContainer, order=-1)
+
 		self.clipComps[clipID] = clip
 
 		self.clipList.appendRow([clipID])
