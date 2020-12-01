@@ -24,7 +24,7 @@ class TestDispatcher():
 	def dispatcher(self, ownerComponent):
 		return OSCDispatcher(
 			ownerComponent, MagicMock(), MagicMock(), MagicMock(), MagicMock(),
-			MagicMock(), MagicMock()
+			MagicMock(), MagicMock(), MagicMock()
 		)
 
 	def test_Map(self, dispatcher):
@@ -72,6 +72,6 @@ class TestDispatcher():
 		fooHandler.assert_called_once()  # should not have been called again
 		currentValueHandler.assert_called_with('/foo', '?')
 
-	def test_OSCReply(self, dispatcher, oscIn):
-		dispatcher.OSCReply('/foo/bar', 123)
+	def test_Reply(self, dispatcher, oscIn):
+		dispatcher.Reply('/foo/bar', 123)
 		oscIn.sendOSC.assert_called_with('/foo/bar', (123, ))

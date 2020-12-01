@@ -15,6 +15,11 @@ def layoutComps(compList, columns=4):
 		comp.nodeY = (1 + math.floor(i / columns)) * -200
 
 
+def layoutChildren(op, columns=4):
+	children = op.findChildren(depth=1)
+	layoutComps(children, columns)
+
+
 def getCellValues(datRow):
 	return [cell.val for cell in datRow]
 

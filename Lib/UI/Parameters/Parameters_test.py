@@ -68,8 +68,8 @@ class TestParameters():
 					'/composition/layers/1/Opacity',
 					label='Opacity',
 					style='Float',
-					minValue='0',
-					maxValue='1',
+					normMin='0',
+					normMax='1',
 					menuLabels='',
 					order='2'
 				)
@@ -83,8 +83,8 @@ class TestParameters():
 					'/composition/layers/3/Opacity',
 					label='Opacity',
 					style='Float',
-					minValue='0',
-					maxValue='1',
+					normMin='0',
+					normMax='1',
 					menuLabels='',
 					order='4'
 				)

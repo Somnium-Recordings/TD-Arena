@@ -3,7 +3,7 @@ from tda import BaseExt
 
 class State(BaseExt):
 	"""
-    TODO: Can we use osc return values for things like active clip/deck to reduce UI delay?
+    TODO: Would using osc return values for things like active clip/deck reduce UI delay?
     """
 	def __init__(self, ownerComponent, logger):
 		super().__init__(ownerComponent, logger)
@@ -34,22 +34,22 @@ class State(BaseExt):
 			self.logWarning('attempted to send to invalid address {}'.format(address))
 
 	def OnCtrlOPListChange(self):
-		activeAddresses = set()
+		inactiveAddresses = set(self.oscControlState.keys())
 		for row in self.oscControlList.rows()[1:]:
 			[path, address] = [c.val for c in row]
 
-			activeAddresses.add(address)
+			inactiveAddresses.discard(address)
 			if address not in self.oscControlState:
 				self.logDebug('initilizing ui state for {}'.format(address))
 				self.oscControlState[address] = {'op': op(path)}
 				self.SendMessage(address, '?')  # request initial value
+				# NOTE: on receipt of initial value, address will be added to initializedControlList
 
-		inactiveAddresses = set(self.oscControlState.keys()) - activeAddresses
-		for address in inactiveAddresses:
-			self.logDebug('clearing ui state for {}'.format(address))
-			del self.oscControlState[address]
-			if self.initializedControlList.row(address) is not None:
-				self.initializedControlList.deleteRow(address)
+		for inactiveAddress in inactiveAddresses:
+			self.logDebug('clearing ui state for {}'.format(inactiveAddress))
+			del self.oscControlState[inactiveAddress]
+			if self.initializedControlList.row(inactiveAddress) is not None:
+				self.initializedControlList.deleteRow(inactiveAddress)
 
 	def OnOSCReply(self, address, *args):
 		if address not in self.oscControlState:

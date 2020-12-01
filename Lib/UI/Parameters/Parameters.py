@@ -1,5 +1,5 @@
 from tda import BaseExt
-from tdaUtils import clearChildren, layoutComps
+from tdaUtils import clearChildren, layoutChildren, layoutComps
 
 
 class ParameterContainer(BaseExt):
@@ -31,10 +31,6 @@ class ParameterContainer(BaseExt):
 		self.activeAddresses = set()
 		clearChildren(self.sectionContainer)
 
-		# # Create "root" section
-		# # TODO: Change this based on container type
-		# self.SyncSection(self.address, 'Layer')
-
 		self.logInfo('initialized')
 
 	def SyncSection(self, address, label):
@@ -46,15 +42,9 @@ class ParameterContainer(BaseExt):
 
 		sectionHeading = section.op('section')
 		sectionHeading.par.Sectionlabel = label
-		sectionHeading.par.Valname0 = f'{address}/Sectionexpanded'
-
-		sectionOrder = section.op('sectionOrder')
-		sectionOrder.par.Valname0 = f'{address}/Sectionorder'
 
 		self.sections[address] = section
 		layoutComps(self.sections.values(), columns=1)
-
-		# TODO: request Sectionorder parameter over OSC return channel?
 
 	def ResetActiveParameterList(self):
 		self.activeAddresses = set()
@@ -69,13 +59,24 @@ class ParameterContainer(BaseExt):
 
 		return self.sections[sectionAddress]
 
-	def SyncParameter(
-		self, address, label, style, minValue, maxValue, menuLabels, order
-	):  # pylint: disable=too-many-arguments
-		if label.startswith('Section'):
-			# We manually manage section parameters
-			return
+	def createSectionParameter(self, section, style, name):
+		# These are manually hard-coded into the section template comp
+		if name == 'Section Expanded':
+			return section.op('section')
+		if name == 'Section Order':
+			return section.op('sectionOrder')
 
+		sectionContents = section.op('sectionContents')
+
+		assert style in self.parameterTemplates, f'no template defined for "{style}" parameters'
+		parameter = sectionContents.copy(self.parameterTemplates[style], name=name)
+		layoutChildren(sectionContents, columns=1)
+
+		return parameter
+
+	def SyncParameter(
+		self, address, label, style, normMin, normMax, menuLabels, order
+	):  # pylint: disable=too-many-arguments
 		if address in self.parameters:
 			# if parameter in self.paths, do we need to do anything?
 			#    will parameters change over time? Or only values?
@@ -88,12 +89,16 @@ class ParameterContainer(BaseExt):
 		self.logDebug(f'creating parameter {address}')
 
 		section = self.getParameterSection(address)
-		sectionContents = section.op('sectionContents')
-
-		assert style in self.parameterTemplates, f'no template defined for "{style}" parameters'
-		parameter = sectionContents.copy(self.parameterTemplates[style], name=label)
+		parameter = self.createSectionParameter(section, style, label)
 		self.parameters[address] = parameter
-		layoutComps(self.parameters.values(), columns=1)
+
+		if style != 'Header':
+			# NOTE: Setting Valname0 triggers UIState to initialize the parameter binding
+			parameter.par.Valname0 = address
+
+		# The section parameters are hard-coded, all we need is to set Valname0 to trigger binding
+		if label.startswith('Section'):
+			return
 
 		parameter.par.alignorder = order
 		parameter.par.Widgetlabel = label
@@ -101,13 +106,14 @@ class ParameterContainer(BaseExt):
 		if style == 'Header':
 			return  # don't try and set parameters that don't exist
 
-		parameter.par.Valname0 = address
-
 		if style in ('StrMenu', 'Menu'):
 			parameter.par.Menunames.expr = menuLabels
 		elif style == 'Float':
-			parameter.par.Value0.max = maxValue
-			parameter.par.Value0.min = minValue
+			# TODO: propagate clamp values
+			parameter.par.Value0.normMax = normMax
+			parameter.par.Value0.max = normMax
+			parameter.par.Value0.normMin = normMin
+			parameter.par.Value0.min = normMin
 
 
 class Parameters(BaseExt):
@@ -145,8 +151,8 @@ class Parameters(BaseExt):
 						parAddress,
 						label=str(self.parameterList[j, 'label']),
 						style=str(self.parameterList[j, 'style']),
-						minValue=str(self.parameterList[j, 'normmin']),
-						maxValue=str(self.parameterList[j, 'normmax']),
+						normMin=str(self.parameterList[j, 'normmin']),
+						normMax=str(self.parameterList[j, 'normmax']),
 						menuLabels=str(self.parameterList[j, 'menulabels']),
 						order=str(self.parameterList[j, 'order']),
 					)
@@ -175,10 +181,5 @@ class Parameters(BaseExt):
 			containerOP = op(opPath)
 			containerOP.Init()
 			self.containerState[address] = containerOP
-
-		# TODO: Create collapsable container for layer parameters
-		# TODO: fill layer paremeters into collapsable container
-		# TODO: for each "effect", create collapsable container
-		# TODO: for each parameter, insert into collapsable container
 
 		return self.containerState[address]

@@ -22,20 +22,17 @@ class StateCtrl(LoadableExt):
 
 	def __init__(
 		self, ownerComponent, logger, render, compositionCtrl, clipCtrl, deckCtrl,
-		layerCtrl
+		layerCtrl, parameterCtrl
 	):  # pylint: disable=too-many-arguments
 		super().__init__(ownerComponent, logger)
 		self.render = render
-		self.compositionCtrl = compositionCtrl
-		self.clipCtrl = clipCtrl
-		self.deckCtrl = deckCtrl
-		self.layerCtrl = layerCtrl
 		self.ctrls = OrderedDict(
 			{
-				'composition': self.compositionCtrl,
-				'clips': self.clipCtrl,
-				'decks': self.deckCtrl,
-				'layers': self.layerCtrl
+				'composition': compositionCtrl,
+				'clips': clipCtrl,
+				'decks': deckCtrl,
+				'layers': layerCtrl,
+				'parameters': parameterCtrl
 			}
 		)
 
@@ -57,6 +54,7 @@ class StateCtrl(LoadableExt):
 		self.setLoaded()
 		self.logInfo('new state loaded')
 
+	# TODO: implement versioned save files
 	def Load(self):
 		self.Init()
 		self.setLoading()
@@ -76,7 +74,10 @@ class StateCtrl(LoadableExt):
 			return
 
 		saveState = {}
+		self.logInfo('getting save state')
 		for ctrlName, ctrl in self.ctrls.items():
+			self.logDebug(f'getting save state for {ctrlName}')
+
 			saveState[ctrlName] = ctrl.GetSaveState()
 		self.writeSaveFile(saveState)
 
@@ -88,7 +89,8 @@ class StateCtrl(LoadableExt):
 	def loadControllers(self, saveState):
 		self.logInfo('loading controllers')
 		for ctrlName, ctrl in self.ctrls.items():
-			ctrl.Load(saveState[ctrlName])
+			if ctrlName in saveState:
+				ctrl.Load(saveState[ctrlName])
 
 	def writeSaveFile(self, saveState):
 		filePath = self.saveFilePath

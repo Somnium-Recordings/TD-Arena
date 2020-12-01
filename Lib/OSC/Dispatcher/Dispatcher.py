@@ -2,13 +2,13 @@ from collections import OrderedDict
 from fnmatch import fnmatchcase
 
 from tda import BaseExt
-from tdaUtils import addressToValueLocation, mapAddressToClipLocation
+from tdaUtils import mapAddressToClipLocation
 
 
 class OSCDispatcher(BaseExt):
 	def __init__(
 		self, ownerComponent, logger, renderState, compositionCtrl, layerCtrl,
-		deckCtrl, clipCtrl
+		deckCtrl, clipCtrl, parameterCtrl
 	):  # pylint: disable=too-many-arguments
 		super().__init__(ownerComponent, logger)
 		self.renderState = renderState
@@ -16,6 +16,7 @@ class OSCDispatcher(BaseExt):
 		self.layerCtrl = layerCtrl
 		self.deckCtrl = deckCtrl
 		self.clipCtrl = clipCtrl
+		self.parameterCtrl = parameterCtrl
 		self.compositionContainer = ownerComponent.op('../composition')
 		self.oscIn = ownerComponent.op('./oscin1')
 		self.Init()
@@ -24,7 +25,7 @@ class OSCDispatcher(BaseExt):
 		self.mappings = OrderedDict(
 			{
 				'?': {
-					'handler': self.returnCurrentValueAtAddress
+					'handler': self.parameterCtrl.ReplyWithCurrentValue
 				},
 				'/composition/load': {
 					'handler': self.renderState.Load,
@@ -81,7 +82,7 @@ class OSCDispatcher(BaseExt):
 		handler = mapping.get('handler', None)
 		assert handler, 'expected handler to be defined for {}'.format(address)
 
-		self.logDebug('dispatching {}'.format(address))
+		self.logDebug(f'dispatching {address} with {args}')
 
 		if 'mapAddress' in mapping:
 			address = mapping['mapAddress'](address)
@@ -91,7 +92,7 @@ class OSCDispatcher(BaseExt):
 		else:
 			handler(*args)
 
-	def OSCReply(self, address, *args):
+	def Reply(self, address, *args):
 		self.oscIn.sendOSC(address, args)
 
 	def getMapping(self, address, args):
@@ -103,28 +104,3 @@ class OSCDispatcher(BaseExt):
 				return mapping
 
 		return None
-
-	def returnCurrentValueAtAddress(self, address, _):
-		(controlPath, parName) = addressToValueLocation(
-			address,
-			self.compositionContainer.path
-		) # yapf: disable
-
-		controlOp = op(controlPath)
-		if controlOp is None:
-			self.logWarning(
-				'could not lookup current value for non-existent op {}'.
-				format(controlPath)
-			)
-			return
-
-		par = getattr(controlOp.par, parName, None)
-		if par is None:
-			self.logWarning(
-				'requested par {} does not exist on {}'.format(parName, controlPath)
-			)
-			return
-
-		self.logDebug('replying with current value at {}'.format(address))
-		currentValue = par.menuIndex if par.isMenu else par.eval()
-		self.OSCReply(address, currentValue)
