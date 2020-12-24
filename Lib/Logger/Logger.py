@@ -26,13 +26,17 @@ class Logger:
 		return self.ownerComp.par.Logname.eval()
 
 	@property
+	def libPath(self):
+		return self.ownerComp.par.Libpath.eval()
+
+	@property
 	def debug(self):
 		return self.ownerComp.par.Debug.eval()
 
 	def __init__(self, ownerComp):
 		self.ownerComp = ownerComp
 		self.logFile = tdu.expandPath(
-			'lib://../Logs/TDArena.{}.log'.format(self.logName)
+			f'{self.libPath}/../Logs/TDArena.{self.logName}.log'
 		)
 		self.logger = logging.getLogger(self.logName)
 
