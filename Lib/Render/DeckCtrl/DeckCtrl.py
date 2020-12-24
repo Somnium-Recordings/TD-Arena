@@ -1,8 +1,9 @@
 import typing as T
 
 from tda import LoadableExt
-from tdaUtils import (clearChildren, getCellValues, getClipID, getDeckID,
-                      intIfSet, layoutComps)
+from tdaUtils import (
+	clearChildren, getCellValues, getClipID, getDeckID, intIfSet, layoutComps
+)
 
 
 class DeckCtrl(LoadableExt):
@@ -11,11 +12,14 @@ class DeckCtrl(LoadableExt):
 		# TODO: make this dynamic
 		return self.decks[0]['state']
 
-	def __init__(self, ownerComponent, logger, render, clipCtrl, layerCtrl):  # pylint: disable=too-many-arguments
+	def __init__(
+		self, ownerComponent, logger, render, clipCtrl, layerCtrl, effectCtrl
+	):  # pylint: disable=too-many-arguments
 		super().__init__(ownerComponent, logger)
 		self.render = render
 		self.clipCtrl = clipCtrl
 		self.layerCtrl = layerCtrl
+		self.effectCtrl = effectCtrl
 		self.deckTemplate = ownerComponent.op('./deckTemplate')
 		self.deckList = ownerComponent.op('./table_deckIDs')
 		self.deckState = ownerComponent.op('./null_deckState')
@@ -104,15 +108,25 @@ class DeckCtrl(LoadableExt):
 
 	def LoadClip(self, clipLocation, sourceType, name, path):
 		clipID = self.getClipID(clipLocation)
-		self.logInfo(
-			'laoding {} "{}" into {}'.format(sourceType, name, clipLocation)
-		)
+		self.logInfo(f'loading {sourceType} "{name}" into {clipLocation}')
 
 		if clipID is not None:
 			self.clipCtrl.ReplaceSource(sourceType, name, path, clipID)
 		else:
 			clip = self.clipCtrl.CreateClip(sourceType, name, path)
 			self.setClipID(clipLocation, clip.digits)
+
+	def AddEffect(self, clipLocation, effectPath):
+		clipID = self.getClipID(clipLocation)
+		self.logInfo(f'adding effect to {clipLocation}')
+
+		if clipID is None:
+			self.logWarning('cannot add effect to clip without source')
+			return
+
+		self.effectCtrl.AddEffect(
+			f'/composition/clips/{clipID}/effects', effectPath
+		)
 
 	def ClearClip(self, clipLocation):
 		self.logInfo('clearing clip at {}'.format(clipLocation))

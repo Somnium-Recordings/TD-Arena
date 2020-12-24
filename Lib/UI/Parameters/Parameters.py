@@ -69,7 +69,9 @@ class ParameterContainer(BaseExt):
 		sectionContents = section.op('sectionContents')
 
 		assert style in self.parameterTemplates, f'no template defined for "{style}" parameters'
-		parameter = sectionContents.copy(self.parameterTemplates[style], name=name)
+		parameter = sectionContents.copy(
+			self.parameterTemplates[style], name=name.replace('/', ' ')
+		)
 		layoutChildren(sectionContents, columns=1)
 
 		return parameter

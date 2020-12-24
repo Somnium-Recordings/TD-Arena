@@ -43,8 +43,8 @@ def syncToDat(data, targetDat):
 			targetDat[rowIndex, columnIndex] = cell or ''
 
 
-def mapAddressToClipLocation(address):
-	m = re.match(r'/composition/layers/(\d+)/clips/(\d+)/?.*', address)
+def mapAddressToDeckLocation(address):
+	m = re.match(r'/selecteddeck/layers/(\d+)/clips/(\d+)/?.*', address)
 	assert m, 'expected to match layer and clip number in {}'.format(address)
 
 	return (int(m.group(1)), int(m.group(2)))
@@ -101,8 +101,17 @@ def addressToExport(address):
 	return '{}:{}'.format(path.lstrip('/'), prop)
 
 
-def addSectionParameters(op, order: int):
+def addSectionParameters(op, order: int, opacity: float = None):
 	page = op.appendCustomPage('Section')
+	pageOrder = [page.name for page in op.customPages]
+	pageOrder.insert(0, pageOrder.pop())  # ensure "Section" is first page
+	op.sortCustomPages(*pageOrder)
+
+	# TODO: can we use this for the "Video" section's opacity parameter?
+	if opacity is not None:
+		# TODO: implement/hard-code as "Section Opactiy" w/ collapse logic
+		sectionOpacity, = page.appendFloat('Sectionopacity', label='Opacity')
+		sectionOpacity.val = opacity
 
 	expanded, = page.appendToggle('Sectionexpanded', label='Section Expanded')
 	expanded.val = True

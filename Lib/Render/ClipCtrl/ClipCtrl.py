@@ -1,6 +1,7 @@
 from tda import LoadableExt
-from tdaUtils import (addSectionParameters, clearChildren, getCellValues,
-                      layoutComps)
+from tdaUtils import (
+	addSectionParameters, clearChildren, getCellValues, layoutComps
+)
 
 
 # TODO: be smarter about this, direct map?
@@ -61,14 +62,10 @@ class ClipCtrl(LoadableExt):
 
 		state = saveState or DEFAULT_STATE
 		for clip in state[1:]:
-			(clipID, clipName, active, sourceType, path) = clip
+			(clipID, clipName, _, sourceType, path) = clip
 			clipID = int(clipID)
 
 			self.CreateClip(sourceType, clipName, path, clipID)
-			# TODO: should we even be doing this?
-			# It currently causes thumbnail generation to choke
-			if bool(int(active)):
-				self.ActivateClip(clipID)
 
 		self.logInfo('loaded {} clips in composition'.format(self.clipList.numRows))
 		self.setLoaded()
@@ -78,20 +75,20 @@ class ClipCtrl(LoadableExt):
 			getCellValues(clip) for clip in self.clipState.rows()
 		] if self.Loaded else None
 
-	def GetClipProp(self, clipID, propName):
+	def GetClipProp(self, clipID: int, propName):
 		if not self.Loaded:
 			return None
 
 		prop = self.clipState[str(clipID), propName]
 		return prop.val if prop is not None else None
 
-	def CreateClip(self, sourceType, name, path, clipID=None):
+	def CreateClip(self, sourceType, name, path, clipID: int = None):
 		clip = self.createNextClip(clipID)
 		self.loadSource(sourceType, name, path, clip)
 
 		return clip
 
-	def ReplaceSource(self, sourceType, name, path, clipID):
+	def ReplaceSource(self, sourceType, name, path, clipID: int):
 		clip = self.clipComps[clipID]
 		assert clip, 'could not replace {} clip of unknown clip id {}'.format(
 			sourceType, clipID
@@ -101,7 +98,7 @@ class ClipCtrl(LoadableExt):
 
 		return clip
 
-	def ActivateClip(self, clipID, fromSelect=False):
+	def ActivateClip(self, clipID: int, fromSelect=False):
 		clip = self.clipComps[clipID]
 		assert clip, f'could not activate unknown clip id {clipID}'
 		source = clip.op('./video/source')
@@ -112,13 +109,13 @@ class ClipCtrl(LoadableExt):
 		if not fromSelect or clip.par.Active.eval() == 0:
 			source.par.Onactivate.pulse()
 
-	def DeactivateClip(self, clipID):
+	def DeactivateClip(self, clipID: int):
 		clip = self.clipComps[clipID]
 		assert clip, 'could not deactivate unknown clip id {}'.format(clipID)
 
 		clip.par.Active = 0
 
-	def DeleteClip(self, clipID):
+	def DeleteClip(self, clipID: int):
 		assert self.clipComps, 'could not delete clip, composition not loaded'
 
 		cell = self.clipList.findCell(clipID)
@@ -149,7 +146,7 @@ class ClipCtrl(LoadableExt):
 
 		return newSource
 
-	def createNextClip(self, clipID=None):
+	def createNextClip(self, clipID: int = None):
 		assert self.clipContainer, 'could not create clip, composition not loaded'
 
 		if clipID is None:

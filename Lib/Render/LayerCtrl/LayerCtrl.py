@@ -1,6 +1,8 @@
 from tda import LoadableExt
-from tdaUtils import (addSectionParameters, clearChildren, getCellValues,
-                      getLayerID, intIfSet, layoutComps)
+from tdaUtils import (
+	addSectionParameters, clearChildren, getCellValues, getLayerID, intIfSet,
+	layoutComps
+)
 
 
 class LayerCtrl(LoadableExt):
@@ -48,6 +50,7 @@ class LayerCtrl(LoadableExt):
 		self.setLoaded()
 
 	def GetSaveState(self):
+		# TODO: should we ignore clip id in layer save state?
 		return [
 			getCellValues(layer) for layer in self.layerState.rows()
 		] if self.Loaded else None

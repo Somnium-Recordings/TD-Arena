@@ -25,6 +25,7 @@ class ToxSource(BaseExt):
 		self.waitForPreload()
 
 	def waitForPreload(self, waitCount=0):
+		# TODO: is this actually necessary? is reinitnet synchronus?
 		if waitCount > MAX_WAIT_CYCLES:
 			self.setLoaded(wasSuccessful=False)
 			self.logError(

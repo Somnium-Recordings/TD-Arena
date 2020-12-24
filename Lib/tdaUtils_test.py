@@ -2,7 +2,7 @@ import pytest
 
 from tdaUtils import (
     addressToValueLocation, getClipID, getDeckID, getLayerID, intIfSet,
-    mapAddressToClipLocation, parameterPathToAddress)
+    mapAddressToDeckLocation, parameterPathToAddress)
 
 
 def test_intIfSet():
@@ -11,11 +11,11 @@ def test_intIfSet():
 	assert intIfSet(0) == 0
 
 
-def test_mapAddressToClipLocation():
-	assert mapAddressToClipLocation('/composition/layers/5/clips/4') == (5, 4)
-	assert mapAddressToClipLocation('/composition/layers/5/clips/4/bar') == (5, 4)
+def test_mapAddressToDeckLocation():
+	assert mapAddressToDeckLocation('/selecteddeck/layers/5/clips/4') == (5, 4)
+	assert mapAddressToDeckLocation('/selecteddeck/layers/5/clips/4/bar') == (5, 4)
 	with pytest.raises(AssertionError):
-		mapAddressToClipLocation('/foo')
+		mapAddressToDeckLocation('/foo')
 
 
 def test_getLayerID():
