@@ -8,7 +8,8 @@ class ClipUI(BaseExt):
 			self.ownerComponent.parent.layerUI.digits, self.ownerComponent.digits
 		)
 
-	def __init__(self, ownerComponent, logger, browserUI, uiState, compCtrl):
+	def __init__(self, ownerComponent, logger, browserUI, uiState, compCtrl):  # pylint: disable=too-many-arguments
+
 		super().__init__(ownerComponent, logger)
 		self.browserUI = browserUI
 		self.uiState = uiState
@@ -36,9 +37,7 @@ class ClipUI(BaseExt):
 		(fileName, filePath) = self.browserUI.GetPath(droppedNode)
 
 		if sourceType == 'effect':
-			self.uiState.SendMessage(
-				f'{self.ClipAddress}/effects/add', filePath
-			)
+			self.uiState.SendMessage(f'{self.ClipAddress}/video/effects/add', filePath)
 		else:
 			self.uiState.SendMessage(
 				f'{self.ClipAddress}/source/load', sourceType, fileName, filePath

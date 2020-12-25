@@ -2,7 +2,7 @@ from collections import OrderedDict
 from fnmatch import fnmatchcase
 
 from tda import BaseExt
-from tdaUtils import mapAddressToDeckLocation
+from tdaUtils import mapAddressToDeckLocation, mapAddressToEffectLocation
 
 
 class OSCDispatcher(BaseExt):
@@ -47,6 +47,10 @@ class OSCDispatcher(BaseExt):
 				'/composition/clips/*/select': {
 					'handler': self.deckCtrl.SelectClip
 				},
+				'/composition/clips/*/video/effects/*/clear': {
+					'handler': self.effectCtrl.ClearEffect,
+					'mapAddress': mapAddressToEffectLocation
+				},
 				'/composition/decks/*/select': {
 					'handler': self.deckCtrl.SelectDeck
 				},
@@ -65,7 +69,7 @@ class OSCDispatcher(BaseExt):
 					'handler': self.deckCtrl.LoadClip,
 					'mapAddress': mapAddressToDeckLocation
 				},
-				'/selecteddeck/layers/*/clips/*/effects/add': {
+				'/selecteddeck/layers/*/clips/*/video/effects/add': {
 					'handler': self.deckCtrl.AddEffect,
 					'mapAddress': mapAddressToDeckLocation
 				},

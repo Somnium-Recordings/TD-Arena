@@ -1,9 +1,8 @@
 import typing as T
 
 from tda import LoadableExt
-from tdaUtils import (
-	clearChildren, getCellValues, getClipID, getDeckID, intIfSet, layoutComps
-)
+from tdaUtils import (clearChildren, getCellValues, getClipID, getDeckID,
+                      intIfSet, layoutComps)
 
 
 class DeckCtrl(LoadableExt):
@@ -125,7 +124,7 @@ class DeckCtrl(LoadableExt):
 			return
 
 		self.effectCtrl.AddEffect(
-			f'/composition/clips/{clipID}/effects', effectPath
+			f'/composition/clips/{clipID}/video/effects', effectPath
 		)
 
 	def ClearClip(self, clipLocation):

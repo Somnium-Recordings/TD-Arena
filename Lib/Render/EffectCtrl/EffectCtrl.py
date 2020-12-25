@@ -1,5 +1,6 @@
 from tda import LoadableExt
-from tdaUtils import addSectionParameters, intIfSet, layoutComps
+from tdaUtils import (EffectLocation, addSectionParameters, intIfSet,
+                      layoutComps)
 
 DEFAULT_STATE = {}
 
@@ -58,9 +59,20 @@ class EffectCtrl(LoadableExt):
 		self.effectsContainers[address] = containerComp
 		containerComp.Load(saveState)
 
-	def ClearEffectState(self, effectContainerAddress):
+	def ClearEffectContainer(self, effectContainerAddress: str):
 		# TODO: when clip (or layer?) deleted, call this to ensure we have no leaks
 		pass
+
+	def ClearEffect(self, effectLocation: EffectLocation):
+		containerAddress, effectID = effectLocation
+		assert containerAddress in self.effectsContainers, f'unknown effects container {containerAddress}'
+
+		self.logDebug(f'clearing effect {effectID} from {containerAddress}')
+		self.effectsContainers[containerAddress].ClearEffect(effectID)
+
+
+def getSourceID(effectOp):
+	return intIfSet(effectOp.par.Sourceeffectid.eval())
 
 
 class EffectsContainer(LoadableExt):
@@ -145,7 +157,7 @@ class EffectsContainer(LoadableExt):
 			'effects': {
 				id: {
 					'Effectpath': effect.par.Effectpath.eval(),
-					'Sourceeffectid': intIfSet(effect.par.Sourceeffectid.eval())
+					'Sourceeffectid': getSourceID(effect)
 				}
 				for (id, effect) in self.effects.items()
 			}
@@ -168,10 +180,33 @@ class EffectsContainer(LoadableExt):
 		tox = effect.op('./tox')  # need new handle on tox since we reinitalized it
 		# TODO: reset all order params after creation?
 		addSectionParameters(tox, order=len(self.effects), opacity=1.0)
-		# TODO: after tox loaded, addSectionParameters
-		# TODO: after tox loaded, addMixParameters
 
 		self.headEffectID = effect.digits
+
+	def ClearEffect(self, effectID: int):
+		effect = self.effects.pop(effectID, None)
+
+		if effect is None:
+			self.logWarning(f'could not find requested effect {effectID} to clear')
+			return
+
+		if self.headEffectID == effectID:
+			self.headEffectID = getSourceID(effect)
+		else:
+			previousEffect = self.findEffectWithSource(effectID)
+			previousEffect.par.Sourceeffectid = effect.par.Sourceeffectid.eval()
+
+		effect.destroy()
+		self.updatEffectNetworkPositions()
+		self.logDebug(f'effect {effectID} cleared')
+
+	def findEffectWithSource(self, sourceEffectID: int):
+		effect = self.effects[self.headEffectID]
+		while getSourceID(effect) != sourceEffectID:
+			effect = self.effects[getSourceID(effect)]
+			assert effect is not None, f'could not find effect pointing to ID {sourceEffectID}'
+
+		return effect
 
 	def createNextEffect(self, effectID: int = None):
 		if effectID is None:
@@ -197,5 +232,5 @@ class ClipEffectsContainer(EffectsContainer):
 	def __init__(self, ownerComponent, logger, effectCtrl: EffectCtrl):
 		super().__init__(
 			ownerComponent, logger, effectCtrl,
-			f'/composition/clips/{ownerComponent.parent.clip.digits}/effects'
+			f'/composition/clips/{ownerComponent.parent.clip.digits}/video/effects'
 		)

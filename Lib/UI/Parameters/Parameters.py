@@ -1,5 +1,19 @@
+import re
+
 from tda import BaseExt
 from tdaUtils import clearChildren, layoutChildren, layoutComps
+
+SECTION_EFFECT_RE = re.compile(
+	r'(/composition/clips/\d+/video/effects/\d+)/.*'
+)
+
+
+def getSectionCloseScript(address: str):
+	m = SECTION_EFFECT_RE.match(address)
+	if m:
+		return f'op.uiState.SendMessage(\'{m.group(1)}/clear\')'
+
+	return None
 
 
 class ParameterContainer(BaseExt):
@@ -28,7 +42,7 @@ class ParameterContainer(BaseExt):
 	def Init(self):
 		self.sections = {}
 		self.parameters = {}
-		self.activeAddresses = set()
+		self.ResetActiveElementState()
 		clearChildren(self.sectionContainer)
 
 		self.logInfo('initialized')
@@ -40,20 +54,38 @@ class ParameterContainer(BaseExt):
 		self.logDebug('creating "{}" section for {}'.format(label, address))
 		section = self.sectionContainer.copy(self.sectionTemplate, name=label)
 
+		section.par.Onclosescript = getSectionCloseScript(address)
+
 		sectionHeading = section.op('section')
 		sectionHeading.par.Sectionlabel = label
 
 		self.sections[address] = section
-		layoutComps(self.sections.values(), columns=1)
+		self.updateSectionNetowrkPositions()
 
-	def ResetActiveParameterList(self):
-		self.activeAddresses = set()
+	def ResetActiveElementState(self):
+		self.activeParameters = set()
+		self.activeSections = set()
 
-	def getParameterSection(self, address):
-		sectionAddress, _ = address.rsplit('/', 1)  # The last value is the parameter
+	def ClearInactiveElements(self):
+		# NOTE: we clear inactive sections first to avoid choking on parameter deletion
+		inactiveSections = set(self.sections.keys()) - self.activeSections
+		for address in inactiveSections:
+			self.logDebug(f'clearing inactive section at {address}')
+			section = self.sections.pop(address)
+			section.destroy()
 
+		self.updateSectionNetowrkPositions()
+
+		inactiveParameters = set(self.parameters.keys()) - self.activeParameters
+		for address in inactiveParameters:
+			self.logDebug(f'clearing inactive parameter at {address}')
+			parameter = self.parameters.pop(address)
+			if parameter.valid:  # If parent section destroys the containing par this will be fals
+				parameter.destroy()
+
+	def getParameterSection(self, sectionAddress: str):
 		if sectionAddress not in self.sections:
-			self.logDebug(f'section not found for {address}, initializing')
+			self.logDebug(f'section not found for {sectionAddress}, initializing')
 			_, label = sectionAddress.rsplit('/', 1)
 			self.SyncSection(sectionAddress, label.title())
 
@@ -79,6 +111,10 @@ class ParameterContainer(BaseExt):
 	def SyncParameter(
 		self, address, label, style, normMin, normMax, menuLabels, order
 	):  # pylint: disable=too-many-arguments
+		sectionAddress, _ = address.rsplit('/', 1)  # The last value is the parameter
+		self.activeParameters.add(address)
+		self.activeSections.add(sectionAddress)
+
 		if address in self.parameters:
 			# if parameter in self.paths, do we need to do anything?
 			#    will parameters change over time? Or only values?
@@ -90,7 +126,7 @@ class ParameterContainer(BaseExt):
 
 		self.logDebug(f'creating parameter {address}')
 
-		section = self.getParameterSection(address)
+		section = self.getParameterSection(sectionAddress)
 		parameter = self.createSectionParameter(section, style, label)
 		self.parameters[address] = parameter
 
@@ -117,6 +153,9 @@ class ParameterContainer(BaseExt):
 			parameter.par.Value0.normMin = normMin
 			parameter.par.Value0.min = normMin
 
+	def updateSectionNetowrkPositions(self):
+		layoutComps(self.sections.values(), columns=1)
+
 
 class Parameters(BaseExt):
 	def __init__(self, ownerComponent, logger):
@@ -139,7 +178,8 @@ class Parameters(BaseExt):
 			nextAddress = str(self.containerList[i + 1, 'address'])
 
 			container = self.syncContainerState(containerAddress, containerPath)
-			# TODO: container.ResetActiveParameterState()
+			container.ResetActiveElementState()
+
 			activeAddresses.add(containerAddress)
 
 			# group parameters into "containers" if par address starts
@@ -168,7 +208,7 @@ class Parameters(BaseExt):
 					# We know that the rest won't since the lists are sorted
 					break
 
-			# TODO: container.clearInactiveParamaters
+			container.ClearInactiveElements()
 
 		inactiveAddresses = set(self.containerState.keys()) - activeAddresses
 		for address in inactiveAddresses:
