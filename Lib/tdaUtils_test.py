@@ -1,9 +1,9 @@
 import pytest
 
-from tdaUtils import (
-    addressToValueLocation, getClipID, getDeckID, getLayerID, intIfSet,
-    mapAddressToDeckLocation, mapAddressToEffectLocation,
-    parameterPathToAddress)
+from tdaUtils import (addressToValueLocation, filePathToName, getClipID,
+                      getDeckID, getLayerID, intIfSet,
+                      mapAddressToDeckLocation, mapAddressToEffectLocation,
+                      parameterPathToAddress)
 
 
 def test_intIfSet():
@@ -87,3 +87,13 @@ def test_parameterPathToAddress():
 	assert parameterPathToAddress(
 		'/render/composition/clips/clip4/video/effects/effect0/tox', 'foo'
 	) == '/composition/clips/4/video/effects/0/tox/foo'
+
+
+def test_filePathToName():
+	assert filePathToName('C:\\my\\file.txt') == 'File'
+	assert filePathToName('/my/file.txt') == 'File'
+	assert filePathToName('file.txt') == 'File'
+	assert filePathToName('file') == 'File'
+	assert filePathToName('/my/multi-Word-file') == 'Multi Word File'
+	assert filePathToName('/my/multi_word_File') == 'Multi Word File'
+	assert filePathToName('/my/multiWordFile') == 'Multi Word File'

@@ -47,17 +47,15 @@ class ParameterContainer(BaseExt):
 
 		self.logInfo('initialized')
 
-	def SyncSection(self, address, label):
+	def SyncSection(self, address):
 		if address in self.sections:
 			return
 
-		self.logDebug('creating "{}" section for {}'.format(label, address))
-		section = self.sectionContainer.copy(self.sectionTemplate, name=label)
+		self.logDebug(f'creating section for {address}')
+		# TODO: woudld it be helpful to parse the address for the op name?
+		section = self.sectionContainer.copy(self.sectionTemplate, name='section')
 
 		section.par.Onclosescript = getSectionCloseScript(address)
-
-		sectionHeading = section.op('section')
-		sectionHeading.par.Sectionlabel = label
 
 		self.sections[address] = section
 		self.updateSectionNetowrkPositions()
@@ -86,17 +84,18 @@ class ParameterContainer(BaseExt):
 	def getParameterSection(self, sectionAddress: str):
 		if sectionAddress not in self.sections:
 			self.logDebug(f'section not found for {sectionAddress}, initializing')
-			_, label = sectionAddress.rsplit('/', 1)
-			self.SyncSection(sectionAddress, label.title())
+			self.SyncSection(sectionAddress)
 
 		return self.sections[sectionAddress]
 
 	def createSectionParameter(self, section, style, name):
-		# These are manually hard-coded into the section template comp
+		# These are hard-coded into the section template comp
 		if name == 'Section Expanded':
 			return section.op('section')
 		if name == 'Section Order':
 			return section.op('sectionOrder')
+		if name == 'Section Name':
+			return section.op('sectionName')
 
 		sectionContents = section.op('sectionContents')
 

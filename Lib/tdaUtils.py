@@ -1,6 +1,7 @@
 import math
 import re
 from collections import namedtuple
+from pathlib import Path
 
 
 def intIfSet(stringNumber):
@@ -136,11 +137,8 @@ def addressToExport(address):
 	return '{}:{}'.format(path.lstrip('/'), prop)
 
 
-def addSectionParameters(op, order: int, opacity: float = None):
+def addSectionParameters(op, order: int, name: str, opacity: float = None):
 	page = op.appendCustomPage('Section')
-	pageOrder = [page.name for page in op.customPages]
-	pageOrder.insert(0, pageOrder.pop())  # ensure "Section" is first page
-	op.sortCustomPages(*pageOrder)
 
 	# TODO: can we use this for the "Video" section's opacity parameter?
 	if opacity is not None:
@@ -148,8 +146,23 @@ def addSectionParameters(op, order: int, opacity: float = None):
 		sectionOpacity, = page.appendFloat('Sectionopacity', label='Opacity')
 		sectionOpacity.val = opacity
 
+	sectionName, = page.appendStr('Sectionname', label='Section Name')
+	sectionName.val = name
+
 	expanded, = page.appendToggle('Sectionexpanded', label='Section Expanded')
 	expanded.val = True
 
 	sectionOrder, = page.appendFloat('Sectionorder', label='Section Order')
 	sectionOrder.val = order
+
+	pageOrder = [page.name for page in op.customPages]
+	pageOrder.insert(0, pageOrder.pop())  # ensure "Section" is first page
+	op.sortCustomPages(*pageOrder)
+
+
+# TODO: apply to clip names
+def filePathToName(path: str) -> str:
+	return re.sub(
+		r'(\w)([A-Z])', r'\1 \2',
+		Path(path).stem.replace('-', ' ').replace('_', ' ')
+	).title()

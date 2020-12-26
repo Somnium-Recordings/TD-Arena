@@ -1,6 +1,6 @@
 from tda import LoadableExt
-from tdaUtils import (EffectLocation, addSectionParameters, intIfSet,
-                      layoutComps)
+from tdaUtils import (EffectLocation, addSectionParameters, filePathToName,
+                      intIfSet, layoutComps)
 
 DEFAULT_STATE = {}
 
@@ -179,7 +179,9 @@ class EffectsContainer(LoadableExt):
 		tox.par.reinitnet.pulse()
 		tox = effect.op('./tox')  # need new handle on tox since we reinitalized it
 		# TODO: reset all order params after creation?
-		addSectionParameters(tox, order=len(self.effects), opacity=1.0)
+		addSectionParameters(
+			tox, order=len(self.effects), opacity=1.0, name=filePathToName(effectPath)
+		)
 
 		self.headEffectID = effect.digits
 

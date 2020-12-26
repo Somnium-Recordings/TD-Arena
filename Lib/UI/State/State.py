@@ -66,6 +66,8 @@ class State(BaseExt):
 		self.logDebug('setting initial value for {} to {}'.format(address, args[0]))
 		ctrlState = self.oscControlState[address]
 		ctrlState['op'].par.Value0 = args[0]
-		self.initializedControlList.appendRow(
-			[address, '{}/valueOut'.format(ctrlState['op'].path)]
-		)
+
+		valueOutAddress = '{}/valueOut'.format(ctrlState['op'].path)
+		opFamily = op(valueOutAddress).family  # CHOP, DAT, etc.
+
+		self.initializedControlList.appendRow([address, valueOutAddress, opFamily])
