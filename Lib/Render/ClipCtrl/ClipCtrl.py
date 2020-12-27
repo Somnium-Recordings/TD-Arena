@@ -18,9 +18,10 @@ DEFAULT_STATE = []
 
 
 class ClipCtrl(LoadableExt):
-	def __init__(self, ownerComponent, logger):
+	def __init__(self, ownerComponent, logger, effectCtrl):
 		super().__init__(ownerComponent, logger)
 
+		self.effectCtrl = effectCtrl
 		self.clipList = ownerComponent.op('./table_clipIDs')
 		self.clipTemplate = ownerComponent.op('./clipTemplate')
 		self.clipState = ownerComponent.op('null_clipState')
@@ -124,6 +125,9 @@ class ClipCtrl(LoadableExt):
 		clip = self.clipComps.pop(clipID, None)
 		if clip is not None:
 			clip.destroy()
+			self.effectCtrl.ClearEffectContainer(
+				f'/composition/clips/{clipID}/video/effects'
+			)
 			self.updateClipNetworkPositions()
 
 	def loadSource(self, sourceType, name, path, clip):

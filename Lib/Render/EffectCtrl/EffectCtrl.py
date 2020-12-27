@@ -60,8 +60,13 @@ class EffectCtrl(LoadableExt):
 		containerComp.Load(saveState)
 
 	def ClearEffectContainer(self, effectContainerAddress: str):
-		# TODO: when clip (or layer?) deleted, call this to ensure we have no leaks
-		pass
+		# TODO: ensure this is called when layers are deleted
+		self.logDebug(f'clearing effect container at {effectContainerAddress}')
+		container = self.effectsContainers.pop(effectContainerAddress, None)
+		if container is None:
+			self.logWarning(
+				f'attempted to clear effect unkown container at {effectContainerAddress}'
+			)
 
 	def ClearEffect(self, effectLocation: EffectLocation):
 		containerAddress, effectID = effectLocation

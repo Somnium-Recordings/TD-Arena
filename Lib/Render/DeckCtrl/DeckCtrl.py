@@ -5,6 +5,10 @@ from tdaUtils import (clearChildren, getCellValues, getClipID, getDeckID,
                       intIfSet, layoutComps)
 
 
+def clipPrevisTarget(clipID: int) -> str:
+	return f'composition/clips/clip{clipID}/video/null_previs'
+
+
 class DeckCtrl(LoadableExt):
 	@property
 	def selectedDeckState(self):
@@ -134,6 +138,10 @@ class DeckCtrl(LoadableExt):
 		if clipID is not None:
 			self.setClipID(clipLocation, None)
 			self.layerCtrl.ClearClipID(clipID)
+			if self.composition.par.Previstarget.eval() == clipPrevisTarget(clipID):
+				self.composition.par.Previstarget = ''
+			if self.composition.par.Selectedclip.eval() == clipID:
+				self.composition.par.Selectedclip.val = self.composition.par.Selectedclip.default
 
 	def SelectDeck(self, address):
 		self.composition.par.Selecteddeck = getDeckID(address)
@@ -141,7 +149,7 @@ class DeckCtrl(LoadableExt):
 	def SelectClip(self, address: T.Union[str, int]):
 		clipID = getClipID(address) if isinstance(address, str) else address
 		self.clipCtrl.ActivateClip(clipID, fromSelect=True)
-		self.composition.par.Previstarget = f'composition/clips/clip{clipID}/video/null_previs'
+		self.composition.par.Previstarget = clipPrevisTarget(clipID)
 		self.composition.par.Selectedclip = clipID
 
 	def getClipID(self, clipLocation):
