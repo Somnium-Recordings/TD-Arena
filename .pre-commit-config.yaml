@@ -26,17 +26,6 @@ repos:
         entry: .pre-commit-hooks/yapf-isort.sh
         language: script
         files: \.py$
-      # - id: isort
-      #   name: isort
-      #   entry: isort
-      #   require_serial: true
-      #   language: system
-      #   types: [python]
-      # - id: yapf
-      #   name: yapf
-      #   entry: yapf -i
-      #   language: system
-      #   types: [python]
       - id: pylint
         name: pylint
         entry: pipenv run pylint
