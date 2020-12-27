@@ -60,7 +60,7 @@ class EffectCtrl(LoadableExt):
 		containerComp.Load(saveState)
 
 	def ClearEffectContainer(self, effectContainerAddress: str):
-		# TODO: ensure this is called when layers are deleted
+		# TODO(#42): ensure this is called when layers are deleted
 		self.logDebug(f'clearing effect container at {effectContainerAddress}')
 		container = self.effectsContainers.pop(effectContainerAddress, None)
 		if container is None:
@@ -116,7 +116,7 @@ class EffectsContainer(LoadableExt):
 		self.headEffectID = None
 
 		# Delaying registration to avoid "Cannot use an extension during its initialization"
-		# TODO: is there a better way?
+		# TODO(#45): is there a better way?
 		run(
 			'args[0].effectCtrl.RegisterEffectsContainer(args[0].address, args[0].ownerComponent)',
 			self,
@@ -183,7 +183,7 @@ class EffectsContainer(LoadableExt):
 		tox = effect.op('./tox')
 		tox.par.reinitnet.pulse()
 		tox = effect.op('./tox')  # need new handle on tox since we reinitalized it
-		# TODO: reset all order params after creation?
+		# TODO(#40): reset all order params after creation?
 		addSectionParameters(
 			tox, order=len(self.effects), opacity=1.0, name=filePathToName(effectPath)
 		)

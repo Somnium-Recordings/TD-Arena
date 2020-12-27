@@ -52,7 +52,6 @@ class ParameterContainer(BaseExt):
 			return
 
 		self.logDebug(f'creating section for {address}')
-		# TODO: woudld it be helpful to parse the address for the op name?
 		section = self.sectionContainer.copy(self.sectionTemplate, name='section')
 
 		section.par.Onclosescript = getSectionCloseScript(address)

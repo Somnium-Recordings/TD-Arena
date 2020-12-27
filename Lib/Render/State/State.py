@@ -31,7 +31,7 @@ class StateCtrl(LoadableExt):
 				# I think effects and parameters need to be initialized _before_ clips/layers/decks
 				# This is due to the lazy init of those controllers expecting saveState to
 				# be loaded for parameters/effects
-				# TODO: Verify this assumption is correct and doesn't cause issues
+				# TODO(#45): Verify this assumption is correct and doesn't cause issues
 				'parameters': parameterCtrl,
 				'effects': effectCtrl,
 				'composition': compositionCtrl,

@@ -48,7 +48,7 @@ def syncToDat(data, targetDat):
 SELECTED_DECK_LOCATION_RE = re.compile(
 	r'/selecteddeck/layers/(\d+)/clips/(\d+)/?.*'
 )
-# TODO: turn deckLocation into named tuple since it's used in a bunch of places
+# TODO(#47): turn deckLocation into named tuple since it's used in a bunch of places
 
 
 def mapAddressToDeckLocation(address: str):
@@ -140,9 +140,9 @@ def addressToExport(address):
 def addSectionParameters(op, order: int, name: str, opacity: float = None):
 	page = op.appendCustomPage('Section')
 
-	# TODO: can we use this for the "Video" section's opacity parameter?
+	# TODO(#41): can we use this for the "Video" section's opacity parameter?
 	if opacity is not None:
-		# TODO: implement/hard-code as "Section Opactiy" w/ collapse logic
+		# TODO(#43): implement/hard-code as "Section Opactiy" w/ collapse logic
 		sectionOpacity, = page.appendFloat('Sectionopacity', label='Opacity')
 		sectionOpacity.val = opacity
 
@@ -160,7 +160,7 @@ def addSectionParameters(op, order: int, name: str, opacity: float = None):
 	op.sortCustomPages(*pageOrder)
 
 
-# TODO: apply to clip names
+# TODO(#48): apply to clip names
 def filePathToName(path: str) -> str:
 	return re.sub(
 		r'(\w)([A-Z])', r'\1 \2',
