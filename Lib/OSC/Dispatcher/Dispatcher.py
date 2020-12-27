@@ -2,19 +2,20 @@ from collections import OrderedDict
 from fnmatch import fnmatchcase
 
 from tda import BaseExt
-from tdaUtils import mapAddressToClipLocation
+from tdaUtils import mapAddressToDeckLocation, mapAddressToEffectLocation
 
 
 class OSCDispatcher(BaseExt):
 	def __init__(
 		self, ownerComponent, logger, renderState, compositionCtrl, layerCtrl,
-		deckCtrl, clipCtrl, parameterCtrl
+		deckCtrl, clipCtrl, effectCtrl, parameterCtrl
 	):  # pylint: disable=too-many-arguments
 		super().__init__(ownerComponent, logger)
 		self.renderState = renderState
 		self.compositionCtrl = compositionCtrl
 		self.layerCtrl = layerCtrl
 		self.deckCtrl = deckCtrl
+		self.effectCtrl = effectCtrl
 		self.clipCtrl = clipCtrl
 		self.parameterCtrl = parameterCtrl
 		self.compositionContainer = ownerComponent.op('../composition')
@@ -46,23 +47,31 @@ class OSCDispatcher(BaseExt):
 				'/composition/clips/*/select': {
 					'handler': self.deckCtrl.SelectClip
 				},
+				'/composition/clips/*/video/effects/*/clear': {
+					'handler': self.effectCtrl.ClearEffect,
+					'mapAddress': mapAddressToEffectLocation
+				},
 				'/composition/decks/*/select': {
 					'handler': self.deckCtrl.SelectDeck
 				},
 				'/composition/layers/*/select': {
 					'handler': self.layerCtrl.SelectLayer
 				},
-				'/composition/layers/*/clips/*/connect': {
+				'/selecteddeck/layers/*/clips/*/connect': {
 					'handler': self.deckCtrl.ConnectClip,
-					'mapAddress': mapAddressToClipLocation
+					'mapAddress': mapAddressToDeckLocation
 				},
-				'/composition/layers/*/clips/*/clear': {
+				'/selecteddeck/layers/*/clips/*/clear': {
 					'handler': self.deckCtrl.ClearClip,
-					'mapAddress': mapAddressToClipLocation
+					'mapAddress': mapAddressToDeckLocation
 				},
-				'/composition/layers/*/clips/*/source/load': {
+				'/selecteddeck/layers/*/clips/*/source/load': {
 					'handler': self.deckCtrl.LoadClip,
-					'mapAddress': mapAddressToClipLocation
+					'mapAddress': mapAddressToDeckLocation
+				},
+				'/selecteddeck/layers/*/clips/*/video/effects/add': {
+					'handler': self.deckCtrl.AddEffect,
+					'mapAddress': mapAddressToDeckLocation
 				},
 			}
 		)

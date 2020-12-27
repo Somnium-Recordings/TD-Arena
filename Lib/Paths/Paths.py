@@ -15,18 +15,19 @@ class Paths:  # pylint: disable=too-few-public-methods
 		for protocol, path in self.configuredPaths.rows():
 			expanded = os.path.expanduser(path.val)
 			if not os.path.exists(expanded):
-				print(
-					'configured path for protocol (' + protocol + ') does not exist: ' +
-					expanded
+				self.logger.Error(
+					self.ownerComp,
+					f'configured path for protocol ({protocol}) does not exist: {expanded}'
 				)
 				continue
 			newPaths[protocol.val] = expanded
-			self.logger.Debug(self.ownerComp, '{}:// set to {}'.format(protocol, path))
+			self.logger.Debug(self.ownerComp, f'{protocol}:// set to {path}')
 
 		# clear any project paths that are no longer configured
-		for protocol in project.paths.copy():
-			if protocol not in newPaths:
-				del project.paths[protocol]
+		staleProtocols = [p for p in project.paths.keys() if p not in newPaths]
+		for p in staleProtocols:
+			self.logger.Debug(self.ownerComp, f'clearing stale protocol: {p}')
+			del project.paths[p]
 
 		for protocol, path in newPaths.items():
 			project.paths[protocol] = path

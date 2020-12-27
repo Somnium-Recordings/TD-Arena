@@ -1,5 +1,5 @@
 from tda import BaseExt
-from tdaUtils import addSectionParameters
+from tdaUtils import addSectionParameters, filePathToName
 
 LOAD_FRAME_DELAY = 2
 MAX_WAIT_CYCLES = 20
@@ -25,6 +25,7 @@ class ToxSource(BaseExt):
 		self.waitForPreload()
 
 	def waitForPreload(self, waitCount=0):
+		# TODO(#44): this isn't actually necessary, reinitnet seems to be synchronus
 		if waitCount > MAX_WAIT_CYCLES:
 			self.setLoaded(wasSuccessful=False)
 			self.logError(
@@ -40,8 +41,11 @@ class ToxSource(BaseExt):
 		self.logDebug('tox loaded, setting thumbnail')
 		self.setThumbail()
 
-		# TODO: Are we going to have a race condition w/ the parameterCtrl initialization?
-		addSectionParameters(self.tox, order=-2)
+		addSectionParameters(
+			self.tox,
+			order=-2,
+			name=filePathToName(self.ownerComponent.par.Sourcepath.eval())
+		)
 
 	def isSourceLoaded(self):
 		return bool(self.tox.op('./null_final'))

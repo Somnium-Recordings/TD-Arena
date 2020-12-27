@@ -22,17 +22,22 @@ class StateCtrl(LoadableExt):
 
 	def __init__(
 		self, ownerComponent, logger, render, compositionCtrl, clipCtrl, deckCtrl,
-		layerCtrl, parameterCtrl
+		layerCtrl, effectCtrl, parameterCtrl
 	):  # pylint: disable=too-many-arguments
 		super().__init__(ownerComponent, logger)
 		self.render = render
 		self.ctrls = OrderedDict(
 			{
+				# I think effects and parameters need to be initialized _before_ clips/layers/decks
+				# This is due to the lazy init of those controllers expecting saveState to
+				# be loaded for parameters/effects
+				# TODO(#45): Verify this assumption is correct and doesn't cause issues
+				'parameters': parameterCtrl,
+				'effects': effectCtrl,
 				'composition': compositionCtrl,
 				'clips': clipCtrl,
 				'decks': deckCtrl,
-				'layers': layerCtrl,
-				'parameters': parameterCtrl
+				'layers': layerCtrl
 			}
 		)
 

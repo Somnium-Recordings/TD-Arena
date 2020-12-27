@@ -1,8 +1,9 @@
 import pytest
 
-from tdaUtils import (
-    addressToValueLocation, getClipID, getDeckID, getLayerID, intIfSet,
-    mapAddressToClipLocation, parameterPathToAddress)
+from tdaUtils import (addressToValueLocation, filePathToName, getClipID,
+                      getDeckID, getLayerID, intIfSet,
+                      mapAddressToDeckLocation, mapAddressToEffectLocation,
+                      parameterPathToAddress)
 
 
 def test_intIfSet():
@@ -11,11 +12,28 @@ def test_intIfSet():
 	assert intIfSet(0) == 0
 
 
-def test_mapAddressToClipLocation():
-	assert mapAddressToClipLocation('/composition/layers/5/clips/4') == (5, 4)
-	assert mapAddressToClipLocation('/composition/layers/5/clips/4/bar') == (5, 4)
+def test_mapAddressToDeckLocation():
+	# yapf: disable
+	assert mapAddressToDeckLocation('/selecteddeck/layers/5/clips/4') == (5, 4)
+	assert mapAddressToDeckLocation('/selecteddeck/layers/5/clips/4/bar') == (5, 4)
 	with pytest.raises(AssertionError):
-		mapAddressToClipLocation('/foo')
+		mapAddressToDeckLocation('/foo')
+	# yapf: enable
+
+
+def test_mapAddressToEffectLocation():
+	location = mapAddressToEffectLocation('/composition/clips/4/video/effects/5')
+	assert location.containerAddress == '/composition/clips/4/video/effects'
+	assert location.effectID == 5
+
+	location2 = mapAddressToEffectLocation(
+		'/composition/clips/4/video/effects/1/clear'
+	)
+	assert location2.containerAddress == '/composition/clips/4/video/effects'
+	assert location2.effectID == 1
+
+	with pytest.raises(AssertionError):
+		mapAddressToEffectLocation('/foo')
 
 
 def test_getLayerID():
@@ -44,10 +62,12 @@ def test_addressToValueLocation():
 	assert addressToValueLocation(
 		'/composition/layers/5/Opacity', '/composition'
 	) == ('/composition/layers/layer5', 'Opacity')
-
 	assert addressToValueLocation(
 		'/composition/clips/5/Active', '/tdArena/render/composition'
 	) == ('/tdArena/render/composition/clips/clip5', 'Active')
+	assert addressToValueLocation(
+		'/composition/clips/5/video/effects/4/tox/Sectionopacity', '/tdArena/render/composition'
+	) == ('/tdArena/render/composition/clips/clip5/video/effects/effect4/tox', 'Sectionopacity')
 	assert addressToValueLocation(
 		'/composition/decks/1/Deckname', '/tdArena/render/composition'
 	) == ('/tdArena/render/composition/decks/deck1', 'Deckname')
@@ -64,3 +84,16 @@ def test_parameterPathToAddress():
 	assert parameterPathToAddress(
 		'/render/composition/clips/clip14', 'foo'
 	) == '/composition/clips/14/foo'
+	assert parameterPathToAddress(
+		'/render/composition/clips/clip4/video/effects/effect0/tox', 'foo'
+	) == '/composition/clips/4/video/effects/0/tox/foo'
+
+
+def test_filePathToName():
+	assert filePathToName('C:\\my\\file.txt') == 'File'
+	assert filePathToName('/my/file.txt') == 'File'
+	assert filePathToName('file.txt') == 'File'
+	assert filePathToName('file') == 'File'
+	assert filePathToName('/my/multi-Word-file') == 'Multi Word File'
+	assert filePathToName('/my/multi_word_File') == 'Multi Word File'
+	assert filePathToName('/my/multiWordFile') == 'Multi Word File'

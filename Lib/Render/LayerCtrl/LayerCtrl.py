@@ -48,6 +48,7 @@ class LayerCtrl(LoadableExt):
 		self.setLoaded()
 
 	def GetSaveState(self):
+		# TODO(#46): should we ignore clip id in layer save state?
 		return [
 			getCellValues(layer) for layer in self.layerState.rows()
 		] if self.Loaded else None
@@ -104,7 +105,7 @@ class LayerCtrl(LoadableExt):
 		newLayer.par.Layername = layerName
 
 		videoContainer = newLayer.op('./video')
-		addSectionParameters(videoContainer, order=-1)
+		addSectionParameters(videoContainer, order=-1, name='Video')
 		videoContainer.par.Blendmode = blendMode
 
 		self.layers.append(newLayer)

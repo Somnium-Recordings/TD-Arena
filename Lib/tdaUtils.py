@@ -1,5 +1,7 @@
 import math
 import re
+from collections import namedtuple
+from pathlib import Path
 
 
 def intIfSet(stringNumber):
@@ -43,32 +45,62 @@ def syncToDat(data, targetDat):
 			targetDat[rowIndex, columnIndex] = cell or ''
 
 
-def mapAddressToClipLocation(address):
-	m = re.match(r'/composition/layers/(\d+)/clips/(\d+)/?.*', address)
+SELECTED_DECK_LOCATION_RE = re.compile(
+	r'/selecteddeck/layers/(\d+)/clips/(\d+)/?.*'
+)
+# TODO(#47): turn deckLocation into named tuple since it's used in a bunch of places
+
+
+def mapAddressToDeckLocation(address: str):
+	m = re.match(SELECTED_DECK_LOCATION_RE, address)
 	assert m, 'expected to match layer and clip number in {}'.format(address)
 
 	return (int(m.group(1)), int(m.group(2)))
 
 
+EFFECT_LOCATION_RE = re.compile(r'(/composition/.*/effects)/(\d+)/?.*')
+EffectLocation = namedtuple('EffectLocation', ['containerAddress', 'effectID'])
+
+
+def mapAddressToEffectLocation(address: str) -> EffectLocation:
+	m = re.match(EFFECT_LOCATION_RE, address)
+	assert m, f'expected to match effect container and effect ID in {address}'
+
+	return EffectLocation(containerAddress=m.group(1), effectID=int(m.group(2)))
+
+
+DECK_ID_RE = re.compile(r'/composition/decks/(\d+)')
+
+
 def getDeckID(address):
-	m = re.match(r'/composition/decks/(\d+)?.*', address)
+	m = re.match(DECK_ID_RE, address)
 	assert m, 'expected to match deck id in {}'.format(address)
 
 	return int(m.group(1))
 
 
+LAYER_ID_RE = re.compile(r'/composition/layers/(\d+)')
+
+
 def getLayerID(address):
-	m = re.match(r'/composition/layers/(\d+)?.*', address)
+	m = re.match(LAYER_ID_RE, address)
 	assert m, 'expected to match layer id in {}'.format(address)
 
 	return int(m.group(1))
 
 
+CLIP_ID_RE = re.compile(r'/composition/clips/(\d+)')
+
+
 def getClipID(address):
-	m = re.match(r'/composition/clips/(\d+)?.*', address)
+	m = re.match(CLIP_ID_RE, address)
 	assert m, 'expected to match clip id in {}'.format(address)
 
 	return int(m.group(1))
+
+
+# /layer/1 -> /layer/layer1
+EXPAND_FROM_ID_RE = re.compile(r'(layer|clip|deck|effect)s/([\d]+)')
 
 
 def addressToValueLocation(address, compositionPath):
@@ -76,11 +108,16 @@ def addressToValueLocation(address, compositionPath):
 	from: /composition/layers/1/...
 	to  : /composition/layers/layer1/...
 	"""
-	p = re.compile(r'(layer|clip|deck)s/([\d]+)')
 
-	fullPath = p.sub(r'\1s/\1\2', address)
+	fullPath = EXPAND_FROM_ID_RE.sub(r'\1s/\1\2', address)
 
 	return tuple(fullPath.replace('/composition', compositionPath).rsplit('/', 1))
+
+
+# /layer/layer1 -> /layer/1
+COLLAPSE_TO_ID_RE = re.compile(
+	r'/(layer|clip|deck|effect)s/(layer|clip|deck|effect)(\d+)'
+)
 
 
 def parameterPathToAddress(path: str, parameter: str):
@@ -89,9 +126,8 @@ def parameterPathToAddress(path: str, parameter: str):
 	from: /tdArena/render/composition/layers/layer1/...
 	to  : /composition/layers/1/...
 	"""
-	p = re.compile(r'.*/composition/(layer|clip|deck)s/(layer|clip|deck)(\d+)')
-
-	address = p.sub(r'/composition/\1s/\3', path)
+	compositionStart = path.find('/composition')
+	address = COLLAPSE_TO_ID_RE.sub(r'/\1s/\3', path[compositionStart:])
 
 	return '{}/{}'.format(address, parameter)
 
@@ -101,11 +137,32 @@ def addressToExport(address):
 	return '{}:{}'.format(path.lstrip('/'), prop)
 
 
-def addSectionParameters(op, order: int):
+def addSectionParameters(op, order: int, name: str, opacity: float = None):
 	page = op.appendCustomPage('Section')
+
+	# TODO(#41): can we use this for the "Video" section's opacity parameter?
+	if opacity is not None:
+		# TODO(#43): implement/hard-code as "Section Opactiy" w/ collapse logic
+		sectionOpacity, = page.appendFloat('Sectionopacity', label='Opacity')
+		sectionOpacity.val = opacity
+
+	sectionName, = page.appendStr('Sectionname', label='Section Name')
+	sectionName.val = name
 
 	expanded, = page.appendToggle('Sectionexpanded', label='Section Expanded')
 	expanded.val = True
 
 	sectionOrder, = page.appendFloat('Sectionorder', label='Section Order')
 	sectionOrder.val = order
+
+	pageOrder = [page.name for page in op.customPages]
+	pageOrder.insert(0, pageOrder.pop())  # ensure "Section" is first page
+	op.sortCustomPages(*pageOrder)
+
+
+# TODO(#48): apply to clip names
+def filePathToName(path: str) -> str:
+	return re.sub(
+		r'(\w)([A-Z])', r'\1 \2',
+		Path(path).stem.replace('-', ' ').replace('_', ' ')
+	).title()

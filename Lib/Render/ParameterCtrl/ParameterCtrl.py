@@ -83,7 +83,9 @@ class ParameterCtrl(LoadableExt):
 		return par
 
 	def initializeParameter(self, address: str):
-		assert self.saveState is not None, 'parameters cannot be initialized before save state is loaded'
+		assert hasattr(
+			self, 'saveState'
+		), 'parameters cannot be initialized before save state is loaded'
 
 		if address not in self.saveState:
 			return

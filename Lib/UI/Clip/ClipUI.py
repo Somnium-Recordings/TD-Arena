@@ -1,22 +1,16 @@
-def getSourceType(nodeName):
-	if nodeName.startswith('movie'):
-		return 'movie'
-
-	if nodeName.startswith('generator'):
-		return 'tox'
-
-	raise AssertionError('Could not match node to clip type: {}'.format(nodeName))
+from tda import BaseExt
 
 
-class ClipUI:
+class ClipUI(BaseExt):
 	@property
 	def ClipAddress(self):
-		return '/composition/layers/{}/clips/{}'.format(
+		return '/selecteddeck/layers/{}/clips/{}'.format(
 			self.ownerComponent.parent.layerUI.digits, self.ownerComponent.digits
 		)
 
-	def __init__(self, ownerComponent, browserUI, uiState, compCtrl):
-		self.ownerComponent = ownerComponent
+	def __init__(self, ownerComponent, logger, browserUI, uiState, compCtrl):  # pylint: disable=too-many-arguments
+
+		super().__init__(ownerComponent, logger)
 		self.browserUI = browserUI
 		self.uiState = uiState
 		self.compCtrl = compCtrl
@@ -35,15 +29,36 @@ class ClipUI:
 	#
 	def OnDrop(self, *args):
 		droppedNode = args[0]
-		sourceType = getSourceType(droppedNode)
+		sourceType = self.getSourceType(droppedNode)
+		if sourceType is None:
+			self.logDebug('ignoring drop event for unhandled sourceType')
+			return
+
 		(fileName, filePath) = self.browserUI.GetPath(droppedNode)
 
-		self.uiState.SendMessage(
-			'{}/source/load'.format(self.ClipAddress), sourceType, fileName, filePath
-		)
+		if sourceType == 'effect':
+			self.uiState.SendMessage(f'{self.ClipAddress}/video/effects/add', filePath)
+		else:
+			self.uiState.SendMessage(
+				f'{self.ClipAddress}/source/load', sourceType, fileName, filePath
+			)
+
+	def getSourceType(self, nodeName):
+		if nodeName.startswith('movie'):
+			return 'movie'
+
+		if nodeName.startswith('generator'):
+			return 'tox'
+
+		if nodeName.startswith('effect'):
+			return 'effect'
+
+		self.logDebug('Could not match node to clip type: {}'.format(nodeName))
+
+		return None
 
 	def OnLeftClickThumb(self):
-		self.uiState.SendMessage('{}/connect'.format(self.ClipAddress))
+		self.uiState.SendMessage(f'{self.ClipAddress}/connect')
 
 	def OnRightClickThumb(self):
-		self.uiState.SendMessage('{}/clear'.format(self.ClipAddress))
+		self.uiState.SendMessage(f'{self.ClipAddress}/clear')

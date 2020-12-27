@@ -24,7 +24,7 @@ class TestDispatcher():
 	def dispatcher(self, ownerComponent):
 		return OSCDispatcher(
 			ownerComponent, MagicMock(), MagicMock(), MagicMock(), MagicMock(),
-			MagicMock(), MagicMock(), MagicMock()
+			MagicMock(), MagicMock(), MagicMock(), MagicMock()
 		)
 
 	def test_Map(self, dispatcher):
