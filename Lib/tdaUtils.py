@@ -9,11 +9,11 @@ def intIfSet(stringNumber):
 	return int(stringNumber) if stringNumber or stringNumber == 0 else None
 
 
-def layoutComps(compList, columns=4):
+def layoutComps(compList, columns=4, xBase=0):
 	# TODO: use TDF.arrangeNode instead
 	# TODO: should we skip if ui.performMode == False?
 	for i, comp in enumerate(compList):
-		comp.nodeX = 0 + (i % columns) * 200
+		comp.nodeX = xBase + (i % columns) * 200
 		comp.nodeY = (1 + math.floor(i / columns)) * -200
 
 

@@ -87,6 +87,8 @@ pulseMap = {
 }
 
 
+# TODO: rename this class. "TD..." prefix should be reserved for system things
+# @see https://forum.derivative.ca/t/simple-error-logging/8894/5?u=llwt
 class TdArena(BaseExt):
 	@property
 	def par(self):
