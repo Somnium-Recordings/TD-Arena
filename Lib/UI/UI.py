@@ -2,20 +2,8 @@ from tda import BaseExt
 
 
 class UI(BaseExt):
-	@property
-	def IsOpen(self):
-		return self.windowInfo['winopen']
-
 	def __init__(self, ownerComponent, logger) -> None:
 		super().__init__(ownerComponent, logger)
-		self.ownerComp = ownerComponent
-		self.window = ownerComponent.op('window_ui')
-		self.windowInfo = ownerComponent.op('info_window')
-		self.ui = ownerComponent.op('ui')
-
-	def Open(self):
-		if not self.IsOpen:
-			self.window.par.winopen.pulse()
 
 	# dropName: dropped node name or filename
 	# [x/y]Pos: position in network pane
