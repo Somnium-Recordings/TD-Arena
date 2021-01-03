@@ -1,4 +1,20 @@
+from collections import namedtuple
 from tda import BaseExt, Par
+
+DroppedItem = namedtuple(
+	'DroppedItem', [
+		'dropName', 'dropExt', 'baseName', 'destPath', 'itemPath',
+		'selectedItemIndex'
+	]
+)
+
+DROP_SCRIPT_MAP = [
+	'Ondropcenterscript',
+	'Ondropleftscript',
+	'Ondroprightscript',
+	'Ondropbottomscript',
+	'Ondroptopcript',
+]
 
 
 class DragCtrl(BaseExt):
@@ -20,9 +36,29 @@ class DragCtrl(BaseExt):
 	# destPath: dropped network
 	def OnDrop(
 		self, dropName, xPos, yPos, index, totalDragged, dropExt, baseName, destPath
-	):  # pylint: disable=too-many-arguments
-		print(f'dropped on : {destPath}')
-		print(f'texture is {op(destPath + "/null_state")["texture"]}')
+	):  # pylint: disable=too-many-arguments,unused-argument
+		dragControls = op(destPath)
+		lastAction = dragControls.op('./null_lastAction')
+		dropAction = int(lastAction['dropAction'])
+		assert 0 <= dropAction <= len(DROP_SCRIPT_MAP), (
+			f'unmapped drop action index {dropAction}'
+		)
+
+		droppedItem = DroppedItem(
+			dropName, dropExt, baseName, destPath, f'{baseName}/{dropName}',
+			int(lastAction['selectedItemIndex'])
+		)
+		self.logInfo(f'dropped {droppedItem.itemPath} on {destPath}')
+
+		scriptPar = DROP_SCRIPT_MAP[dropAction]
+		dropScript = dragControls.par[scriptPar].eval()
+
+		self.logInfo(f'calling {scriptPar} on {destPath}')
+		run(dropScript, droppedItem)
+
+		# dropAction = lastAction['dropAction']
+		# selectedItemIndex = lastAction['selectedItemIndex']
+		# print(f'a:{dropAction} @ {selectedItemIndex}')
 
 	#
 	#  drag arguments for nodes          (and files)
