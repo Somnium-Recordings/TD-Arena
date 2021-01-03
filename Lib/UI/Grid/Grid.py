@@ -12,6 +12,7 @@ def nextID(ops):
 
 
 def setDivider(op, direction, divider):
+	# TODO:  Remove unnecessary getattr, access by index instead
 	getattr(op.par, f'Divider{direction}').val = divider.name if divider else ''
 
 
