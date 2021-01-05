@@ -11,13 +11,14 @@ def nextID(ops):
 	return reduce(lambda acc, op: max(acc, op.digits), ops, -1) + 1
 
 
-def setDivider(op, direction, divider):
-	# TODO:  Remove unnecessary getattr, access by index instead
-	getattr(op.par, f'Divider{direction}').val = divider.name if divider else ''
+def setDivider(op, direction, divider=None, dividerName=None):
+	if dividerName is None:
+		dividerName = divider.name if divider else ''
+	op.par[f'Divider{direction}'].val = dividerName
 
 
 def getDivider(op, direction):
-	return getattr(op.par, f'Divider{direction}').eval()
+	return op.par[f'Divider{direction}'].eval()
 
 
 def nameIfSet(op):
@@ -33,6 +34,37 @@ def findAdjacentToDivider(
 	]
 
 
+def setDividerReferences(element, layoutSpec):
+	if layoutSpec['l'] is not None:
+		setDivider(element, 'l', dividerName=f'vDivider{layoutSpec["l"]}')
+	if layoutSpec['r'] is not None:
+		setDivider(element, 'r', dividerName=f'vDivider{layoutSpec["r"]}')
+	if layoutSpec['b'] is not None:
+		setDivider(element, 'b', dividerName=f'hDivider{layoutSpec["b"]}')
+	if layoutSpec['t'] is not None:
+		setDivider(element, 't', dividerName=f'vDivider{layoutSpec["t"]}')
+
+
+# yapf: disable
+# pylint: disable=bad-whitespace
+DEFAULT_LAYOUT = {
+	'cells': [
+		{'id': 0, 'l': None, 'r': None, 'b': None, 't': 0   },
+		{'id': 1, 'l': None, 'r': 0,    'b': 0,    't': None},
+		{'id': 2, 'l': 0,    'r': 1,    'b': 0,    't': None},
+		{'id': 3, 'l': 1,    'r': None, 'b': 0,    't': None},
+	],
+	'vDividers': [
+		{'id': 0, 'l': None, 'r': 1,    'b': 0,    't': None, 'pos': 0.2557},
+		{'id': 1, 'l': 0,    'r': None, 'b': 0,    't': None, 'pos': 0.7161},
+	],
+	'hDividers': [
+		{'id': 0, 'l': None, 'r': None, 'b': None, 't': None, 'pos': 0.3902},
+	]
+}
+# yapf: enable
+
+
 class Grid(BaseExt):
 	def __init__(self, ownerComponent, logger):
 		super().__init__(ownerComponent, logger)
@@ -46,11 +78,31 @@ class Grid(BaseExt):
 		self.vDividers = self.ownerComponent.findChildren(name='vDivider[0-999]')
 		self.hDividerTemplate = self.ownerComponent.op('hDividerTemplate')
 		self.hDividers = self.ownerComponent.findChildren(name='hDivider[0-999]')
+		self.constants = self.ownerComponent.op('constant1')
+		self.constants.par.value0 = 0
+		self.constants.par.value1 = 1
 
 		if not self.ownerComponent.op('cell0'):
-			self.createNextCell()
+			# self.createNextCell()
+			self.LoadLayout()
 
 		self.logInfo('initalized')
+
+	def LoadLayout(self, layout=None):
+		layout = layout or DEFAULT_LAYOUT
+
+		for spec in layout['vDividers']:
+			divider = self.createNextVDivider(spec['id'])
+			setDividerReferences(divider, spec)
+			divider.par.rightanchor = spec['pos']
+
+		for spec in layout['hDividers']:
+			divider = self.createNextHDivider(spec['id'])
+			setDividerReferences(divider, spec)
+			divider.par.topanchor = spec['pos']
+
+		for spec in layout['cells']:
+			setDividerReferences(self.createNextCell(spec['id']), spec)
 
 	def Reset(self):
 		self.Init()
@@ -70,7 +122,7 @@ class Grid(BaseExt):
 		# TODO: If new anchor is not within repositionxmin, reject new division
 		# TODO: Support adding cell to a divider instead of a cell
 		# TODO: derive min/max cell size from contents
-		# TODO: allow "non-stackable" cells: during init, each gets is own cell that can't be deleted
+		# TODO: allow 'non-stackable" cells: during init, each gets is own cell that can't be deleted
 		# TODO: save/load "layouts"
 
 		assert targetDirection in DIRECTIONS, f'invalid direction requested {targetDirection}'
@@ -249,9 +301,10 @@ class Grid(BaseExt):
 
 		return reduce(lambda d1, d2: d1 if isCloser(d1, d2) else d2, adjacent)
 
-	def createNextCell(self):
-		nextCellID = nextID(self.cells)
-		cell = self.ownerComponent.copy(self.cellTemplate, name=f'cell{nextCellID}')
+	def createNextCell(self, cellID=None):
+		if cellID is None:
+			cellID = nextID(self.cells)
+		cell = self.ownerComponent.copy(self.cellTemplate, name=f'cell{cellID}')
 		cell.par.display = 1
 
 		self.cells.append(cell)
@@ -259,10 +312,11 @@ class Grid(BaseExt):
 
 		return cell
 
-	def createNextVDivider(self):
-		nextDividerID = nextID(self.vDividers)
+	def createNextVDivider(self, dividerID=None):
+		if dividerID is None:
+			dividerID = nextID(self.vDividers)
 		template = self.vDividerTemplate
-		divider = self.ownerComponent.copy(template, name=f'vDivider{nextDividerID}')
+		divider = self.ownerComponent.copy(template, name=f'vDivider{dividerID}')
 		divider.par.display = 1
 
 		self.vDividers.append(divider)
@@ -270,10 +324,11 @@ class Grid(BaseExt):
 
 		return divider
 
-	def createNextHDivider(self):
-		nextDividerID = nextID(self.hDividers)
+	def createNextHDivider(self, dividerID=None):
+		if dividerID is None:
+			dividerID = nextID(self.hDividers)
 		template = self.hDividerTemplate
-		divider = self.ownerComponent.copy(template, name=f'hDivider{nextDividerID}')
+		divider = self.ownerComponent.copy(template, name=f'hDivider{dividerID}')
 		divider.par.display = 1
 
 		self.hDividers.append(divider)

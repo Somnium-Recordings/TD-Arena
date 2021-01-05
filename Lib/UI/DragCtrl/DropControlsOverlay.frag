@@ -7,6 +7,7 @@ uniform float uCornerSize;
 uniform float uBoxSize;
 uniform float uTotalBoxes;
 uniform float uActiveBoxIndex;
+uniform vec4 uInactiveBoxColor;
 
 vec2 uRes = uTDOutputInfo.res.zw;
 
@@ -77,16 +78,17 @@ float inactiveBoxes() {
 out vec4 fragColor;
 void main()
 {
-  float isActiveBox = step(2., uTotalBoxes) * activeBox();
-	float dropControl = isDropState(1.) * min(1, corners() + isActiveBox);
-	dropControl += isDropState(2.) * borderLeft();
-	dropControl += isDropState(3.) * borderRight();
-	dropControl += isDropState(4.) * borderBottom();
-	dropControl += isDropState(5.) * borderTop();
+  float activeBoxPct = step(2., uTotalBoxes) * activeBox();
+  float inactiveBoxesPct = isDropState(1.) * step(2., uTotalBoxes) * (inactiveBoxes() - activeBoxPct);
+	float dropControlPct = isDropState(1.) * min(1, corners() + activeBoxPct);
+	dropControlPct += isDropState(2.) * borderLeft();
+	dropControlPct += isDropState(3.) * borderRight();
+	dropControlPct += isDropState(4.) * borderBottom();
+	dropControlPct += isDropState(5.) * borderTop();
 
-	vec4 color = dropControl * uAccentColor;
+	vec4 color = dropControlPct * uAccentColor;
 
-  color += isDropState(1.) * step(2., uTotalBoxes) * (inactiveBoxes() - isActiveBox) * vec4(.3);
+  color += inactiveBoxesPct * uInactiveBoxColor;
 
 	fragColor = TDOutputSwizzle(color);
 }
