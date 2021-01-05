@@ -42,7 +42,7 @@ def setDividerReferences(element, layoutSpec):
 	if layoutSpec['b'] is not None:
 		setDivider(element, 'b', dividerName=f'hDivider{layoutSpec["b"]}')
 	if layoutSpec['t'] is not None:
-		setDivider(element, 't', dividerName=f'vDivider{layoutSpec["t"]}')
+		setDivider(element, 't', dividerName=f'hDivider{layoutSpec["t"]}')
 
 
 # yapf: disable
@@ -60,6 +60,15 @@ DEFAULT_LAYOUT = {
 	],
 	'hDividers': [
 		{'id': 0, 'l': None, 'r': None, 'b': None, 't': None, 'pos': 0.3902},
+	],
+	'panelMap': [
+		['path',                                   'cellID'],
+		['/tdArena/ui/assetBrowserUI',             1],
+		['/tdArena/ui/parametersUI/selectedClip',  2],
+		['/tdArena/ui/parametersUI/selectedLayer', 2],
+		['/tdArena/ui/parametersUI/composition',   2],
+		['/tdArena/ui/previs',                     3],
+		['/tdArena/ui/clipLauncherUI',             0]
 	]
 }
 # yapf: enable
@@ -82,8 +91,10 @@ class Grid(BaseExt):
 		self.constants.par.value0 = 0
 		self.constants.par.value1 = 1
 
+		self.panelMapTable = self.ownerComponent.op('table_panelMap')
+		self.cellPanelState = self.ownerComponent.op('table_cellPanelState')
+
 		if not self.ownerComponent.op('cell0'):
-			# self.createNextCell()
 			self.LoadLayout()
 
 		self.logInfo('initalized')
@@ -103,6 +114,10 @@ class Grid(BaseExt):
 
 		for spec in layout['cells']:
 			setDividerReferences(self.createNextCell(spec['id']), spec)
+
+		panelMap = layout['panelMap']
+		self.panelMapTable.appendRows(panelMap, 0)
+		self.panelMapTable.setSize(len(panelMap), len(panelMap[0]))
 
 	def Reset(self):
 		self.Init()

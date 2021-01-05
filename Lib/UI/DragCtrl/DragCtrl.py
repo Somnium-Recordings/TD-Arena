@@ -1,4 +1,5 @@
 from collections import namedtuple
+from fnmatch import fnmatchcase
 
 from tda import BaseExt, Par
 
@@ -10,23 +11,27 @@ DroppedItem = namedtuple(
 )
 
 DROP_SCRIPT_MAP = [
+	'DISABLED_ACTION_STATE',
 	'Ondropcenterscript',
 	'Ondropleftscript',
 	'Ondroprightscript',
 	'Ondropbottomscript',
-	'Ondroptopcript',
-]
+	'Ondroptopscript'
+] # yapf: disable
 
 
 class DragCtrl(BaseExt):
 	def __init__(self, ownerComponent, logger) -> None:
 		super().__init__(ownerComponent, logger)
+		TDF = op.TDModules.mod.TDFunctions
 
 		self.IsDragging: bool
 		self._IsDragging: Par[bool]
-
-		TDF = op.TDModules.mod.TDFunctions
 		TDF.createProperty(self, 'IsDragging', value=False, readOnly=True)
+
+		self.DraggedPath: str
+		self._DraggedPath: Par[str]
+		TDF.createProperty(self, 'DraggedPath', value='', readOnly=True)
 
 	# dropName: dropped node name or filename
 	# [x/y]Pos: position in network pane
@@ -42,8 +47,12 @@ class DragCtrl(BaseExt):
 		lastAction = dragControls.op('./null_lastAction')
 		dropAction = int(lastAction['dropAction'])
 		assert 0 <= dropAction <= len(DROP_SCRIPT_MAP), (
-			f'unmapped drop action index {dropAction}'
+			f'unmapped drop action index {dropAction} not in {DROP_SCRIPT_MAP}'
 		)
+
+		if dropAction == 0:
+			self.logInfo('dropped on disabled region, skipping processing')
+			return
 
 		droppedItem = DroppedItem(
 			dropName, dropExt, baseName, destPath, f'{baseName}/{dropName}',
@@ -57,10 +66,6 @@ class DragCtrl(BaseExt):
 		self.logInfo(f'calling {scriptPar} on {destPath}')
 		run(dropScript, droppedItem)
 
-		# dropAction = lastAction['dropAction']
-		# selectedItemIndex = lastAction['selectedItemIndex']
-		# print(f'a:{dropAction} @ {selectedItemIndex}')
-
 	#
 	#  drag arguments for nodes          (and files)
 	#
@@ -71,10 +76,12 @@ class DragCtrl(BaseExt):
 	#       arg5 dragged node parent network  (or parent directory)
 	def OnDrag(self, dragName, index, num, dragExt, baseName):  # pylint: disable=too-many-arguments,unused-argument,no-self-use
 		self._IsDragging.val = True
+		self._DraggedPath.val = f'{baseName}/{dragName}.{dragExt}'
 		print('dragging')
 
 	def OnDragRelease(self):
 		self._IsDragging.val = False
+		self._DraggedPath.val = ''
 		print('drag released')
 
 	def DragAction(self, u, v, controls):

@@ -1,6 +1,7 @@
 import math
 import re
 from collections import namedtuple
+from fnmatch import fnmatchcase
 from pathlib import Path
 
 
@@ -166,3 +167,7 @@ def filePathToName(path: str) -> str:
 		r'(\w)([A-Z])', r'\1 \2',
 		Path(path).stem.replace('-', ' ').replace('_', ' ')
 	).title()
+
+
+def matchesGlob(glob: str, path: str) -> bool:
+	return fnmatchcase(path, glob)
