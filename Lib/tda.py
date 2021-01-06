@@ -1,3 +1,4 @@
+from collections import namedtuple
 from typing import Generic, TypeVar
 
 T = TypeVar('T')
@@ -61,3 +62,12 @@ class LoadableExt(BaseExt):
 	def setLoaded(self, wasSuccessful=True):
 		self._Loaded.val = wasSuccessful
 		self._Loading.val = False
+
+
+# TODO: look into better way to import things from other extensions
+DroppedItem = namedtuple(
+	'DroppedItem', [
+		'dropName', 'dropExt', 'baseName', 'destPath', 'itemPath',
+		'selectedItemIndex'
+	]
+)
