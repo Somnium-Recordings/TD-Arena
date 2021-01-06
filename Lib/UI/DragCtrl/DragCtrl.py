@@ -1,14 +1,4 @@
-from collections import namedtuple
-from fnmatch import fnmatchcase
-
-from tda import BaseExt, Par
-
-DroppedItem = namedtuple(
-	'DroppedItem', [
-		'dropName', 'dropExt', 'baseName', 'destPath', 'itemPath',
-		'selectedItemIndex'
-	]
-)
+from tda import BaseExt, DroppedItem, Par
 
 DROP_SCRIPT_MAP = [
 	'DISABLED_ACTION_STATE',
@@ -43,8 +33,8 @@ class DragCtrl(BaseExt):
 	def OnDrop(
 		self, dropName, xPos, yPos, index, totalDragged, dropExt, baseName, destPath
 	):  # pylint: disable=too-many-arguments,unused-argument
-		dragControls = op(destPath)
-		lastAction = dragControls.op('./null_lastAction')
+		dropControls = op(destPath)
+		lastAction = dropControls.op('./null_lastAction')
 		dropAction = int(lastAction['dropAction'])
 		assert 0 <= dropAction <= len(DROP_SCRIPT_MAP), (
 			f'unmapped drop action index {dropAction} not in {DROP_SCRIPT_MAP}'
@@ -55,16 +45,20 @@ class DragCtrl(BaseExt):
 			return
 
 		droppedItem = DroppedItem(
-			dropName, dropExt, baseName, destPath, f'{baseName}/{dropName}',
-			int(lastAction['selectedItemIndex'])
+			dropName,
+			dropExt,
+			baseName,
+			destPath,
+			itemPath=f'{baseName}/{dropName}',
+			selectedItemIndex=int(lastAction['selectedItemIndex'])
 		)
 		self.logInfo(f'dropped {droppedItem.itemPath} on {destPath}')
 
 		scriptPar = DROP_SCRIPT_MAP[dropAction]
-		dropScript = dragControls.par[scriptPar].eval()
+		dropScript = dropControls.par[scriptPar].eval()
 
-		self.logInfo(f'calling {scriptPar} on {destPath}')
-		run(dropScript, droppedItem)
+		self.logDebug(f'calling {scriptPar} on {destPath}')
+		run(dropScript, droppedItem, fromOP=dropControls, asParameter=scriptPar)
 
 	#
 	#  drag arguments for nodes          (and files)
@@ -77,13 +71,9 @@ class DragCtrl(BaseExt):
 	def OnDrag(self, dragName, index, num, dragExt, baseName):  # pylint: disable=too-many-arguments,unused-argument,no-self-use
 		self._IsDragging.val = True
 		self._DraggedPath.val = f'{baseName}/{dragName}.{dragExt}'
-		print('dragging')
+		self.logDebug(f'started dragging {self.DraggedPath}')
 
 	def OnDragRelease(self):
 		self._IsDragging.val = False
 		self._DraggedPath.val = ''
-		print('drag released')
-
-	def DragAction(self, u, v, controls):
-		print(f'checking action for {controls.path}')
-		return 1 if u > .5 else 0
+		self.logDebug('drag released')

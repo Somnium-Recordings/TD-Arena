@@ -1,6 +1,6 @@
 from functools import reduce
 
-from tda import BaseExt
+from tda import BaseExt, DroppedItem
 from tdaUtils import layoutComps
 
 DIRECTIONS = ('l', 'r', 'b', 't')
@@ -62,13 +62,13 @@ DEFAULT_LAYOUT = {
 		{'id': 0, 'l': None, 'r': None, 'b': None, 't': None, 'pos': 0.3902},
 	],
 	'panelMap': [
-		['path',                                   'cellID'],
-		['/tdArena/ui/assetBrowserUI',             1],
-		['/tdArena/ui/parametersUI/selectedClip',  2],
-		['/tdArena/ui/parametersUI/selectedLayer', 2],
-		['/tdArena/ui/parametersUI/composition',   2],
-		['/tdArena/ui/previs',                     3],
-		['/tdArena/ui/clipLauncherUI',             0]
+		['path',                                   'cellID', 'order'],
+		['/tdArena/ui/assetBrowserUI',             1,        0],
+		['/tdArena/ui/parametersUI/selectedClip',  2,        0],
+		['/tdArena/ui/parametersUI/selectedLayer', 2,        1],
+		['/tdArena/ui/parametersUI/composition',   2,        2],
+		['/tdArena/ui/previs',                     3,        0],
+		['/tdArena/ui/clipLauncherUI',             0,        0]
 	]
 }
 # yapf: enable
@@ -132,7 +132,9 @@ class Grid(BaseExt):
 
 		self.Init()
 
-	def AddCell(self, baseCell, targetDirection: str):
+	def AddCell(
+		self, baseCell, targetDirection: str, droppedItem: DroppedItem = None
+	):
 		# TODO: this is obnoxious to follow, just use 4 if/else statemetns
 		# TODO: If new anchor is not within repositionxmin, reject new division
 		# TODO: Support adding cell to a divider instead of a cell
@@ -147,6 +149,10 @@ class Grid(BaseExt):
 		oppositeDivider = getDivider(baseCell, oppositeDirection)
 
 		newDivider = self.AddDivider(targetDivider, oppositeDivider, targetDirection)
+
+		self.logInfo(
+			f'splitting cellID {baseCell.digits} to the {targetDirection} with {nameIfSet(newDivider)}'
+		)
 
 		newCell = self.createNextCell()
 		setDivider(newCell, oppositeDirection, newDivider)
@@ -165,9 +171,42 @@ class Grid(BaseExt):
 			setDivider(newCell, 'b', getDivider(baseCell, 'b'))
 			setDivider(newCell, 't', getDivider(baseCell, 't'))
 
+		self.logInfo(f'new cellID {newCell.digits} created')
+
+		if droppedItem:
+			self.MovePanelIntoCell(newCell, droppedItem)
+
+	def MovePanelIntoCell(self, targetCell, droppedItem: DroppedItem):
+		itemHeadingOp = op(droppedItem.itemPath)
+		sourceCellPanelsDat = itemHeadingOp.parent.cell.op('./null_cellPanels')
+		targetCellPanelsDat = targetCell.op('./null_cellPanels')
+		panelPath = sourceCellPanelsDat[itemHeadingOp.digits + 1, 'path'].val
+
 		self.logInfo(
-			f'splitting cell {baseCell.digits} to the {targetDirection} with {nameIfSet(newDivider)}'
+			(
+				f'moving panel {panelPath} into cellID {targetCell.digits}',
+				f' at index {droppedItem.selectedItemIndex}'
+			)
 		)
+		self.panelMapTable[panelPath, 'cellID'] = targetCell.digits
+
+		# Move path to requested index in sibling panel order
+		# NOTE: this dat is already sorted by the `order` column
+		panelPaths = [c.val for c in targetCellPanelsDat.col('path')[1:]]
+		if panelPath in panelPaths:
+			panelPaths.remove(panelPath)
+		panelPaths.insert(droppedItem.selectedItemIndex, panelPath)
+		for index, path in enumerate(panelPaths):
+			self.panelMapTable[path, 'order'] = index
+
+		self.RemoveEmptyCells()
+
+	def RemoveEmptyCells(self):
+		mappedCellIDs = {int(c.val) for c in self.panelMapTable.col('cellID')[1:]}
+		for cell in self.cells:
+			if cell.digits not in mappedCellIDs:
+				self.logInfo(f'removing empty cellID {cell.digits}')
+				self.RemoveCell(cell)
 
 	# TODO: this code is awful, clean up before merge
 	# pylint: disable=too-many-branches,too-many-statements
