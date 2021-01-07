@@ -23,7 +23,7 @@ class ParameterContainer(BaseExt):
 
 	def __init__(self, ownerComponent, logger):
 		super().__init__(ownerComponent, logger)
-		self.sectionTemplate = op.uiTheme.op('sectionTemplate')
+		self.sectionTemplate = op.uiTheme.op('parameterSectionTemplate')
 		self.parameterTemplates = {
 			'Float': op.uiTheme.op('sliderHorzTemplate'),
 			'Header': op.uiTheme.op('labelTemplate'),

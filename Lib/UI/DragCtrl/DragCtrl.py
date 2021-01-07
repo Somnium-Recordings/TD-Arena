@@ -22,6 +22,7 @@ class DragCtrl(BaseExt):
 		self.DraggedPath: str
 		self._DraggedPath: Par[str]
 		TDF.createProperty(self, 'DraggedPath', value='', readOnly=True)
+		print('TODO: remove uiTheme.Hoverbordersize')
 
 	# dropName: dropped node name or filename
 	# [x/y]Pos: position in network pane
