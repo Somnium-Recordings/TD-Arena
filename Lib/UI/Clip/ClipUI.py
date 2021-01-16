@@ -1,64 +1,43 @@
-from tda import BaseExt
+from tda import BaseExt, DroppedItem
 
 
 class ClipUI(BaseExt):
 	@property
-	def ClipAddress(self):
-		return '/selecteddeck/layers/{}/clips/{}'.format(
-			self.ownerComponent.parent.layerUI.digits, self.ownerComponent.digits
-		)
+	def ClipDeckAddress(self):
+		return self.ownerComponent.par.Clipdeckaddress.eval()
 
-	def __init__(self, ownerComponent, logger, browserUI, uiState, compCtrl):  # pylint: disable=too-many-arguments
-
+	def __init__(
+		self, ownerComponent, logger, uiState, movieBrowser, generatorBrowser,
+		effectBrowser
+	):  # pylint: disable=too-many-arguments
 		super().__init__(ownerComponent, logger)
-		self.browserUI = browserUI
 		self.uiState = uiState
-		self.compCtrl = compCtrl
+		self.movieBrowser = movieBrowser
+		self.generatorBrowser = generatorBrowser
+		self.effectBrowser = effectBrowser
 
-	#
-	#  arguments for dropping nodes           (and files)
-	#
-	#       args[0] dropped node name            (or filename)
-	#       args[1] x position
-	#       args[2] y position
-	#       args[3] dragged index
-	#       args[4] total dragged
-	#       args[5] operator                     (or file extension)
-	#       args[6] dragged node parent network  (or parent directory)
-	#       args[7] dropped network
-	#
-	def OnDrop(self, *args):
-		droppedNode = args[0]
-		sourceType = self.getSourceType(droppedNode)
-		if sourceType is None:
-			self.logDebug('ignoring drop event for unhandled sourceType')
-			return
-
-		(fileName, filePath) = self.browserUI.GetPath(droppedNode)
-
-		if sourceType == 'effect':
-			self.uiState.SendMessage(f'{self.ClipAddress}/video/effects/add', filePath)
-		else:
+	def OnDrop(self, droppedItem: DroppedItem):
+		if droppedItem.dropName.startswith('movie'):
+			(fileName, filePath) = self.movieBrowser.GetPath(droppedItem.dropName)
 			self.uiState.SendMessage(
-				f'{self.ClipAddress}/source/load', sourceType, fileName, filePath
+				f'{self.ClipDeckAddress}/source/load', 'movie', fileName, filePath
 			)
-
-	def getSourceType(self, nodeName):
-		if nodeName.startswith('movie'):
-			return 'movie'
-
-		if nodeName.startswith('generator'):
-			return 'tox'
-
-		if nodeName.startswith('effect'):
-			return 'effect'
-
-		self.logDebug('Could not match node to clip type: {}'.format(nodeName))
-
-		return None
+		elif droppedItem.dropName.startswith('generator'):
+			(fileName, filePath) = self.generatorBrowser.GetPath(droppedItem.dropName)
+			# TODO: should we change sourceType to "generator" instead of tox?
+			self.uiState.SendMessage(
+				f'{self.ClipDeckAddress}/source/load', 'tox', fileName, filePath
+			)
+		elif droppedItem.dropName.startswith('effect'):
+			(_, filePath) = self.effectBrowser.GetPath(droppedItem.dropName)
+			self.uiState.SendMessage(
+				f'{self.ClipDeckAddress}/video/effects/add', filePath
+			)
+		else:
+			raise NotImplementedError(f'unsupported drop name: {droppedItem.dropName}')
 
 	def OnLeftClickThumb(self):
-		self.uiState.SendMessage(f'{self.ClipAddress}/connect')
+		self.uiState.SendMessage(f'{self.ClipDeckAddress}/connect')
 
 	def OnRightClickThumb(self):
-		self.uiState.SendMessage(f'{self.ClipAddress}/clear')
+		self.uiState.SendMessage(f'{self.ClipDeckAddress}/clear')

@@ -55,20 +55,22 @@ DEFAULT_LAYOUT = {
 		{'id': 3, 'l': 1,    'r': None, 'b': 0,    't': None},
 	],
 	'vDividers': [
-		{'id': 0, 'l': None, 'r': 1,    'b': 0,    't': None, 'pos': 0.2557},
+		{'id': 0, 'l': None, 'r': 1,    'b': 0,    't': None, 'pos': 0.35},
 		{'id': 1, 'l': 0,    'r': None, 'b': 0,    't': None, 'pos': 0.7161},
 	],
 	'hDividers': [
 		{'id': 0, 'l': None, 'r': None, 'b': None, 't': None, 'pos': 0.3902},
 	],
 	'panelMap': [
-		['path',                                   'cellID', 'order'],
-		['/tdArena/ui/assetBrowserUI',             1,        0],
-		['/tdArena/ui/parametersUI/selectedClip',  2,        0],
-		['/tdArena/ui/parametersUI/selectedLayer', 2,        1],
-		['/tdArena/ui/parametersUI/composition',   2,        2],
-		['/tdArena/ui/previs',                     3,        0],
-		['/tdArena/ui/clipLauncherUI',             0,        0]
+		['path',                                           'cellID', 'order'],
+		['/tdArena/ui/assetBrowserUI/browserUI_movie',     3,        1],
+		['/tdArena/ui/assetBrowserUI/browserUI_generator', 3,        2],
+		['/tdArena/ui/assetBrowserUI/browserUI_effect',    3,        3],
+		['/tdArena/ui/parametersUI/selectedLayer',         1,        1],
+		['/tdArena/ui/parametersUI/selectedClip',          2,        0],
+		['/tdArena/ui/parametersUI/composition',           1,        0],
+		['/tdArena/ui/previs',                             3,        0],
+		['/tdArena/ui/clipLauncherUI',                     0,        0]
 	]
 }
 # yapf: enable
