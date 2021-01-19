@@ -7,11 +7,17 @@ from tdaTesting import MockOP, MockTable
 from UI.Parameters import Parameters
 
 
+def test_matchEffectAddress():
+	assert Parameters.matchEffectAddress(
+		'/composition/clips/4/video/effects/0/tox'
+	) == '/composition/clips/4/video/effects/0'
+	assert Parameters.matchEffectAddress('/composition/clips/4/video') is None
+
+
 def test_getSectionCloseScript():
 	assert Parameters.getSectionCloseScript(
-		'/composition/clips/4/video/effects/0/tox'
+		'/composition/clips/4/video/effects/0'
 	) == 'op.uiState.SendMessage(\'/composition/clips/4/video/effects/0/clear\')'
-	assert Parameters.getSectionCloseScript('/composition/clips/4/video') is None
 
 
 class TestParameters():

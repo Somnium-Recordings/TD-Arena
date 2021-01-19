@@ -1,6 +1,6 @@
 import re
 
-from tda import BaseExt
+from tda import BaseExt, DroppedItem
 from tdaUtils import clearChildren, layoutChildren, layoutComps
 
 SECTION_EFFECT_RE = re.compile(
@@ -8,12 +8,13 @@ SECTION_EFFECT_RE = re.compile(
 )
 
 
-def getSectionCloseScript(address: str):
+def matchEffectAddress(address: str):
 	m = SECTION_EFFECT_RE.match(address)
-	if m:
-		return f'op.uiState.SendMessage(\'{m.group(1)}/clear\')'
+	return m.group(1) if m else None
 
-	return None
+
+def getSectionCloseScript(effectAddress: str):
+	return f'op.uiState.SendMessage(\'{effectAddress}/clear\')'
 
 
 class ParameterContainer(BaseExt):
@@ -21,9 +22,10 @@ class ParameterContainer(BaseExt):
 	def address(self):
 		return self.ownerComponent.par.Address.eval()
 
-	def __init__(self, ownerComponent, logger):
+	def __init__(self, ownerComponent, logger, state):
 		super().__init__(ownerComponent, logger)
-		self.sectionTemplate = op.uiTheme.op('parameterSectionTemplate')
+		self.state = state
+		self.sectionTemplate = op.parametersUI.op('parameterSectionTemplate')
 		self.parameterTemplates = {
 			'Float': op.uiTheme.op('sliderHorzTemplate'),
 			'Header': op.uiTheme.op('labelTemplate'),
@@ -54,7 +56,10 @@ class ParameterContainer(BaseExt):
 		self.logDebug(f'creating section for {address}')
 		section = self.sectionContainer.copy(self.sectionTemplate, name='section')
 
-		section.par.Onclosescript = getSectionCloseScript(address)
+		effectAddress = matchEffectAddress(address)
+		if effectAddress:
+			section.par.Onclosescript = getSectionCloseScript(effectAddress)
+			section.par.Address = effectAddress
 
 		self.sections[address] = section
 		self.updateSectionNetowrkPositions()
@@ -80,6 +85,34 @@ class ParameterContainer(BaseExt):
 			if parameter.valid:  # If parent section destroys the containing par this will be fals
 				parameter.destroy()
 
+	def OnDrop(self, droppedItem: DroppedItem, targetSection, direction: str):
+		droppedSection = op(droppedItem.itemPath).parent.section
+		if droppedSection == targetSection:
+			self.logDebug(f'{droppedSection} dropped on self, doing nothing')
+			return
+
+		# Set section order
+		self.logDebug(f'dropped: ${droppedSection} on {direction}:{targetSection}')
+
+		if direction == 't':
+			targetPosition = 'above'
+			alignOrderDelta = -0.5
+		elif direction == 'b':
+			targetPosition = 'below'
+			alignOrderDelta = +0.5
+		else:
+			raise NotImplementedError(f'unsupported drop direction: {direction}')
+
+		# Optimistically set the align order so UI updates while
+		# we wait for reorder update from render
+		droppedSection.par.alignorder = targetSection.par.alignorder.eval(
+		) + alignOrderDelta
+
+		self.state.SendMessage(
+			f'{droppedSection.par.Address}/move', targetPosition,
+			targetSection.par.Address
+		)
+
 	def getParameterSection(self, sectionAddress: str):
 		if sectionAddress not in self.sections:
 			self.logDebug(f'section not found for {sectionAddress}, initializing')
@@ -90,7 +123,7 @@ class ParameterContainer(BaseExt):
 	def createSectionParameter(self, section, style, name):
 		# These are hard-coded into the section template comp
 		if name == 'Section Expanded':
-			return section.op('section')
+			return section.op('sectionHeading')
 		if name == 'Section Order':
 			return section.op('sectionOrder')
 		if name == 'Section Name':
