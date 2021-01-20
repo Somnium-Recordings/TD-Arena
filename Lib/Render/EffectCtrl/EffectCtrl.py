@@ -1,6 +1,6 @@
 from tda import LoadableExt
 from tdaUtils import (EffectLocation, addSectionParameters, filePathToName,
-                      intIfSet, layoutComps)
+                      intIfSet, layoutComps, mapAddressToEffectLocation)
 
 DEFAULT_STATE = {}
 
@@ -70,6 +70,7 @@ class EffectCtrl(LoadableExt):
 
 	def ClearEffect(self, effectLocation: EffectLocation):
 		containerAddress, effectID = effectLocation
+		print(f'{self.effectsContainers.keys()}')
 		assert containerAddress in self.effectsContainers, f'unknown effects container {containerAddress}'
 
 		self.logDebug(f'clearing effect {effectID} from {containerAddress}')
@@ -79,18 +80,33 @@ class EffectCtrl(LoadableExt):
 	def MoveEffect(
 		self, effectLocation: EffectLocation, position: str, targetEffectAddress: str
 	):
+		containerAddress, effectID = effectLocation
+		self.logDebug(
+			f'moving {containerAddress}/{effectID} {position} {targetEffectAddress}'
+		)
+
 		# remember we're going to need to handle "add effect" too, so make reordering generic
 		# insert into new home in linked list
 		# update align order? for each one
 		# update OSR reploy thing to send Ordering updates back to UI
 		#    - is there any need to do this in a certain order to avoid flickering?
-		print(
-			f'TODP: move {effectLocation.effectID} {position} {targetEffectAddress}'
+		assert containerAddress in self.effectsContainers, f'unknown effects container {containerAddress}'
+
+		targetContainerAddress, targetEffectID = mapAddressToEffectLocation(
+			targetEffectAddress
+		)
+		if targetContainerAddress != containerAddress:
+			raise NotImplementedError(
+				'moving effects between containers not implemented yet'
+			)
+
+		self.effectsContainers[containerAddress].MoveEffect(
+			effectID, position, targetEffectID
 		)
 
 
 def getSourceID(effectOp):
-	return intIfSet(effectOp.par.Sourceeffectid.eval())
+	return intIfSet(effectOp.par.Sourceeffectid.eval()) if effectOp else None
 
 
 class EffectsContainer(LoadableExt):
@@ -203,6 +219,47 @@ class EffectsContainer(LoadableExt):
 
 		self.headEffectID = effect.digits
 
+	def MoveEffect(self, effectID: int, position: str, targetEffectID: int):
+		if effectID not in self.effects:
+			self.logWarning(f'could not find requested effectID {effectID} to move')
+			return
+		effect = self.effects[effectID]
+
+		if targetEffectID not in self.effects:
+			self.logWarning(f'could not find requested target ID {targetEffectID}')
+			return
+
+		self.logDebug(f'moving effectID {effectID} {position} {targetEffectID}')
+
+		self.removeFromChain(effect, effectID)
+
+		# move to `insertIntoChain`
+		if position == 'above':
+			insertionID = targetEffectID
+		elif position == 'below':
+			insertionEffect = self.findEffectWithSource(targetEffectID)
+			insertionID = insertionEffect.digits if insertionEffect else insertionEffect
+		else:
+			raise NotImplementedError(f'moving {position} an effect is not implemented')
+
+		effect.par.Sourceeffectid = insertionID
+		if self.headEffectID == insertionID:
+			self.logDebug(f'inserting at head {self.headEffectID} == {insertionID}')
+			self.headEffectID = effectID
+		else:
+			self.logDebug('inserting at previous effect')
+			previousEffect = self.findEffectWithSource(insertionID)
+			previousEffect.par.Sourceeffectid = effectID
+
+		# TODO: reorder?
+
+	def removeFromChain(self, effect, effectID: int):
+		if self.headEffectID == effectID:
+			self.headEffectID = getSourceID(effect)
+		else:
+			previousEffect = self.findEffectWithSource(effectID)
+			previousEffect.par.Sourceeffectid = getSourceID(effect)
+
 	def ClearEffect(self, effectID: int):
 		effect = self.effects.pop(effectID, None)
 
@@ -210,11 +267,7 @@ class EffectsContainer(LoadableExt):
 			self.logWarning(f'could not find requested effect {effectID} to clear')
 			return
 
-		if self.headEffectID == effectID:
-			self.headEffectID = getSourceID(effect)
-		else:
-			previousEffect = self.findEffectWithSource(effectID)
-			previousEffect.par.Sourceeffectid = effect.par.Sourceeffectid.eval()
+		self.removeFromChain(effect, effectID)
 
 		effect.destroy()
 		self.updatEffectNetworkPositions()
