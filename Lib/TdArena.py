@@ -41,10 +41,6 @@ VALUE_MAP = {
 		'target': 'local',
 		'par': 'Oscctrlinport'
 	},
-	'Localerrorsoutport': {
-		'target': 'local',
-		'par': 'Errorsoutport'
-	},
 	'Engineoscinport': {
 		'target': 'engine',
 		'par': 'Oscinport'
@@ -52,10 +48,6 @@ VALUE_MAP = {
 	'Engineoscctrlinport': {
 		'target': 'engine',
 		'par': 'Oscctrlinport'
-	},
-	'Engineerrorsoutport': {
-		'target': 'engine',
-		'par': 'Errorsoutport'
 	},
 	# Paths
 	'Compositionspath': {
@@ -76,10 +68,6 @@ VALUE_MAP = {
 }
 
 pulseMap = {
-	'Clearrendererrors': {
-		'target': 'active',
-		'par': 'Clearerrors'
-	},
 	'Reloadengine': {
 		'target': 'engine',
 		'par': 'reload'

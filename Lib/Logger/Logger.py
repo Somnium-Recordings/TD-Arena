@@ -74,6 +74,9 @@ class Logger:
 		assert self.fileHandler, 'Logger.Clear() cannot be called before the handler is inialized'
 		self.fileHandler.doRollover()
 
+	def ClearErrors(self):
+		self.ownerComp.par.Clearerrors.pulse()
+
 	def LogTouchError(self, message, absFrame, frame, severity, compType, source):  # pylint: disable=too-many-arguments
 		if source in IGNORED_ERROR_SOURCES:
 			return

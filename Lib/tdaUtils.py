@@ -138,6 +138,14 @@ def addressToExport(address):
 	return '{}:{}'.format(path.lstrip('/'), prop)
 
 
+def exportToAddress(exportName):
+	(path, prop) = exportName.split(':')
+
+	address = COLLAPSE_TO_ID_RE.sub(r'/\1s/\3', f'/composition/{path}')
+
+	return f'{address}/{prop}'
+
+
 def addSectionParameters(op, order: int, name: str, opacity: float = None):
 	page = op.appendCustomPage('Section')
 
