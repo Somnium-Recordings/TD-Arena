@@ -63,7 +63,7 @@ class State(BaseExt):
 			)
 			return
 
-		self.logDebug('setting initial value for {} to {}'.format(address, args[0]))
+		self.logDebug('setting value of {} to {}'.format(address, args[0]))
 		ctrlState = self.oscControlState[address]
 		ctrlState['op'].par.Value0 = args[0]
 

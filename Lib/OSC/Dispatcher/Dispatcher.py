@@ -106,6 +106,7 @@ class OSCDispatcher(BaseExt):
 			handler(*args)
 
 	def Reply(self, address, *args):
+		self.logDebug(f'Render -> UI -- {address}:{args}')
 		self.oscIn.sendOSC(address, args)
 
 	def getMapping(self, address, args):

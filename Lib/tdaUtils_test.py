@@ -1,7 +1,7 @@
 import pytest
 
-from tdaUtils import (addressToValueLocation, filePathToName, getClipID,
-                      getDeckID, getLayerID, intIfSet,
+from tdaUtils import (addressToValueLocation, exportToAddress, filePathToName,
+                      getClipID, getDeckID, getLayerID, intIfSet,
                       mapAddressToDeckLocation, mapAddressToEffectLocation,
                       parameterPathToAddress)
 
@@ -71,6 +71,23 @@ def test_addressToValueLocation():
 	assert addressToValueLocation(
 		'/composition/decks/1/Deckname', '/tdArena/render/composition'
 	) == ('/tdArena/render/composition/decks/deck1', 'Deckname')
+	# yapf: enable
+
+
+def test_exportToAddress():
+	# yapf: disable
+	assert exportToAddress(
+		'clips/clip5/video/source/tox:Sectionopacity'
+	) == ('/composition/clips/5/video/source/tox/Sectionopacity')
+	assert exportToAddress(
+		'clips/clip5/video/effects/effect4/tox:Sectionorder'
+	) == ('/composition/clips/5/video/effects/4/tox/Sectionorder')
+	assert exportToAddress(
+		'layers/clip5/video/source/tox:Sectionopacity'
+	) == ('/composition/layers/5/video/source/tox/Sectionopacity')
+	assert exportToAddress(
+		'layers/clip5/video/effects/effect4/tox:Sectionorder'
+	) == ('/composition/layers/5/video/effects/4/tox/Sectionorder')
 	# yapf: enable
 
 

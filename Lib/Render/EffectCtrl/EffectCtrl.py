@@ -43,7 +43,7 @@ class EffectCtrl(LoadableExt):
 	def RegisterEffectsContainer(self, address: str, containerComp):
 		self.logDebug(f'registering effects container at {address}')
 
-		if not hasattr(self, 'saveState'):
+		if not hasattr(self, 'saveState') or self.saveState is None:
 			self.logWarning(
 				f'effect ({address}) cannot be initialized before save state is loaded.'
 				' NOTE: If this warning occured during extension modifification,'
@@ -70,8 +70,9 @@ class EffectCtrl(LoadableExt):
 
 	def ClearEffect(self, effectLocation: EffectLocation):
 		containerAddress, effectID = effectLocation
-		print(f'{self.effectsContainers.keys()}')
-		assert containerAddress in self.effectsContainers, f'unknown effects container {containerAddress}'
+		assert containerAddress in self.effectsContainers, (
+			f'effects container {containerAddress} not found in {self.effectsContainers.keys()}'
+		)
 
 		self.logDebug(f'clearing effect {effectID} from {containerAddress}')
 		self.effectsContainers[containerAddress].ClearEffect(effectID)
@@ -174,13 +175,12 @@ class EffectsContainer(LoadableExt):
 			self.AddEffect(
 				effectID=effectID,
 				effectPath=effect['Effectpath'],
-				sourceEffectID=effect['Sourceeffectid']
+				# sourceEffectID=effect['Sourceeffectid']
 			)
 
-		if headEffectId != self.headEffectID:
-			self.logWarning(
-				'loading save state did not result in expected Headeffectid'
-			)
+		assert headEffectId == self.headEffectID, (
+			'loading save state did not result in expected Headeffectid'
+		)
 
 		self.logInfo(f'loaded {len(effectsToCreate)} effects into chain')
 		self.setLoaded()
@@ -197,17 +197,16 @@ class EffectsContainer(LoadableExt):
 			}
 		}
 
-	def AddEffect(
-		self, effectPath, sourceEffectID: int = None, effectID: int = None
+	def AddEffect(  # To bottom
+		self, effectPath, effectID: int = None, # sourceEffectID: int = None,
 	):
 		self.logDebug(f'adding {effectPath}')
 
 		effect = self.createNextEffect(effectID)
 		effect.par.Effectpath = effectPath
-
-		if sourceEffectID is None and self.headEffectID is not None:
-			sourceEffectID = self.headEffectID
-		effect.par.Sourceeffectid = sourceEffectID
+		if effectID is None:
+			# we need to get id from created effect when creating new one
+			effectID = effect.digits
 
 		tox = effect.op('./tox')
 		tox.par.reinitnet.pulse()
@@ -217,7 +216,7 @@ class EffectsContainer(LoadableExt):
 			tox, order=len(self.effects), opacity=1.0, name=filePathToName(effectPath)
 		)
 
-		self.headEffectID = effect.digits
+		self.insertIntoChain(effect, effectID)
 
 	def MoveEffect(self, effectID: int, position: str, targetEffectID: int):
 		if effectID not in self.effects:
@@ -233,32 +232,56 @@ class EffectsContainer(LoadableExt):
 
 		self.removeFromChain(effect, effectID)
 
-		# move to `insertIntoChain`
-		if position == 'above':
-			insertionID = targetEffectID
-		elif position == 'below':
-			insertionEffect = self.findEffectWithSource(targetEffectID)
-			insertionID = insertionEffect.digits if insertionEffect else insertionEffect
-		else:
-			raise NotImplementedError(f'moving {position} an effect is not implemented')
+		if position == 'below':
+			if targetEffectID == self.headEffectID:
+				targetEffectID = None  # insert at head
+			else:
+				effectBelowTarget = self.findEffectWithSource(targetEffectID)
+				targetEffectID = effectBelowTarget.digits
 
-		effect.par.Sourceeffectid = insertionID
-		if self.headEffectID == insertionID:
-			self.logDebug(f'inserting at head {self.headEffectID} == {insertionID}')
+		self.insertIntoChain(effect, effectID, targetEffectID)
+
+	def insertIntoChain(self, effect, effectID, targetEffectID=None):
+		if targetEffectID is None:
+			self.logDebug(f'inserting effect {effectID} at head')
+			effect.par.Sourceeffectid = self.headEffectID
 			self.headEffectID = effectID
 		else:
-			self.logDebug('inserting at previous effect')
-			previousEffect = self.findEffectWithSource(insertionID)
-			previousEffect.par.Sourceeffectid = effectID
+			self.logDebug(f'inserting effect {effectID} at {targetEffectID}')
+			targetEffect = self.effects[targetEffectID]
+			effect.par.Sourceeffectid = getSourceID(targetEffect)
+			targetEffect.par.Sourceeffectid = effectID
 
-		# TODO: reorder?
+		self.updateEffectOrder()
 
 	def removeFromChain(self, effect, effectID: int):
+		sourceID = getSourceID(effect)
+
 		if self.headEffectID == effectID:
-			self.headEffectID = getSourceID(effect)
+			self.logDebug(f'removing effect {effectID}, updating head -> {sourceID}')
+			self.headEffectID = sourceID
 		else:
 			previousEffect = self.findEffectWithSource(effectID)
-			previousEffect.par.Sourceeffectid = getSourceID(effect)
+			self.logDebug(
+				f'removing effect {effectID}, updating {previousEffect.digits} -> {sourceID}'
+			)
+			previousEffect.par.Sourceeffectid = sourceID
+
+		effect.par.Sourceeffectid = None
+
+	def updateEffectOrder(self):
+		order = len(self.effects)
+
+		nextEffectID = self.headEffectID
+		while nextEffectID is not None:
+			assert order > 0, 'effect order should never drop below 1'
+			effect = self.effects[nextEffectID]
+			sectionOrder = effect.op('./tox').par.Sectionorder
+			if sectionOrder.eval() != order:
+				self.logDebug(f'setting {nextEffectID} section order to {order}')
+				sectionOrder.val = order
+			order -= 1
+			nextEffectID = getSourceID(effect)
 
 	def ClearEffect(self, effectID: int):
 		effect = self.effects.pop(effectID, None)
@@ -273,12 +296,17 @@ class EffectsContainer(LoadableExt):
 		self.updatEffectNetworkPositions()
 		self.logDebug(f'effect {effectID} cleared')
 
-	def findEffectWithSource(self, sourceEffectID: int):
+	def findEffectWithSource(self, effectID: int):
+		self.logDebug(f'looking for effect -> {effectID}')
 		effect = self.effects[self.headEffectID]
-		while getSourceID(effect) != sourceEffectID:
-			effect = self.effects[getSourceID(effect)]
-			assert effect is not None, f'could not find effect pointing to ID {sourceEffectID}'
+		sourceEffectID = getSourceID(effect)
 
+		while sourceEffectID != effectID:
+			effect = self.effects[sourceEffectID] if sourceEffectID is not None else None
+			assert effect is not None, f'could not find effect -> {effectID}'
+			sourceEffectID = getSourceID(effect)
+
+		self.logDebug(f'found {effect.digits} -> {effectID}')
 		return effect
 
 	def createNextEffect(self, effectID: int = None):
