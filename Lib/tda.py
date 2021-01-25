@@ -64,7 +64,7 @@ class LoadableExt(BaseExt):
 		self._Loading.val = False
 
 
-# TODO: look into better way to import things from other extensions
+# TODO(#56): look into better way to import things from other extensions
 DroppedItem = namedtuple(
 	'DroppedItem', [
 		'dropName', 'dropExt', 'baseName', 'destPath', 'itemPath',

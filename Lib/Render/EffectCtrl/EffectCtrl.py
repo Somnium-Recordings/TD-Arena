@@ -77,7 +77,6 @@ class EffectCtrl(LoadableExt):
 		self.logDebug(f'clearing effect {effectID} from {containerAddress}')
 		self.effectsContainers[containerAddress].ClearEffect(effectID)
 
-	# pylint: disable=no-self-use
 	def MoveEffect(
 		self, effectLocation: EffectLocation, position: str, targetEffectAddress: str
 	):
@@ -86,11 +85,6 @@ class EffectCtrl(LoadableExt):
 			f'moving {containerAddress}/{effectID} {position} {targetEffectAddress}'
 		)
 
-		# remember we're going to need to handle "add effect" too, so make reordering generic
-		# insert into new home in linked list
-		# update align order? for each one
-		# update OSR reploy thing to send Ordering updates back to UI
-		#    - is there any need to do this in a certain order to avoid flickering?
 		assert containerAddress in self.effectsContainers, f'unknown effects container {containerAddress}'
 
 		targetContainerAddress, targetEffectID = mapAddressToEffectLocation(
@@ -175,7 +169,6 @@ class EffectsContainer(LoadableExt):
 			self.AddEffect(
 				effectID=effectID,
 				effectPath=effect['Effectpath'],
-				# sourceEffectID=effect['Sourceeffectid']
 			)
 
 		assert headEffectId == self.headEffectID, (

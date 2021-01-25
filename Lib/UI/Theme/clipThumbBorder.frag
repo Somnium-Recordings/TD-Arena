@@ -1,6 +1,4 @@
 
-// Example Pixel Shader
-
 uniform float uBorderState;
 uniform vec4 uHoverBorderColor;
 uniform vec4 uActiveBorderColor;

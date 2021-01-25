@@ -1,5 +1,3 @@
-// Example Pixel Shader
-
 uniform float uDividerWidth;
 uniform vec4 uAccentColor;
 uniform float uDropState;
