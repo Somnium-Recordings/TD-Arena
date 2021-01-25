@@ -177,5 +177,7 @@ def filePathToName(path: str) -> str:
 	).title()
 
 
-def matchesGlob(glob: str, path: str) -> bool:
-	return fnmatchcase(path, glob)
+def matchesGlob(globStr: str, path: str) -> bool:
+	return next(
+		(True for glob in globStr.split(',') if fnmatchcase(path, glob)), False
+	)
