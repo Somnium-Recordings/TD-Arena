@@ -86,6 +86,17 @@ class ParameterContainer(BaseExt):
 				parameter.destroy()
 
 	def OnDrop(self, droppedItem: DroppedItem, targetSection, direction: str):
+		print(droppedItem)
+		if droppedItem.dropName.startswith('section'):
+			self.onSectionDrop(droppedItem, targetSection, direction)
+		else:
+			raise NotImplementedError(
+				f'unsupported item dropped: {droppedItem.dropName}'
+			)
+
+	def onSectionDrop(
+		self, droppedItem: DroppedItem, targetSection, direction: str
+	):
 		droppedSection = op(droppedItem.itemPath).parent.section
 		if droppedSection == targetSection:
 			self.logDebug(f'{droppedSection} dropped on self, doing nothing')
