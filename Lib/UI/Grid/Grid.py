@@ -137,12 +137,12 @@ class Grid(BaseExt):
 	def AddCell(
 		self, baseCell, targetDirection: str, droppedItem: DroppedItem = None
 	):
-		# TODO: this is obnoxious to follow, just use 4 if/else statemetns
-		# TODO: If new anchor is not within repositionxmin, reject new division
-		# TODO: Support adding cell to a divider instead of a cell
-		# TODO: derive min/max cell size from contents
-		# TODO: allow 'non-stackable" cells: during init, each gets is own cell that can't be deleted
-		# TODO: save/load "layouts"
+		# TODO(#55): this is obnoxious to follow, just use 4 if/else statemetns
+		# TODO(#55): If new anchor is not within repositionxmin, reject new division
+		# TODO(#55): Support adding cell to a divider instead of a cell
+		# TODO(#55): derive min/max cell size from contents
+		# TODO(#55): allow 'non-stackable" cells: during init, each gets is own cell that can't be deleted
+		# TODO(#54): save/load "layouts"
 
 		assert targetDirection in DIRECTIONS, f'invalid direction requested {targetDirection}'
 		oppositeDirection = OPPOSITE_DIRECTIONS[targetDirection]
@@ -210,7 +210,6 @@ class Grid(BaseExt):
 				self.logInfo(f'removing empty cellID {cell.digits}')
 				self.RemoveCell(cell)
 
-	# TODO: this code is awful, clean up before merge
 	# pylint: disable=too-many-branches,too-many-statements
 	def AddDivider(self, targetDivider, oppositeDivider, direction):
 		if direction == 'r':
