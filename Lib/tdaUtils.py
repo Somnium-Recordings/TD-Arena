@@ -4,6 +4,23 @@ from collections import namedtuple
 from fnmatch import fnmatchcase
 from pathlib import Path
 
+SELECTED_DECK_LOCATION_RE = re.compile(
+	r'/selecteddeck/layers/(\d+)/clips/(\d+)/?.*'
+)
+EFFECT_LOCATION_RE = re.compile(r'(/composition/.*/effects)/(\d+)/?.*')
+EFFECT_CONTAINER_RE = re.compile(r'(/composition/.*/effects)/?.*')
+DECK_ID_RE = re.compile(r'/composition/decks/(\d+)')
+LAYER_ID_RE = re.compile(r'/composition/layers/(\d+)')
+CLIP_ID_RE = re.compile(r'/composition/clips/(\d+)')
+EXPAND_FROM_ID_RE = re.compile( # /layer/1 -> /layer/layer1
+	r'(layer|clip|deck|effect)s/([\d]+)'
+)
+COLLAPSE_TO_ID_RE = re.compile( # /layer/layer1 -> /layer/1
+	r'/(layer|clip|deck|effect)s/(layer|clip|deck|effect)(\d+)'
+)
+
+EffectLocation = namedtuple('EffectLocation', ['containerAddress', 'effectID'])
+
 
 def intIfSet(stringNumber):
 	# NOTE: the == 0 check is to support touch table cells with a value of 0
@@ -27,9 +44,13 @@ def getCellValues(datRow):
 	return [cell.val for cell in datRow]
 
 
-def clearChildren(op):
+def clearChildren(op, exclude=None):
+	if not exclude:
+		exclude = []
+
 	for child in op.findChildren(depth=1):
-		child.destroy()
+		if child.path not in exclude:
+			child.destroy()
 
 
 def syncToDat(data, targetDat):
@@ -46,21 +67,12 @@ def syncToDat(data, targetDat):
 			targetDat[rowIndex, columnIndex] = cell or ''
 
 
-SELECTED_DECK_LOCATION_RE = re.compile(
-	r'/selecteddeck/layers/(\d+)/clips/(\d+)/?.*'
-)
 # TODO(#47): turn deckLocation into named tuple since it's used in a bunch of places
-
-
 def mapAddressToDeckLocation(address: str):
 	m = re.match(SELECTED_DECK_LOCATION_RE, address)
 	assert m, 'expected to match layer and clip number in {}'.format(address)
 
 	return (int(m.group(1)), int(m.group(2)))
-
-
-EFFECT_LOCATION_RE = re.compile(r'(/composition/.*/effects)/(\d+)/?.*')
-EffectLocation = namedtuple('EffectLocation', ['containerAddress', 'effectID'])
 
 
 def mapAddressToEffectLocation(address: str) -> EffectLocation:
@@ -70,7 +82,11 @@ def mapAddressToEffectLocation(address: str) -> EffectLocation:
 	return EffectLocation(containerAddress=m.group(1), effectID=int(m.group(2)))
 
 
-DECK_ID_RE = re.compile(r'/composition/decks/(\d+)')
+def mapAddressToEffectContainer(address: str) -> str:
+	m = re.match(EFFECT_CONTAINER_RE, address)
+	assert m, f'expected to match effect container in {address}'
+
+	return m.group(1)
 
 
 def getDeckID(address):
@@ -80,9 +96,6 @@ def getDeckID(address):
 	return int(m.group(1))
 
 
-LAYER_ID_RE = re.compile(r'/composition/layers/(\d+)')
-
-
 def getLayerID(address):
 	m = re.match(LAYER_ID_RE, address)
 	assert m, 'expected to match layer id in {}'.format(address)
@@ -90,18 +103,11 @@ def getLayerID(address):
 	return int(m.group(1))
 
 
-CLIP_ID_RE = re.compile(r'/composition/clips/(\d+)')
-
-
 def getClipID(address):
 	m = re.match(CLIP_ID_RE, address)
 	assert m, 'expected to match clip id in {}'.format(address)
 
 	return int(m.group(1))
-
-
-# /layer/1 -> /layer/layer1
-EXPAND_FROM_ID_RE = re.compile(r'(layer|clip|deck|effect)s/([\d]+)')
 
 
 def addressToValueLocation(address, compositionPath):
@@ -113,12 +119,6 @@ def addressToValueLocation(address, compositionPath):
 	fullPath = EXPAND_FROM_ID_RE.sub(r'\1s/\1\2', address)
 
 	return tuple(fullPath.replace('/composition', compositionPath).rsplit('/', 1))
-
-
-# /layer/layer1 -> /layer/1
-COLLAPSE_TO_ID_RE = re.compile(
-	r'/(layer|clip|deck|effect)s/(layer|clip|deck|effect)(\d+)'
-)
 
 
 def parameterPathToAddress(path: str, parameter: str):

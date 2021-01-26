@@ -2,8 +2,8 @@ import pytest
 
 from tdaUtils import (addressToValueLocation, exportToAddress, filePathToName,
                       getClipID, getDeckID, getLayerID, intIfSet,
-                      mapAddressToDeckLocation, mapAddressToEffectLocation,
-                      parameterPathToAddress)
+                      mapAddressToDeckLocation, mapAddressToEffectContainer,
+                      mapAddressToEffectLocation, parameterPathToAddress)
 
 
 def test_intIfSet():
@@ -34,6 +34,27 @@ def test_mapAddressToEffectLocation():
 
 	with pytest.raises(AssertionError):
 		mapAddressToEffectLocation('/foo')
+
+
+def test_mapAddressToEffectContainer():
+	assert mapAddressToEffectContainer(
+		'/composition/clips/4/video/effects/5'
+	) == '/composition/clips/4/video/effects'
+
+	assert mapAddressToEffectContainer(
+		'/composition/clips/4/video/effects/5/move'
+	) == '/composition/clips/4/video/effects'
+
+	assert mapAddressToEffectContainer(
+		'/composition/clips/4/video/effects/add'
+	) == '/composition/clips/4/video/effects'
+
+	assert mapAddressToEffectContainer(
+		'/composition/clips/4/video/effects'
+	) == '/composition/clips/4/video/effects'
+
+	with pytest.raises(AssertionError):
+		mapAddressToEffectContainer('/foo')
 
 
 def test_getLayerID():

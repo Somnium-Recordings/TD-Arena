@@ -22,9 +22,10 @@ class ParameterContainer(BaseExt):
 	def address(self):
 		return self.ownerComponent.par.Address.eval()
 
-	def __init__(self, ownerComponent, logger, state):
+	def __init__(self, ownerComponent, logger, state, effectBrowser):
 		super().__init__(ownerComponent, logger)
 		self.state = state
+		self.effectBrowser = effectBrowser
 		self.sectionTemplate = op.parametersUI.op('parameterSectionTemplate')
 		self.parameterTemplates = {
 			'Float': op.uiTheme.op('sliderHorzTemplate'),
@@ -45,7 +46,13 @@ class ParameterContainer(BaseExt):
 		self.sections = {}
 		self.parameters = {}
 		self.ResetActiveElementState()
-		clearChildren(self.sectionContainer)
+		clearChildren(
+			self.sectionContainer,
+			exclude=[
+				self.sectionContainer.op('dropControls').path,
+				self.sectionContainer.op('parameterSpacer').path
+			]
+		)
 
 		self.logInfo('initialized')
 
@@ -85,18 +92,37 @@ class ParameterContainer(BaseExt):
 			if parameter.valid:  # If parent section destroys the containing par this will be fals
 				parameter.destroy()
 
-	def OnDrop(self, droppedItem: DroppedItem, targetSection, direction: str):
-		print(droppedItem)
+	def OnDrop(
+		self, droppedItem: DroppedItem, targetSection=None, direction: str = None
+	):
+		# TODO: lookup targetSection & validate here once everything supports it
+
 		if droppedItem.dropName.startswith('section'):
 			self.onSectionDrop(droppedItem, targetSection, direction)
+		elif droppedItem.dropName.startswith('effect'):
+			self.onEffectDrop(droppedItem, targetSection, direction)
 		else:
 			raise NotImplementedError(
 				f'unsupported item dropped: {droppedItem.dropName}'
 			)
 
-	def onSectionDrop(
-		self, droppedItem: DroppedItem, targetSection, direction: str
+	def onEffectDrop(
+		self, droppedItem: DroppedItem, targetSection=None, _direction: str = None
 	):
+		if targetSection is not None:
+			self.logDebug('dropping onto targets not implemented yet, adding to end')
+
+		(_, filePath) = self.effectBrowser.GetPath(droppedItem.dropName)
+		self.state.SendMessage(f'{self.address}/video/effects/add', filePath)
+
+	def onSectionDrop(
+		self, droppedItem: DroppedItem, targetSection=None, direction: str = None
+	):
+		if targetSection is None:
+			raise NotImplementedError(
+				'dropping section onto parameter background not implemented yet'
+			)
+
 		droppedSection = op(droppedItem.itemPath).parent.section
 		if droppedSection == targetSection:
 			self.logDebug(f'{droppedSection} dropped on self, doing nothing')
