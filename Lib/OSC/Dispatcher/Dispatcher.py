@@ -60,6 +60,18 @@ class OSCDispatcher(BaseExt):
 					'handler': self.effectCtrl.MoveEffect,
 					'mapAddress': mapAddressToEffectLocation
 				},
+				'/composition/layers/*/video/effects/add': {
+					'handler': self.effectCtrl.AddEffect,
+					'mapAddress': mapAddressToEffectContainer
+				},
+				'/composition/layers/*/video/effects/*/clear': {
+					'handler': self.effectCtrl.ClearEffect,
+					'mapAddress': mapAddressToEffectLocation
+				},
+				'/composition/layers/*/video/effects/*/move': {
+					'handler': self.effectCtrl.MoveEffect,
+					'mapAddress': mapAddressToEffectLocation
+				},
 				'/composition/decks/*/select': {
 					'handler': self.deckCtrl.SelectDeck
 				},

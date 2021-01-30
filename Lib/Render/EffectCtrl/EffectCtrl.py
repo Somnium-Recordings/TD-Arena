@@ -113,12 +113,13 @@ class EffectsContainer(LoadableExt):
 	def headEffectID(self, value):
 		self.ownerComponent.par.Headeffectid.val = value
 
-	def __init__(
-		self, ownerComponent, logger, effectCtrl: EffectCtrl, address: str
-	):
+	@property
+	def address(self):
+		return self.ownerComponent.par.Address.eval()
+
+	def __init__(self, ownerComponent, logger, effectCtrl: EffectCtrl):
 		super().__init__(ownerComponent, logger)
 		self.effectCtrl = effectCtrl
-		self.address = address
 		self.effectTemplate = effectCtrl.op('./effectTemplate')
 		self.selectFinalTexture = ownerComponent.op('select_finalTexture')
 
@@ -320,11 +321,3 @@ class EffectsContainer(LoadableExt):
 
 	def updatEffectNetworkPositions(self):
 		layoutComps(self.effects.values())
-
-
-class ClipEffectsContainer(EffectsContainer):
-	def __init__(self, ownerComponent, logger, effectCtrl: EffectCtrl):
-		super().__init__(
-			ownerComponent, logger, effectCtrl,
-			f'/composition/clips/{ownerComponent.parent.clip.digits}/video/effects'
-		)

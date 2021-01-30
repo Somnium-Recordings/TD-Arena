@@ -4,7 +4,7 @@ from tda import BaseExt, DroppedItem
 from tdaUtils import clearChildren, layoutChildren, layoutComps
 
 SECTION_EFFECT_RE = re.compile(
-	r'(/composition/clips/\d+/video/effects/\d+)/.*'
+	r'(/composition/(layer|clip)s/\d+/video/effects/\d+)/.*'
 )
 
 
