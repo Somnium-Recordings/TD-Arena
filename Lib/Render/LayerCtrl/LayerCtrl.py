@@ -12,7 +12,7 @@ class LayerCtrl(LoadableExt):
 		super().__init__(ownerComponent, logger)
 		self.clipCtrl = clipCtrl
 		self.thumbnails = thumbnails
-		self.layerTemplate = ownerComponent.op('./layerTemplate0')
+		self.layerTemplate = ownerComponent.op('./layerTemplate')
 		self.composition = ownerComponent.op('../composition')
 		self.layerList = ownerComponent.op('./table_layerIDs')
 		self.layerState = ownerComponent.op('./null_layerState')
