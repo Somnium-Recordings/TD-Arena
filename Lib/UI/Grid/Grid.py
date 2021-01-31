@@ -49,14 +49,16 @@ def setDividerReferences(element, layoutSpec):
 # pylint: disable=bad-whitespace
 DEFAULT_LAYOUT = {
 	'cells': [
-		{'id': 0, 'l': None, 'r': None, 'b': None, 't': 0   },
+		{'id': 0, 'l': None, 'r': 2,    'b': None, 't': 0   },
 		{'id': 1, 'l': None, 'r': 0,    'b': 0,    't': None},
 		{'id': 2, 'l': 0,    'r': 1,    'b': 0,    't': None},
 		{'id': 3, 'l': 1,    'r': None, 'b': 0,    't': None},
+		{'id': 4, 'l': 2,    'r': None, 'b': None, 't': 0   },
 	],
 	'vDividers': [
 		{'id': 0, 'l': None, 'r': 1,    'b': 0,    't': None, 'pos': 0.35},
 		{'id': 1, 'l': 0,    'r': None, 'b': 0,    't': None, 'pos': 0.7161},
+		{'id': 2, 'l': None, 'r': None, 'b': None, 't': 0,    'pos': 0.7161},
 	],
 	'hDividers': [
 		{'id': 0, 'l': None, 'r': None, 'b': None, 't': None, 'pos': 0.3902},
@@ -70,7 +72,8 @@ DEFAULT_LAYOUT = {
 		['/tdArena/ui/parametersUI/selectedClip',          2,        0],
 		['/tdArena/ui/parametersUI/composition',           1,        0],
 		['/tdArena/ui/previs',                             3,        0],
-		['/tdArena/ui/clipLauncherUI',                     0,        0]
+		['/tdArena/ui/clipLauncherUI',                     0,        0],
+		['/tdArena/ui/audioAnalysis',                      4,        0]
 	]
 }
 # yapf: enable
