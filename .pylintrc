@@ -18,7 +18,9 @@ additional-builtins=COMP,
                     absTime,
                     baseCOMP,
                     op,
+					PaneType,
                     project,
                     run,
                     tableDAT,
-                    tdu
+                    tdu,
+					ui

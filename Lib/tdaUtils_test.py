@@ -1,9 +1,10 @@
 import pytest
 
-from tdaUtils import (addressToValueLocation, exportToAddress, filePathToName,
-                      getClipID, getDeckID, getLayerID, intIfSet,
-                      mapAddressToDeckLocation, mapAddressToEffectContainer,
-                      mapAddressToEffectLocation, parameterPathToAddress)
+from tdaUtils import (addressToToxPath, addressToValueLocation,
+                      exportToAddress, filePathToName, getClipID, getDeckID,
+                      getLayerID, intIfSet, mapAddressToDeckLocation,
+                      mapAddressToEffectContainer, mapAddressToEffectLocation,
+                      parameterPathToAddress)
 
 
 def test_intIfSet():
@@ -93,6 +94,15 @@ def test_addressToValueLocation():
 		'/composition/decks/1/Deckname', '/tdArena/render/composition'
 	) == ('/tdArena/render/composition/decks/deck1', 'Deckname')
 	# yapf: enable
+
+
+def test_addressToToxPath():
+	assert addressToToxPath(
+		'/composition/clips/5/video/effects/4', '/tdArena/render/composition'
+	) == '/tdArena/render/composition/clips/clip5/video/effects/effect4/tox'
+	assert addressToToxPath(
+		'/composition/clips/28/video/source/tox', '/tdArena/render/composition'
+	) == '/tdArena/render/composition/clips/clip28/video/source/tox'
 
 
 def test_exportToAddress():
