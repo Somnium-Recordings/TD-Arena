@@ -7,14 +7,31 @@ SECTION_EFFECT_RE = re.compile(
 	r'(/composition/(layer|clip)s/\d+/video/effects/\d+)/.*'
 )
 
+SECTION_GENERATOR_RE = re.compile(
+	r'(/composition/(layer|clip)s/\d+/video/source/tox).*'
+)
+
 
 def matchEffectAddress(address: str):
 	m = SECTION_EFFECT_RE.match(address)
 	return m.group(1) if m else None
 
 
-def getSectionCloseScript(effectAddress: str):
-	return f'op.uiState.SendMessage(\'{effectAddress}/clear\')'
+def matchGeneratorAddress(address: str):
+	m = SECTION_GENERATOR_RE.match(address)
+	return m.group(1) if m else None
+
+
+def getSectionCloseScript(address: str):
+	return f'op.uiState.SendMessage(\'{address}/clear\')'
+
+
+def getSectionEditScript(address: str):
+	return f'op.tda.EditTox(\'{address}\')'
+
+
+def getSectionSaveScript(address: str):
+	return f'op.tda.SaveTox(\'{address}\')'
 
 
 class ParameterContainer(BaseExt):
@@ -29,6 +46,7 @@ class ParameterContainer(BaseExt):
 		self.sectionTemplate = op.parametersUI.op('parameterSectionTemplate')
 		self.parameterTemplates = {
 			'Float': op.uiTheme.op('sliderHorzTemplate'),
+			'Int': op.uiTheme.op('sliderHorzIntTemplate'),
 			'Header': op.uiTheme.op('labelTemplate'),
 			'StrMenu': op.uiTheme.op('dropDownMenuTemplate'),
 			'Menu': op.uiTheme.op('dropDownMenuTemplate'),
@@ -63,10 +81,21 @@ class ParameterContainer(BaseExt):
 		self.logDebug(f'creating section for {address}')
 		section = self.sectionContainer.copy(self.sectionTemplate, name='section')
 
+		# TODO(#7): clean up this script business
 		effectAddress = matchEffectAddress(address)
 		if effectAddress:
 			section.par.Onclosescript = getSectionCloseScript(effectAddress)
+			section.par.Oneditscript = getSectionEditScript(effectAddress)
+			section.par.Onsavescript = getSectionSaveScript(effectAddress)
 			section.par.Address = effectAddress
+
+		generatorAddress = matchGeneratorAddress(
+			address
+		) if not effectAddress else None
+		if generatorAddress:
+			# TODO(#7): add close script that clears the tox
+			section.par.Oneditscript = getSectionEditScript(generatorAddress)
+			section.par.Onsavescript = getSectionSaveScript(generatorAddress)
 
 		self.sections[address] = section
 		self.updateSectionNetowrkPositions()
@@ -214,7 +243,7 @@ class ParameterContainer(BaseExt):
 
 		if style in ('StrMenu', 'Menu'):
 			parameter.par.Menunames.expr = menuLabels
-		elif style == 'Float':
+		elif style in ('Float', 'Int'):
 			# TODO: propagate clamp values
 			parameter.par.Value0.normMax = normMax
 			parameter.par.Value0.max = normMax

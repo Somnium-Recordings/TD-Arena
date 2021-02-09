@@ -1,4 +1,5 @@
 from tda import BaseExt
+from tdaUtils import addressToToxPath
 
 VALUE_MAP = {
 	# Composition
@@ -107,6 +108,27 @@ class TdArena(BaseExt):
 				self.logWarning(
 					'expected TdArena to have mapped parameter {}'.format(parName)
 				)
+
+	def EditTox(self, address):
+		# TODO(#7): reuse previous panel if still open
+		# TODO(#7): show indicator in UI that thing is being edited
+		# TODO(#7): show indicator in UI when edited by not saved
+		toxPath = addressToToxPath(address, op.composition.path)
+		self.logDebug(f'editing tox at {toxPath}')
+		p = ui.panes.createFloating(type=PaneType.NETWORKEDITOR, name='Edit Tox')
+		p.owner = op(toxPath)
+
+	def SaveTox(self, address):
+		# TODO(#7): save / increment to Backup folder
+		toxPath = addressToToxPath(address, op.composition.path)
+		self.logDebug(f'saving tox at {toxPath}')
+		tox = op(toxPath)
+
+		savePath = tox.par.externaltox.eval()
+		assert savePath, 'cannot save tox without externaltox property set'
+		tox.save(tdu.expandPath(savePath))
+
+		self.logDebug(f'saved tox to {savePath}')
 
 	def SetLibPath(self):
 		# NOTE: os.path.join results in bothforward and backward slashes on Windows

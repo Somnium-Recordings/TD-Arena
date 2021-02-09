@@ -121,6 +121,13 @@ def addressToValueLocation(address, compositionPath):
 	return tuple(fullPath.replace('/composition', compositionPath).rsplit('/', 1))
 
 
+def addressToToxPath(address, compositionPath):
+	(container, el) = addressToValueLocation(address, compositionPath)
+	path = f'{container}/{el}'
+
+	return path if path.endswith('/tox') else f'{path}/tox'
+
+
 def parameterPathToAddress(path: str, parameter: str):
 	"""
 	from: /tdArena/composition/layers/layer1/...
