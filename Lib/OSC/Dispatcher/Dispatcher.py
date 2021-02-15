@@ -2,8 +2,8 @@ from collections import OrderedDict
 from fnmatch import fnmatchcase
 
 from tda import BaseExt
-from tdaUtils import (mapAddressToDeckLocation, mapAddressToEffectContainer,
-                      mapAddressToEffectLocation)
+from tdaUtils import (getLayerID, mapAddressToDeckLocation,
+                      mapAddressToEffectContainer, mapAddressToEffectLocation)
 
 
 class OSCDispatcher(BaseExt):
@@ -59,6 +59,10 @@ class OSCDispatcher(BaseExt):
 				'/composition/clips/*/video/effects/*/move': {
 					'handler': self.effectCtrl.MoveEffect,
 					'mapAddress': mapAddressToEffectLocation
+				},
+				'/composition/layers/*/clear': {
+					'handler': self.layerCtrl.Clear,
+					'mapAddress': getLayerID
 				},
 				'/composition/layers/*/video/effects/add': {
 					'handler': self.effectCtrl.AddEffect,

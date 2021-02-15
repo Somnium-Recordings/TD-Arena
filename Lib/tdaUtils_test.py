@@ -59,6 +59,7 @@ def test_mapAddressToEffectContainer():
 
 
 def test_getLayerID():
+	assert getLayerID('/composition/layers/5/clear') == 5
 	assert getLayerID('/composition/layers/5/clips/4') == 5
 	assert getLayerID('/composition/layers/6') == 6
 	with pytest.raises(AssertionError):

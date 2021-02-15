@@ -65,6 +65,14 @@ class LayerCtrl(LoadableExt):
 
 		return state
 
+	def Clear(self, layerNumber: int):
+		self.logInfo(f'clearing clip from layer {layerNumber}')
+		currentClipID = self.layers[layerNumber].par.Clipid
+		self.layers[layerNumber].par.Clipid = ''
+
+		if currentClipID != '':
+			self.clipCtrl.DeactivateClip(int(currentClipID))
+
 	def ClearClipID(self, clipID: int):
 		assert self.layers, 'cloud not clear clip ID, layers not loaded'
 
