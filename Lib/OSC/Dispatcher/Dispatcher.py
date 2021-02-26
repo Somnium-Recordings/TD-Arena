@@ -98,6 +98,14 @@ class OSCDispatcher(BaseExt):
 					'handler': self.deckCtrl.AddEffect,
 					'mapAddress': mapAddressToDeckLocation
 				},
+				'/selecteddeck/layers/*/insert': {
+					'handler': self.deckCtrl.InsertLayer,
+					'mapAddress': getLayerID
+				},
+				'/selecteddeck/layers/*/remove': {
+					'handler': self.deckCtrl.RemoveLayer,
+					'mapAddress': getLayerID
+				},
 			}
 		)
 		self.logInfo('initialized')

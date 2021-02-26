@@ -4,6 +4,13 @@ from tda import LoadableExt
 from tdaUtils import (clearChildren, getCellValues, getClipID, getDeckID,
                       intIfSet, layoutComps)
 
+DECK_COLUMNS = 10
+
+DEFAULT_STATE = [['Id', 'Deckname', 'State']] + [
+	[deckID, deckName, [[None] * DECK_COLUMNS for _ in range(3)]]
+	for deckID, deckName in enumerate(['Deck One', 'Deck Two', 'Deck Three'])
+] # yapf: disable
+
 
 def clipPrevisTarget(clipID: int) -> str:
 	return f'composition/clips/clip{clipID}/video/null_previs'
@@ -13,7 +20,7 @@ class DeckCtrl(LoadableExt):
 	@property
 	def selectedDeckState(self):
 		# TODO: make this dynamic
-		return self.decks[0]['state']
+		return self.decks[int(self.composition.par.Selecteddeck)]['state']
 
 	def __init__(
 		self, ownerComponent, logger, render, clipCtrl, layerCtrl, effectCtrl
@@ -49,7 +56,7 @@ class DeckCtrl(LoadableExt):
 		self.setLoading()
 		self.logInfo('loading composition')
 
-		state = saveState or self.createDefaultState()
+		state = saveState or DEFAULT_STATE
 		for deck in state[1:]:
 			(deckID, deckName, deckState) = deck
 			self.createDeck(deckID, deckName, deckState)
@@ -71,21 +78,6 @@ class DeckCtrl(LoadableExt):
 
 		return saveState
 
-	def createDeckState(self, deckID, deckName):
-		return [
-			deckID, deckName,
-			[
-				[None] * self.composition.par.Deckcolumncount.eval()
-				for _ in range(self.composition.par.Layercount.eval())
-			]
-		]
-
-	def createDefaultState(self):
-		return [['Id', 'Deckname', 'State']] + [
-			self.createDeckState(i, n)
-			for i, n in enumerate(['Deck One', 'Deck Two', 'Deck Three'])
-		]
-
 	def AddDeck(self):
 		self.logInfo('TODO: add Deck')
 		# TODO: show add button if DeckCtrl not initialized
@@ -104,7 +96,9 @@ class DeckCtrl(LoadableExt):
 				clipID, clipLocation, layerNumber
 			)
 		)
-		self.layerCtrl.SetClip(layerNumber, clipID)
+
+		# NOTE: we offset by one because decks are 0 indexed and layer 0 is the composition
+		self.layerCtrl.SetClip(layerNumber + 1, clipID)
 
 		if clipID is not None:
 			self.SelectClip(clipID)
@@ -131,9 +125,9 @@ class DeckCtrl(LoadableExt):
 			f'/composition/clips/{clipID}/video/effects', effectPath
 		)
 
-	def ClearClip(self, clipLocation):
+	def ClearClip(self, clipLocation, deckID: int = None):
 		self.logInfo('clearing clip at {}'.format(clipLocation))
-		clipID = self.getClipID(clipLocation)
+		clipID = self.getClipID(clipLocation, deckID)
 
 		if clipID is not None:
 			self.setClipID(clipLocation, None)
@@ -152,9 +146,37 @@ class DeckCtrl(LoadableExt):
 		self.composition.par.Previstarget = clipPrevisTarget(clipID)
 		self.composition.par.Selectedclip = clipID
 
-	def getClipID(self, clipLocation):
+	def InsertLayer(self, layerNumber: int, direction: str):
+		newDeckLayer = [''] * DECK_COLUMNS
+		targetIndex = layerNumber if direction == 'above' else layerNumber + 1
+
+		for deck in self.decks:
+			self.logInfo(
+				f'inserting new layer into deck {deck["op"].digits} {direction} layer {layerNumber}'
+			)
+			deck['state'].insertRow(newDeckLayer, targetIndex)
+
+		# NOTE: we offset by one because decks are 0 indexed and layer 0 is the composition
+		self.layerCtrl.Insert(layerNumber + 1, direction)
+
+	def RemoveLayer(self, layerNumber: int):
+		for deckID, deck in enumerate(self.decks):
+			self.logInfo(f'removing layer {layerNumber} from deck {deck["op"].digits}')
+			for clipNumber in range(deck['state'].numCols):
+				self.ClearClip((layerNumber, clipNumber), deckID)
+			deck['state'].deleteRow(layerNumber)
+
+		# NOTE: +1 because layer 0 is the composition
+		self.layerCtrl.Remove(layerNumber + 1)
+
+	def getClipID(self, clipLocation, deckID: int = None):
 		(layerNumber, clipNumber) = clipLocation
-		return intIfSet(self.selectedDeckState[layerNumber, clipNumber])
+		if deckID is None:
+			deckState = self.selectedDeckState
+		else:
+			deckState = self.decks[deckID]['state']
+
+		return intIfSet(deckState[layerNumber, clipNumber])
 
 	def setClipID(self, clipLocation, clipID):
 		(layerNumber, clipNumber) = clipLocation

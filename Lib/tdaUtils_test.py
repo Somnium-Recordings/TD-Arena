@@ -62,6 +62,7 @@ def test_getLayerID():
 	assert getLayerID('/composition/layers/5/clear') == 5
 	assert getLayerID('/composition/layers/5/clips/4') == 5
 	assert getLayerID('/composition/layers/6') == 6
+	assert getLayerID('/selecteddeck/layers/9/insert') == 9
 	with pytest.raises(AssertionError):
 		getLayerID('/foo')
 
