@@ -3,6 +3,7 @@ import re
 from collections import namedtuple
 from fnmatch import fnmatchcase
 from pathlib import Path
+from typing import NamedTuple
 
 SELECTED_DECK_LOCATION_RE = re.compile(
 	r'/selecteddeck/layers/(\d+)/clips/(\d+)/?.*'
@@ -19,7 +20,13 @@ COLLAPSE_TO_ID_RE = re.compile( # /layer/layer1 -> /layer/1
 	r'/(layer|clip|deck|effect)s/(layer|clip|deck|effect)(\d+)'
 )
 
+# TODO: covert to typed version
 EffectLocation = namedtuple('EffectLocation', ['containerAddress', 'effectID'])
+
+
+class DeckLocation(NamedTuple):
+	layerNmber: int
+	columnNumber: int
 
 
 def intIfSet(stringNumber):
@@ -67,12 +74,11 @@ def syncToDat(data, targetDat):
 			targetDat[rowIndex, columnIndex] = cell or ''
 
 
-# TODO(#47): turn deckLocation into named tuple since it's used in a bunch of places
-def mapAddressToDeckLocation(address: str):
+def mapAddressToDeckLocation(address: str) -> DeckLocation:
 	m = re.match(SELECTED_DECK_LOCATION_RE, address)
 	assert m, 'expected to match layer and clip number in {}'.format(address)
 
-	return (int(m.group(1)), int(m.group(2)))
+	return DeckLocation(int(m.group(1)), int(m.group(2)))
 
 
 def mapAddressToEffectLocation(address: str) -> EffectLocation:

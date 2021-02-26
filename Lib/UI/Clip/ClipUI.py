@@ -17,7 +17,12 @@ class ClipUI(BaseExt):
 		self.effectBrowser = effectBrowser
 
 	def OnDrop(self, droppedItem: DroppedItem):
-		if droppedItem.dropName.startswith('movie'):
+		if droppedItem.dropName == 'clipLabel':
+			droppedClip: ClipUI = op(droppedItem.itemPath).parent.clipUI
+			self.uiState.SendMessage(
+				f'{droppedClip.ClipDeckAddress}/move', self.ClipDeckAddress
+			)
+		elif droppedItem.dropName.startswith('movie'):
 			(fileName, filePath) = self.movieBrowser.GetPath(droppedItem.dropName)
 			self.uiState.SendMessage(
 				f'{self.ClipDeckAddress}/source/load', 'movie', fileName, filePath
