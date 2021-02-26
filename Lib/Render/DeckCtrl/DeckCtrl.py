@@ -1,8 +1,9 @@
 import typing as T
 
 from tda import LoadableExt
-from tdaUtils import (clearChildren, getCellValues, getClipID, getDeckID,
-                      intIfSet, layoutComps)
+from tdaUtils import (DeckLocation, clearChildren, getCellValues, getClipID,
+                      getDeckID, intIfSet, layoutComps,
+                      mapAddressToDeckLocation)
 
 DECK_COLUMNS = 10
 
@@ -87,7 +88,7 @@ class DeckCtrl(LoadableExt):
 		# self.layoutDeckContainer()
 		# call layout after creating
 
-	def ConnectClip(self, clipLocation):
+	def ConnectClip(self, clipLocation: DeckLocation):
 		(layerNumber, _) = clipLocation
 		clipID = self.getClipID(clipLocation)
 
@@ -103,7 +104,7 @@ class DeckCtrl(LoadableExt):
 		if clipID is not None:
 			self.SelectClip(clipID)
 
-	def LoadClip(self, clipLocation, sourceType, name, path):
+	def LoadClip(self, clipLocation: DeckLocation, sourceType, name, path):
 		clipID = self.getClipID(clipLocation)
 		self.logInfo(f'loading {sourceType} "{name}" into {clipLocation}')
 
@@ -113,7 +114,7 @@ class DeckCtrl(LoadableExt):
 			clip = self.clipCtrl.CreateClip(sourceType, name, path)
 			self.setClipID(clipLocation, clip.digits)
 
-	def AddEffect(self, clipLocation, effectPath):
+	def AddEffect(self, clipLocation: DeckLocation, effectPath):
 		clipID = self.getClipID(clipLocation)
 		self.logInfo(f'adding effect to {clipLocation}')
 
@@ -125,7 +126,7 @@ class DeckCtrl(LoadableExt):
 			f'/composition/clips/{clipID}/video/effects', effectPath
 		)
 
-	def ClearClip(self, clipLocation, deckID: int = None):
+	def ClearClip(self, clipLocation: DeckLocation, deckID: int = None):
 		self.logInfo('clearing clip at {}'.format(clipLocation))
 		clipID = self.getClipID(clipLocation, deckID)
 
@@ -136,6 +137,15 @@ class DeckCtrl(LoadableExt):
 				self.composition.par.Previstarget = ''
 			if self.composition.par.Selectedclip.eval() == clipID:
 				self.composition.par.Selectedclip.val = self.composition.par.Selectedclip.default
+
+	def MoveClip(self, clipLocation: DeckLocation, targetClip: str):
+		targetLocation = mapAddressToDeckLocation(targetClip)
+		self.logInfo(f'moving clip at {clipLocation} to {targetLocation}')
+
+		targetClipID = self.getClipID(targetLocation)
+
+		self.setClipID(targetLocation, self.getClipID(clipLocation))
+		self.setClipID(clipLocation, targetClipID)
 
 	def SelectDeck(self, address):
 		self.composition.par.Selecteddeck = getDeckID(address)
@@ -169,7 +179,7 @@ class DeckCtrl(LoadableExt):
 		# NOTE: +1 because layer 0 is the composition
 		self.layerCtrl.Remove(layerNumber + 1)
 
-	def getClipID(self, clipLocation, deckID: int = None):
+	def getClipID(self, clipLocation: DeckLocation, deckID: int = None):
 		(layerNumber, clipNumber) = clipLocation
 		if deckID is None:
 			deckState = self.selectedDeckState
@@ -178,7 +188,7 @@ class DeckCtrl(LoadableExt):
 
 		return intIfSet(deckState[layerNumber, clipNumber])
 
-	def setClipID(self, clipLocation, clipID):
+	def setClipID(self, clipLocation: DeckLocation, clipID):
 		(layerNumber, clipNumber) = clipLocation
 		cellValue = clipID if clipID is not None else ''
 		self.selectedDeckState[layerNumber, clipNumber] = cellValue

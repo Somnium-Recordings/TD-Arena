@@ -90,6 +90,10 @@ class OSCDispatcher(BaseExt):
 					'handler': self.deckCtrl.ClearClip,
 					'mapAddress': mapAddressToDeckLocation
 				},
+				'/selecteddeck/layers/*/clips/*/move': {
+					'handler': self.deckCtrl.MoveClip,
+					'mapAddress': mapAddressToDeckLocation
+				},
 				'/selecteddeck/layers/*/clips/*/source/load': {
 					'handler': self.deckCtrl.LoadClip,
 					'mapAddress': mapAddressToDeckLocation
