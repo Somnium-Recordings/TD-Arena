@@ -10,7 +10,7 @@ SELECTED_DECK_LOCATION_RE = re.compile(
 EFFECT_LOCATION_RE = re.compile(r'(/composition/.*/effects)/(\d+)/?.*')
 EFFECT_CONTAINER_RE = re.compile(r'(/composition/.*/effects)/?.*')
 DECK_ID_RE = re.compile(r'/composition/decks/(\d+)')
-LAYER_ID_RE = re.compile(r'/composition/layers/(\d+)')
+LAYER_ID_RE = re.compile(r'/(?:composition|selecteddeck)/layers/(\d+)')
 CLIP_ID_RE = re.compile(r'/composition/clips/(\d+)')
 EXPAND_FROM_ID_RE = re.compile( # /layer/1 -> /layer/layer1
 	r'(layer|clip|deck|effect)s/([\d]+)'
