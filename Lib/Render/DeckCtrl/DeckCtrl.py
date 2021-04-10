@@ -202,6 +202,10 @@ class DeckCtrl(LoadableExt):
 		newDeck.par.Deckname = deckName
 
 		newDeckState = newDeck.op('table_deckState')
+		numRows = len(deckState)
+		numCols = len(deckState[0])
+		newDeckState.setSize(numRows, numCols)
+
 		for r, row in enumerate(deckState):
 			for c, clipId in enumerate(row):
 				newDeckState[r, c] = clipId or ''
