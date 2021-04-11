@@ -199,6 +199,3 @@ class TdArena(BaseExt):
 		else:
 			self.engineRender.par.unload.pulse()
 			self.localRender.allowCooking = True
-
-		# self.localRender.allowCooking = not useEngine
-		# self.engineRender.par.power = useEngine
