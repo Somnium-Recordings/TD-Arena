@@ -193,5 +193,12 @@ class TdArena(BaseExt):
 		return target
 
 	def toggleEngine(self, useEngine):
-		self.localRender.allowCooking = not useEngine
-		self.engineRender.par.power = useEngine
+		if useEngine:
+			self.localRender.allowCooking = False
+			self.engineRender.par.initialize.pulse()
+		else:
+			self.engineRender.par.unload.pulse()
+			self.localRender.allowCooking = True
+
+		# self.localRender.allowCooking = not useEngine
+		# self.engineRender.par.power = useEngine
