@@ -11,8 +11,12 @@
   "python.formatting.provider": "yapf",
   "python.linting.enabled": true,
   "python.testing.pytestEnabled": true,
+  "python.pythonPath": ".venv/bin/python",
   "python.envFile": "${workspaceFolder}\\.env",
   "python.analysis.extraPaths": [
     "Lib"
-  ]
+  ],
+  "[python]": {
+	  "editor.defaultFormatter": "ms-python.python"
+  }
 }

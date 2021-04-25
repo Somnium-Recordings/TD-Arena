@@ -2,7 +2,7 @@ import math
 import re
 from collections import namedtuple
 from fnmatch import fnmatchcase
-from pathlib import Path
+from pathlib import PureWindowsPath
 from typing import NamedTuple
 
 SELECTED_DECK_LOCATION_RE = re.compile(
@@ -184,10 +184,8 @@ def addSectionParameters(op, order: int, name: str, opacity: float = None):
 
 # TODO(#48): apply to clip names
 def filePathToName(path: str) -> str:
-	return re.sub(
-		r'(\w)([A-Z])', r'\1 \2',
-		Path(path).stem.replace('-', ' ').replace('_', ' ')
-	).title()
+	stem = PureWindowsPath(path).stem.replace('-', ' ').replace('_', ' ')
+	return re.sub(r'(\w)([A-Z])', r'\1 \2', stem).title()
 
 
 def matchesGlob(globStr: str, path: str) -> bool:

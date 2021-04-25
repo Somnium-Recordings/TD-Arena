@@ -34,6 +34,8 @@ pip install --upgrade pip
 
 Project dependencies are currently managed through [pipenv](https://pipenv.pypa.io/en/latest/install/#installing-pipenv). At the moment this is just linting and formatting configuration with pre-commits to run them automatically.
 
+**Note:** An empty `.venv` directory is committed so the vscode config can use a relative path to python for dev tools like `pytest`.
+
 ```sh
 pip install --user pipenv
 pipenv install --dev
