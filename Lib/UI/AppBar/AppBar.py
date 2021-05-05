@@ -14,12 +14,19 @@ class AppBar(BaseExt):
 		TDF.createProperty(self, 'Maximized', value=False)
 
 	@property
+	def ContentSize(self):
+		return self.ownerComponent.op('null_contentSize')
+
+	@property
 	def uiWindow(self):
 		return findWindowByName('TD Arena')
 
 	def OnUIResize(self):
 		print('resized')
 		self.Maximized = isMaximizedWindow(self.uiWindow)
+
+	def OnLeftMouse(self):
+		pass
 
 	def MinimizeUI(self):
 		print('minimizing')
