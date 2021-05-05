@@ -127,12 +127,25 @@ def GetWindowPlacement(hWnd: HANDLE) -> WINDOWPLACEMENT:
 	return lpwndpl
 
 
+def CloseWindow(hWnd: HANDLE) -> bool:
+	_CloseWindow = windll.user32.CloseWindow
+	_CloseWindow.argtypes = [HWND]
+	_CloseWindow.restype = bool
+	_CloseWindow.errcheck = RaiseIfZero
+
+	return _CloseWindow(hWnd)
+
+
 def findWindowByName(name: str) -> HANDLE:
 	return FindWindowW(None, name)
 
 
 def minimizeWindow(hWnd: HANDLE):
 	ShowWindow(hWnd, SW_MINIMIZE)
+
+
+def closeWindow(hWnd: HANDLE):
+	pass
 
 
 def isMaximizedWindow(hWnd: HANDLE):
