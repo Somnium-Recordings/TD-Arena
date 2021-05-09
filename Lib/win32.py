@@ -6,6 +6,7 @@
 #
 
 import ctypes
+import typing
 
 windll = ctypes.windll
 user32 = windll.user32
@@ -108,14 +109,14 @@ def FindWindowW(lpClassName=None, lpWindowName=None) -> HANDLE:
 
 
 def ShowWindow(hWnd: HANDLE, nCmdShow=SW_SHOW) -> bool:
-	_ShowWindow = windll.user32.ShowWindow
+	_ShowWindow = user32.ShowWindow
 	_ShowWindow.argtypes = [HWND, ctypes.c_int]
 	_ShowWindow.restype = bool
 	return _ShowWindow(hWnd, nCmdShow)
 
 
 def GetWindowPlacement(hWnd: HANDLE) -> WINDOWPLACEMENT:
-	_GetWindowPlacement = ctypes.windll.user32.GetWindowPlacement
+	_GetWindowPlacement = user32.GetWindowPlacement
 	_GetWindowPlacement.argtypes = [HWND, PWINDOWPLACEMENT]
 	_GetWindowPlacement.restype = bool
 	_GetWindowPlacement.errcheck = RaiseIfZero
@@ -128,7 +129,7 @@ def GetWindowPlacement(hWnd: HANDLE) -> WINDOWPLACEMENT:
 
 
 def CloseWindow(hWnd: HANDLE) -> bool:
-	_CloseWindow = windll.user32.CloseWindow
+	_CloseWindow = user32.CloseWindow
 	_CloseWindow.argtypes = [HWND]
 	_CloseWindow.restype = bool
 	_CloseWindow.errcheck = RaiseIfZero
@@ -136,8 +137,30 @@ def CloseWindow(hWnd: HANDLE) -> bool:
 	return _CloseWindow(hWnd)
 
 
-def findWindowByName(name: str) -> HANDLE:
-	return FindWindowW(None, name)
+def DestroyWindow(hWnd: HANDLE) -> bool:
+	_DestroyWindow = user32.DestroyWindow
+	_DestroyWindow.argtypes = [HWND]
+	_DestroyWindow.restype = bool
+	_DestroyWindow.errcheck = RaiseIfZero
+
+	return _DestroyWindow(hWnd)
+
+
+def findWindowByName(name: str, retrying=False) -> typing.Optional[HANDLE]:
+	try:
+		w = FindWindowW(None, name)
+
+		if w is None:
+			# Touch designer adds a * if the project is unsaved,
+			# try that before erroring
+			w = FindWindowW(None, f'{name}*')
+	except WindowsError:
+		# For some reason this function throws a file not found error
+		# when opening the window for the first time. We return None here
+		# and handle retry on the consuming side.
+		return None
+
+	return w
 
 
 def minimizeWindow(hWnd: HANDLE):
@@ -145,7 +168,7 @@ def minimizeWindow(hWnd: HANDLE):
 
 
 def closeWindow(hWnd: HANDLE):
-	pass
+	DestroyWindow(hWnd)
 
 
 def isMaximizedWindow(hWnd: HANDLE):
