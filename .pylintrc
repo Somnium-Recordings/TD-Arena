@@ -23,4 +23,5 @@ additional-builtins=COMP,
                     run,
                     tableDAT,
                     tdu,
-					ui
+					ui,
+					WindowsError

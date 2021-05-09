@@ -4,8 +4,10 @@ from win32 import (findWindowByName, isMaximizedWindow, minimizeWindow,
 
 
 class AppBar(BaseExt):
-	def __init__(self, ownerComponent, logger):
+	def __init__(self, ownerComponent, logger, uiWindow):
 		super().__init__(ownerComponent, logger)
+
+		self.uiWindow = uiWindow
 
 		self.Maximized: bool
 		self._Maximized: Par[bool]
@@ -18,20 +20,43 @@ class AppBar(BaseExt):
 		return self.ownerComponent.op('null_contentSize')
 
 	@property
-	def uiWindow(self):
-		return findWindowByName('TD Arena')
+	def uiWindowhandle(self):
+		return findWindowByName(self.uiWindow.par.title.eval())
 
-	def OnUIResize(self):
-		print('resized')
-		self.Maximized = isMaximizedWindow(self.uiWindow)
+	def OnUIResize(self, retrying=False):
+		w = self.uiWindowhandle
+
+		if w:
+			self.Maximized = isMaximizedWindow(w)
+		elif not retrying:
+			self.logDebug(
+				'could not find window to handle OnUIResize, trying again in 10 frames'
+			)
+			run('args[0].OnUIResize(retrying=True)', self, delayFrames=10)
+		else:
+			self.logError('failed on handle onUIResize after retry')
 
 	def OnLeftMouse(self):
 		pass
 
 	def MinimizeUI(self):
-		print('minimizing')
-		minimizeWindow(self.uiWindow)
+		w = self.uiWindowhandle
+		if not w:
+			self.logDebug('unable to find window to minimize')
+			return
+
+		self.logDebug('minimizing ui window')
+		minimizeWindow(w)
+
+	def CloseUI(self):
+		self.logDebug('closing ui window')
+		self.uiWindow.par.winclose.pulse()
 
 	def ToggleMaximizeUI(self):
-		print('toggling')
-		toggleMaximizeWindow(self.uiWindow)
+		w = self.uiWindowhandle
+		if not w:
+			self.logDebug('unable to find window to toggle maximied')
+			return
+
+		self.logDebug('toggling ui window maximize')
+		toggleMaximizeWindow(w)
