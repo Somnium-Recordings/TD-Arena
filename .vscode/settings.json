@@ -16,9 +16,5 @@
   "python.analysis.extraPaths": ["Lib"],
   "[python]": {
     "editor.defaultFormatter": "ms-python.python"
-  },
-  "csv-preview.separator": "\t",
-  "files.associations": {
-    "*.table": "csv"
   }
 }
