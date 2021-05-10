@@ -13,10 +13,12 @@
   "python.testing.pytestEnabled": true,
   "python.pythonPath": ".venv/bin/python",
   "python.envFile": "${workspaceFolder}\\.env",
-  "python.analysis.extraPaths": [
-    "Lib"
-  ],
+  "python.analysis.extraPaths": ["Lib"],
   "[python]": {
-	  "editor.defaultFormatter": "ms-python.python"
+    "editor.defaultFormatter": "ms-python.python"
+  },
+  "csv-preview.separator": "\t",
+  "files.associations": {
+    "*.table": "csv"
   }
 }
