@@ -1,0 +1,13 @@
+button	item1	item2	callback	dividerAfter	disable	checked	highlight	shortcut	rowCallback
+TD Arena
+	Quit		onQuit				True
+Composition
+	New							Alt N
+	Open				True			Alt O
+	Recent
+									getRecentFiles
+		Clear Recent File List
+Edit					True
+Settings
+	Show Guides		onSetting			me.par.Callbackdat.eval().module.guides
+	Show Grid		onSetting			me.par.Callbackdat.eval().module.grid

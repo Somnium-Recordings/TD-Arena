@@ -42,21 +42,25 @@ class AppBar(BaseExt):
 	def MinimizeUI(self):
 		w = self.uiWindowhandle
 		if not w:
-			self.logDebug('unable to find window to minimize')
+			self.logError('unable to find window to minimize')
 			return
 
-		self.logDebug('minimizing ui window')
+		self.logInfo('minimizing ui window')
 		minimizeWindow(w)
 
 	def CloseUI(self):
-		self.logDebug('closing ui window')
-		self.uiWindow.par.winclose.pulse()
+		if ui.performMode:
+			self.logInfo('exiting td arena')
+			project.quit()
+		else:
+			self.logInfo('closing ui window')
+			self.uiWindow.par.winclose.pulse()
 
 	def ToggleMaximizeUI(self):
 		w = self.uiWindowhandle
 		if not w:
-			self.logDebug('unable to find window to toggle maximied')
+			self.logError('unable to find window to toggle maximied')
 			return
 
-		self.logDebug('toggling ui window maximize')
+		self.logInfo('toggling ui window maximize')
 		toggleMaximizeWindow(w)
