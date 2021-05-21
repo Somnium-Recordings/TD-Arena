@@ -15,6 +15,26 @@ TopMenu info keys:
 	'menu': the popMenu component inside topMenu
 """
 
+
+def tdArenaPreferences(info):
+	op.tda.openParameters()
+
+
+def compositionNew(info):
+	op.uiState.SendMessage('/composition/new')
+
+
+def compositionSave(info):
+	op.uiState.SendMessage('/composition/save')
+
+
+def viewDebugWindow(info):
+	if op.debugUI.IsOpen:
+		op.debugUI.Close()
+	else:
+		op.debugUI.Open()
+
+
 #################################
 # exampleMenuDefine callbacks
 
@@ -75,7 +95,7 @@ def onSelect(info):
 	"""
 	User selects a menu option
 	"""
-	debug(info)
+	# debug(info)
 
 
 def onRollover(info):
@@ -88,6 +108,7 @@ def onOpen(info):
 	"""
 	Menu opened
 	"""
+	# debug(info)
 
 
 def onClose(info):

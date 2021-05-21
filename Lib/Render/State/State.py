@@ -18,7 +18,7 @@ class StateCtrl(LoadableExt):
 	# Save on composition container?
 	@property
 	def saveFilePath(self):
-		return tdu.expandPath('composition://{}.json'.format(self.compositionName))
+		return tdu.expandPath('Compositions/{}.json'.format(self.compositionName))
 
 	def __init__(
 		self, ownerComponent, logger, render, compositionCtrl, clipCtrl, deckCtrl,

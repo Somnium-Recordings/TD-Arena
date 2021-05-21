@@ -11,3 +11,6 @@ class DebugUI:
 	def Open(self):
 		if not self.IsOpen:
 			self.window.par.winopen.pulse()
+
+	def Close(self):
+		self.window.par.winclose.pulse()

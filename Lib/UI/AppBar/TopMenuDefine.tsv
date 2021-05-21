@@ -1,12 +1,15 @@
 button	item1	item2	callback	dividerAfter	disable	checked	highlight	shortcut	rowCallback
 TD Arena
-	Preferences			True
-		Show Guides	onSetting			me.par.Callbackdat.eval().module.guides
-		Show Grid	onSetting			me.par.Callbackdat.eval().module.grid
-	Quit		onQuit
+	Preferences		tdArenaPreferences	True
+	Quit		onQuit		True
 Composition
-	New							Alt N
+	New		compositionNew					Alt N
 	Open				True			Alt O
-	Recent
+	Recent				True
 									getRecentFiles
 		Clear Recent File List
+	Save		compositionSave					Alt S
+	Save As				True
+View
+	Debug Window		viewDebugWindow			op.debugUI.IsOpen.eval()
+	Show Grid		onSetting			me.par.Callbackdat.eval().module.grid
