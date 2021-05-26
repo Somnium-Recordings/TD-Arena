@@ -6,6 +6,7 @@ TD-Arena*.*.toe
 CrashAutoSave.TD-Arena*.*.toe
 TouchDesignerCrash.*
 
+/.td-arena
 /Compositions
 /Logs
 !/Logs/.gitkeep

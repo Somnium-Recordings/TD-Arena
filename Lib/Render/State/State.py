@@ -60,12 +60,14 @@ class StateCtrl(LoadableExt):
 		self.logInfo('new state loaded')
 
 	# TODO: implement versioned save files
+	# TODO: take save filename as par to load command
 	def Load(self):
 		self.Init()
 		self.setLoading()
 		self.logInfo('loading state')
 
 		# TODO: handle case wherestate file doesn't exist
+		# if compositionFile and path.isfile(compositionFile):
 		saveState = self.readSaveFile()
 		self.loadControllers(saveState)
 		self.setLoaded()

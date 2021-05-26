@@ -1,4 +1,4 @@
-from tda import BaseExt
+from tda import LoadableExt
 from tdaUtils import addressToToxPath
 
 VALUE_MAP = {
@@ -78,16 +78,17 @@ pulseMap = {
 
 # TODO: rename this class. "TD..." prefix should be reserved for system things
 # @see https://forum.derivative.ca/t/simple-error-logging/8894/5?u=llwt
-class TdArena(BaseExt):
+class TdArena(LoadableExt):
 	@property
 	def par(self):
 		return self.ownerComponent.par
 
-	def __init__(self, ownerComponent, logger):
+	# pylint: disable=too-many-arguments
+	def __init__(self, ownerComponent, logger, renderLocal, renderEngine, ui):
 		super().__init__(ownerComponent, logger)
-		self.localRender = ownerComponent.op('./render')
-		self.engineRender = ownerComponent.op('./engine_render')
-		self.ui = ownerComponent.op('./ui')
+		self.localRender = renderLocal
+		self.engineRender = renderEngine
+		self.ui = ui
 
 		self.Sync()
 		self.logInfo('TdArena initialized')
@@ -108,6 +109,34 @@ class TdArena(BaseExt):
 				self.logWarning(
 					'expected TdArena to have mapped parameter {}'.format(parName)
 				)
+
+	def NewComposition(self):
+		self.setLoading()
+		raise NotImplementedError('TODO')
+
+	def OpenComposition(self):
+		self.setLoading()
+		# see https://docs.derivative.ca/UI_Class
+		# ui.chooseFile()
+		raise NotImplementedError('TODO')
+
+	def LoadComposition(self, compositionFile):
+		self.setLoading()
+		# TODO: what happens when we fail to load a composition?
+
+		# TODO: How do we get the failure message/state back?
+		# 		since we're only keying off of layer state length
+		# 		right now which won't change on failure
+		self.logInfo(f'loading composition: {compositionFile}')
+
+		# TODO: pass save filename rather than using parameters
+		# TODO: state.sendMessage(/load)
+
+	def OnCompositionLoaded(self, wasSuccessful=True):
+		self.setLoaded(wasSuccessful)
+
+	def OnCompositionUnloaded(self):
+		self.setUnloaded()
 
 	def EditTox(self, address):
 		# TODO(#7): reuse previous panel if still open
