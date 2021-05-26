@@ -1,4 +1,3 @@
-# pylint: skip-file
 """
 TopMenu callbacks
 
@@ -15,56 +14,25 @@ TopMenu info keys:
 	'menu': the popMenu component inside topMenu
 """
 
+# TD Arena Menu
 
-def tdArenaPreferences(info):
+
+def tdArenaPreferences(_info):
 	op.tda.openParameters()
 
 
-def compositionNew(info):
+def tdArenaQuit(_info):
+	op.uiAppBar.CloseUI()
+
+
+# Composition Menu
+
+
+def compositionNew(_info):
 	op.uiState.SendMessage('/composition/new')
 
 
-def compositionSave(info):
-	op.uiState.SendMessage('/composition/save')
-
-
-def viewDebugWindow(info):
-	if op.debugUI.IsOpen:
-		op.debugUI.Close()
-	else:
-		op.debugUI.Open()
-
-
-#################################
-# exampleMenuDefine callbacks
-
-
-def onQuit(info):
-	"""
-	A simple menu item callback, named in the Top Menu DAT table
-	"""
-	debug('QUIT!')
-
-
-guides = False
-grid = True
-
-
-def onSetting(info):
-	"""
-	A menu item callback that works on multiple menu items. The checkboxes in
-	the menu evaluate the global guides and grid variables above to determine
-	their state. The expressions used to evaluate the checkbox state are
-	defined in the Top Menu DAT.
-	"""
-	global guides, grid
-	if info['item'] == 'Show Guides':
-		guides = not guides
-	elif info['item'] == 'Show Grid':
-		grid = not grid
-
-
-def getRecentFiles(info):
+def getCompositionRecentFiles(_info):
 	"""
 	A rowCallback used in the Top Menu DAT table to automatically generate rows.
 	These callbacks must return a dictionary or list of dictionaries that mimic
@@ -85,57 +53,68 @@ def getRecentFiles(info):
 	]
 
 
-# end examples
-####################################
+def compositionSave(_info):
+	op.uiState.SendMessage('/composition/save')
+
+
+# View Menu
+
+
+def viewDebugWindow(_info):
+	if op.debugUI.IsOpen:
+		op.debugUI.Close()
+	else:
+		op.debugUI.Open()
+
 
 # standard menu callbacks
 
 
-def onSelect(info):
+def onSelect(_info):
 	"""
 	User selects a menu option
 	"""
 	# debug(info)
 
 
-def onRollover(info):
+def onRollover(_info):
 	"""
 	Mouse rolled over an item
 	"""
 
 
-def onOpen(info):
+def onOpen(_info):
 	"""
 	Menu opened
 	"""
-	# debug(info)
+	# debug(_info)
 
 
-def onClose(info):
+def onClose(_info):
 	"""
 	Menu closed
 	"""
 
 
-def onMouseDown(info):
+def onMouseDown(_info):
 	"""
 	Item pressed
 	"""
 
 
-def onMouseUp(info):
+def onMouseUp(_info):
 	"""
 	Item released
 	"""
 
 
-def onClick(info):
+def onClick(_info):
 	"""
 	Item pressed and released
 	"""
 
 
-def onLostFocus(info):
+def onLostFocus(_info):
 	"""
 	Menu lost focus
 	"""

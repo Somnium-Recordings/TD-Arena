@@ -1,7 +1,7 @@
 button	item1	item2	callback	dividerAfter	disable	checked	highlight	shortcut	rowCallback
 TD Arena
 	Preferences		tdArenaPreferences	True
-	Quit		onQuit		True
+	Quit		tdArenaQuit
 Composition
 	New		compositionNew					Alt N
 	Open				True			Alt O
@@ -12,4 +12,3 @@ Composition
 	Save As				True
 View
 	Debug Window		viewDebugWindow			op.debugUI.IsOpen.eval()
-	Show Grid		onSetting			me.par.Callbackdat.eval().module.grid
