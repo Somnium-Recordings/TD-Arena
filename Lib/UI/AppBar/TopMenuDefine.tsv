@@ -4,11 +4,13 @@ TD Arena
 	Quit		tdArenaQuit
 Composition
 	New		compositionNew					Alt N
-	Open				True			Alt O
+	Open		compositionOpen					Alt O
 	Recent				True
-									getRecentFiles
+									getCompositionRecentFiles
 		Clear Recent File List
-	Save		compositionSave					Alt S
-	Save As				True
+	Save		compositionSave		not op.tda.Loaded			Alt S
+	Save As		compositionSaveAs		not op.tda.Loaded
+Render
+	Reinit Composition		renderReinitComposition
 View
 	Debug Window		viewDebugWindow			op.debugUI.IsOpen.eval()

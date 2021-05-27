@@ -3,6 +3,9 @@
   "editor.insertSpaces": false,
   "editor.detectIndentation": false,
   "editor.formatOnSave": true,
+  "files.associations": {
+    "*.tdac": "json"
+  },
   "files.exclude": {
     ".pytest_cache": true,
     "**/__pycache__": true

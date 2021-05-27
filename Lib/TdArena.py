@@ -1,3 +1,5 @@
+from os import path
+
 from tda import LoadableExt
 from tdaUtils import addressToToxPath
 
@@ -75,6 +77,13 @@ pulseMap = {
 	},
 }
 
+DEFAULT_COMPOSITIONS_DIR = 'Compositions'
+COMPOSITION_EXTENSION = 'tdac'
+
+
+def isValidSaveFile(saveFile: str):
+	return saveFile.endswith(COMPOSITION_EXTENSION) and path.isfile(saveFile)
+
 
 # TODO: rename this class. "TD..." prefix should be reserved for system things
 # @see https://forum.derivative.ca/t/simple-error-logging/8894/5?u=llwt
@@ -84,14 +93,23 @@ class TdArena(LoadableExt):
 		return self.ownerComponent.par
 
 	# pylint: disable=too-many-arguments
-	def __init__(self, ownerComponent, logger, renderLocal, renderEngine, ui):
+	def __init__(
+		self, ownerComponent, logger, uiState, userSettings, renderLocal,
+		renderEngine, ui
+	):
 		super().__init__(ownerComponent, logger)
+		self.uiState = uiState
+		self.userSettings = userSettings
+
 		self.localRender = renderLocal
 		self.engineRender = renderEngine
 		self.ui = ui
 
 		self.Sync()
 		self.logInfo('TdArena initialized')
+
+		if self.ownerComponent.op('null_layerState').numRows > 1:
+			self.setLoaded()
 
 	def Sync(self):
 		self.logDebug('syncing render parameters')
@@ -110,27 +128,62 @@ class TdArena(LoadableExt):
 					'expected TdArena to have mapped parameter {}'.format(parName)
 				)
 
+	def ReinitComposition(self):
+		op.uiState.SendMessage('/composition/reinit')
+		# TODO: Remove once OnCompositionUnloaded logic is smarter
+		# e.g. not counting layers)
+		self.setUnloaded()
+
 	def NewComposition(self):
 		self.setLoading()
-		raise NotImplementedError('TODO')
+		self.userSettings.par.Composition = ''
+		op.uiState.SendMessage('/composition/new')
 
-	def OpenComposition(self):
-		self.setLoading()
-		# see https://docs.derivative.ca/UI_Class
-		# ui.chooseFile()
-		raise NotImplementedError('TODO')
+	def getSaveFile(self, promptIfConfigured: bool, load: bool):
+		saveFile = self.userSettings.par.Composition.eval()
 
-	def LoadComposition(self, compositionFile):
-		self.setLoading()
-		# TODO: what happens when we fail to load a composition?
+		if saveFile and not isValidSaveFile(saveFile):
+			self.logWarning(
+				f'invalid composition file configured, ignoring value: "{saveFile}"'
+			)
+			saveFile = ''
 
-		# TODO: How do we get the failure message/state back?
-		# 		since we're only keying off of layer state length
-		# 		right now which won't change on failure
-		self.logInfo(f'loading composition: {compositionFile}')
+		if not saveFile or promptIfConfigured:
+			saveFile = ui.chooseFile(
+				load=load,
+				fileTypes=[COMPOSITION_EXTENSION],
+				start=DEFAULT_COMPOSITIONS_DIR,
+				title=f'{"Open" if load else "Save"} Composition'
+			)
+			self.userSettings.par.Composition = saveFile
 
-		# TODO: pass save filename rather than using parameters
-		# TODO: state.sendMessage(/load)
+		return saveFile
+
+	# TODO: what happens when we fail to load a composition?
+	# TODO: How do we get the failure message/state back?
+	# 		since we're only keying off of layer state length
+	# 		right now which won't change on failure
+	def OpenComposition(self, promptIfConfigured=True):
+		saveFile = self.getSaveFile(promptIfConfigured, load=True)
+		if not saveFile:
+			self.logInfo('no save file selected, aborting open')
+			return
+
+		if not self.Loaded:
+			self.setLoading()
+
+		self.logInfo(f'opening composition: {saveFile}')
+		self.uiState.SendMessage('/composition/load', saveFile)
+
+	def SaveComposition(self, saveAs=False):
+		saveFile = self.getSaveFile(promptIfConfigured=saveAs, load=True)
+		if not saveFile:
+			self.logInfo('no save file selected, aborting save')
+			return
+
+		self.logInfo(f'saving composition to {saveFile}')
+
+		op.uiState.SendMessage('/composition/save', saveFile)
 
 	def OnCompositionLoaded(self, wasSuccessful=True):
 		self.setLoaded(wasSuccessful)

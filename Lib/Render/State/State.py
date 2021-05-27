@@ -60,22 +60,18 @@ class StateCtrl(LoadableExt):
 		self.logInfo('new state loaded')
 
 	# TODO: implement versioned save files
-	# TODO: take save filename as par to load command
-	def Load(self):
+	def Load(self, compositionFile: str):
 		self.Init()
 		self.setLoading()
 		self.logInfo('loading state')
 
-		# TODO: handle case wherestate file doesn't exist
-		# if compositionFile and path.isfile(compositionFile):
-		saveState = self.readSaveFile()
+		saveState = self.readSaveFile(compositionFile)
 		self.loadControllers(saveState)
 		self.setLoaded()
 
 		self.logInfo('loaded')
 
-	# TODO: saveAs
-	def Save(self):
+	def Save(self, compositionFile: str):
 		if not self.Loaded:
 			self.logWarning('state not loaded, cannot save')
 			return
@@ -86,7 +82,7 @@ class StateCtrl(LoadableExt):
 			self.logDebug(f'getting save state for {ctrlName}')
 
 			saveState[ctrlName] = ctrl.GetSaveState()
-		self.writeSaveFile(saveState)
+		self.writeSaveFile(saveState, compositionFile)
 
 	def initControllers(self):
 		self.logInfo('reinitilizing controllers')
@@ -99,15 +95,13 @@ class StateCtrl(LoadableExt):
 			if ctrlName in saveState:
 				ctrl.Load(saveState[ctrlName])
 
-	def writeSaveFile(self, saveState):
-		filePath = self.saveFilePath
+	def writeSaveFile(self, saveState, filePath: str):
 		self.logInfo('saving state to {}'.format(filePath))
 
 		with open(filePath, 'w') as saveFile:
 			json.dump(saveState, saveFile, indent='\t')
 
-	def readSaveFile(self):
-		filePath = self.saveFilePath
+	def readSaveFile(self, filePath: str):
 		self.logInfo('loading save file from {}'.format(filePath))
 
 		with open(filePath) as saveFile:
