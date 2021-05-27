@@ -29,7 +29,11 @@ def tdArenaQuit(_info):
 
 
 def compositionNew(_info):
-	op.uiState.SendMessage('/composition/new')
+	op.tda.NewComposition()
+
+
+def compositionOpen(_info):
+	op.tda.OpenComposition(promptIfConfigured=True)
 
 
 def getCompositionRecentFiles(_info):
@@ -54,7 +58,18 @@ def getCompositionRecentFiles(_info):
 
 
 def compositionSave(_info):
-	op.uiState.SendMessage('/composition/save')
+	op.tda.SaveComposition()
+
+
+def compositionSaveAs(_info):
+	op.tda.SaveComposition(saveAs=True)
+
+
+# Render menu
+
+
+def renderReinitComposition(_info):
+	op.tda.ReinitComposition()
 
 
 # View Menu

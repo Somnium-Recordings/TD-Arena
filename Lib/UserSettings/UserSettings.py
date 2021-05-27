@@ -26,8 +26,7 @@ class UserSettings(LoadableExt):
 		self.renderEngine = renderEngine
 		self.ui = ui
 
-		settings = self.loadSettingsFile()
-		self.Sync(settings)
+		self.loadSettingsFile()
 
 		self.setLoaded()
 		self.logInfo('Settings initialized')
@@ -36,10 +35,12 @@ class UserSettings(LoadableExt):
 		self.logDebug('loading settings file')
 		try:
 			with open(self.settingsFilePath) as saveFile:
-				return json.load(saveFile)
+				settings = json.load(saveFile)
 		except (json.JSONDecodeError, FileNotFoundError):
 			self.logDebug(f'no settings file found at {self.settingsFilePath}')
-			return {}
+			settings = {}
+
+		self.Sync(settings)
 
 	def Sync(self, applyUserSettings=None):
 		self.logDebug(
