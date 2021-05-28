@@ -9,23 +9,11 @@ from tda import LoadableExt
 
 
 class StateCtrl(LoadableExt):
-	@property
-	def compositionName(self):
-		return self.render.par.Compositionname
-
-	# TODO: take save filename as OSC parameter
-	# Q: during dev, do we get that name during reload?
-	# Save on composition container?
-	@property
-	def saveFilePath(self):
-		return tdu.expandPath('Compositions/{}.json'.format(self.compositionName))
-
 	def __init__(
-		self, ownerComponent, logger, render, compositionCtrl, clipCtrl, deckCtrl,
-		layerCtrl, effectCtrl, parameterCtrl
+		self, ownerComponent, logger, compositionCtrl, clipCtrl, deckCtrl, layerCtrl,
+		effectCtrl, parameterCtrl
 	):  # pylint: disable=too-many-arguments
 		super().__init__(ownerComponent, logger)
-		self.render = render
 		self.ctrls = OrderedDict(
 			{
 				# I think effects and parameters need to be initialized _before_ clips/layers/decks

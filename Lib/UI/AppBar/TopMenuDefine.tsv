@@ -11,6 +11,8 @@ Composition
 	Save		compositionSave		not op.tda.Loaded			Alt S
 	Save As		compositionSaveAs		not op.tda.Loaded
 Render
+	Use Engine		renderUseEngine			op.userSettings.par.Useengine.eval()
+	Reload Engine		renderReloadEngine	True	not op.userSettings.par.Useengine
 	Reinit Composition		renderReinitComposition
 View
 	Debug Window		viewDebugWindow			op.debugUI.IsOpen.eval()

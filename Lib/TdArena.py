@@ -5,9 +5,6 @@ from tdaUtils import addressToToxPath
 
 VALUE_MAP = {
 	# Composition
-	'Compositionname': {
-		'target': 'both'
-	},
 	'Renderw': {
 		'target': 'both'
 	},
@@ -106,6 +103,7 @@ class TdArena(LoadableExt):
 		self.ui = ui
 
 		self.Sync()
+		self.configureRenderType()
 		self.logInfo('TdArena initialized')
 
 		if self.ownerComponent.op('null_layerState').numRows > 1:
@@ -220,7 +218,7 @@ class TdArena(LoadableExt):
 		newVal = par.eval()
 
 		if par.name == 'Useengine':
-			self.toggleEngine(newVal)
+			self.ToggleEngine()
 			return
 
 		for targetPar in self.getUpdateTargets(par.name, VALUE_MAP):
@@ -274,7 +272,25 @@ class TdArena(LoadableExt):
 
 		return target
 
-	def toggleEngine(self, useEngine):
+	def ReloadEngine(self):
+		self.engineRender.par.reload.pulse()
+
+	def ToggleEngine(self):
+		self.ReinitComposition()
+		useEngine = not self.userSettings.par.Useengine.eval()
+
+		# TODO: can we wait to do this toggling until changes from reInit
+		#       finish propagating? In a callback or something?
+		#       Or maybe wait to set "allowCooking" to false until
+		#       we get reinit comfirmation?
+		self.configureRenderType(useEngine)
+
+		self.userSettings.par.Useengine = useEngine
+
+	def configureRenderType(self, useEngine=None):
+		if useEngine is None:
+			useEngine = self.userSettings.par.Useengine.eval()
+
 		if useEngine:
 			self.localRender.allowCooking = False
 			self.engineRender.par.initialize.pulse()

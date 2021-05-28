@@ -8,8 +8,10 @@ SETTINGS_FILE = path.join('.td-arena', 'settings.json')
 # TODO: test if we can use a bind now rather than manually syncing
 SETTINGS_MAP = {
 	'Composition': {
-		# TODO: target: none
-		'target': 'both'
+		'target': 'none'
+	},
+	'Useengine': {
+		'target': 'none'
 	}
 }
 
