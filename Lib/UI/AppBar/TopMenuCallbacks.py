@@ -14,7 +14,9 @@ TopMenu info keys:
 	'menu': the popMenu component inside topMenu
 """
 
+###############################
 # TD Arena Menu
+###############################
 
 
 def tdArenaPreferences(_info):
@@ -25,7 +27,9 @@ def tdArenaQuit(_info):
 	op.uiAppBar.CloseUI()
 
 
+###############################
 # Composition Menu
+###############################
 
 
 def compositionNew(_info):
@@ -65,14 +69,26 @@ def compositionSaveAs(_info):
 	op.tda.SaveComposition(saveAs=True)
 
 
+###############################
 # Render menu
+###############################
 
 
 def renderReinitComposition(_info):
 	op.tda.ReinitComposition()
 
 
+def renderUseEngine(_info):
+	op.tda.ToggleEngine()
+
+
+def renderReloadEngine(_info):
+	op.tda.ReloadEngine()
+
+
+###############################
 # View Menu
+###############################
 
 
 def viewDebugWindow(_info):
@@ -82,7 +98,9 @@ def viewDebugWindow(_info):
 		op.debugUI.Open()
 
 
+###############################
 # standard menu callbacks
+###############################
 
 
 def onSelect(_info):
