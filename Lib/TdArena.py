@@ -102,16 +102,24 @@ class TdArena(LoadableExt):
 		self.engineRender = renderEngine
 		self.ui = ui
 
-		self.Sync()
+		self.Sync()  # TODO: remove this
+
+		if not userSettings.Loaded:
+			raise RuntimeError(
+				'TDArena initialized before user settings, ' +
+				'add logic to delay system init until user settings loaded'
+			)
+
 		self.configureRenderType()
 		self.logInfo('TdArena initialized')
 
 		if self.ownerComponent.op('null_layerState').numRows > 1:
+			# TODO: Should we have a different state for composition loaded
+			#       that is different from TDArena loaded?
 			self.setLoaded()
 
 	def Sync(self):
 		self.logDebug('syncing render parameters')
-		self.SetLibPath()
 
 		# ensure Useengined is synced since it's not in the map
 		mappedPars = {'Useengine': {}, **VALUE_MAP}
@@ -209,10 +217,6 @@ class TdArena(LoadableExt):
 		tox.save(tdu.expandPath(savePath))
 
 		self.logDebug(f'saved tox to {savePath}')
-
-	def SetLibPath(self):
-		# NOTE: os.path.join results in bothforward and backward slashes on Windows
-		self.par.Libpath = '{}/{}'.format(project.folder, 'Lib')
 
 	def SyncValueChange(self, par, _):
 		newVal = par.eval()
