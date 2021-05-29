@@ -6,13 +6,24 @@ from tda import LoadableExt
 SETTINGS_FILE = path.join('.td-arena', 'settings.json')
 
 # TODO: test if we can use a bind now rather than manually syncing
+# 		if we can, just iterate over custom params and skip all
+# 		this synching nonsense
 SETTINGS_MAP = {
 	'Composition': {
 		'target': 'none'
 	},
 	'Useengine': {
 		'target': 'none'
-	}
+	},
+	'Effectspath': {
+		'target': 'both'
+	},
+	'Generatorspath': {
+		'target': 'both'
+	},
+	'Moviespath': {
+		'target': 'both'
+	},
 }
 
 
