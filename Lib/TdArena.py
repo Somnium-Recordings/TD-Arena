@@ -50,29 +50,26 @@ VALUE_MAP = {
 		'par': 'Oscctrlinport'
 	},
 	# Paths
-	'Compositionspath': {
-		'target': 'both'
-	},
-	'Effectspath': {
-		'target': 'both'
-	},
-	'Generatorspath': {
-		'target': 'both'
-	},
-	'Moviespath': {
-		'target': 'both'
-	},
-	'Libpath': {
-		'target': 'both'
-	},
+	# 'Effectspath': {
+	# 	'target': 'both'
+	# },
+	# 'Generatorspath': {
+	# 	'target': 'both'
+	# },
+	# 'Moviespath': {
+	# 	'target': 'both'
+	# },
 }
 
-pulseMap = {
-	'Reloadengine': {
-		'target': 'engine',
-		'par': 'reload'
-	},
-}
+# (Extension 1)   File "/render/paths/extension", line 11, in __init__
+#   File "/render/paths/extension", line 27, in Apply
+#   File "/render/paths/extension", line 27, in <listcomp>
+# KeyError: 'effect'
+
+# (Extension 1)   File "/render/paths/extension", line 11, in __init__
+#   File "/render/paths/extension", line 27, in Apply
+#   File "/render/paths/extension", line 27, in <listcomp>
+# KeyError: 'effect'"
 
 DEFAULT_COMPOSITIONS_DIR = 'Compositions'
 COMPOSITION_EXTENSION = 'tdac'
@@ -121,10 +118,7 @@ class TdArena(LoadableExt):
 	def Sync(self):
 		self.logDebug('syncing render parameters')
 
-		# ensure Useengined is synced since it's not in the map
-		mappedPars = {'Useengine': {}, **VALUE_MAP}
-
-		for parName in mappedPars:
+		for parName in VALUE_MAP:
 			par = getattr(self.par, parName, None)
 			if par is not None:
 				# TODO: Could passing same value as prev cause issues?
@@ -221,20 +215,8 @@ class TdArena(LoadableExt):
 	def SyncValueChange(self, par, _):
 		newVal = par.eval()
 
-		if par.name == 'Useengine':
-			self.ToggleEngine()
-			return
-
 		for targetPar in self.getUpdateTargets(par.name, VALUE_MAP):
 			targetPar.val = newVal
-
-	def SyncPulse(self, par):
-		if par.name == 'Sync':
-			self.Sync()
-			return
-
-		for targetPar in self.getUpdateTargets(par.name, pulseMap):
-			targetPar.pulse()
 
 	def getUpdateTargets(self, parName, parameterMap):
 		assert parName in parameterMap, 'expected tda par "{}" to be mapped'.format(
@@ -256,7 +238,7 @@ class TdArena(LoadableExt):
 			targets.append(self.ui)
 		elif mapConfig['target'] == 'active':
 			targets.append(
-				self.engineRender if self.par.Useengine else self.localRender
+				self.engineRender if self.userSettings.par.Useengine else self.localRender
 			)
 		elif mapConfig['target'] == 'none':
 			pass
@@ -281,7 +263,9 @@ class TdArena(LoadableExt):
 
 	def ToggleEngine(self):
 		self.ReinitComposition()
+		# useEngine = not self.userSettings.par.Useengine.eval()
 		useEngine = not self.userSettings.par.Useengine.eval()
+		self.userSettings.par.Useengine = useEngine
 
 		# TODO: can we wait to do this toggling until changes from reInit
 		#       finish propagating? In a callback or something?
@@ -289,7 +273,7 @@ class TdArena(LoadableExt):
 		#       we get reinit comfirmation?
 		self.configureRenderType(useEngine)
 
-		self.userSettings.par.Useengine = useEngine
+		# self.userSettings.par.Useengine = useEngine
 
 	def configureRenderType(self, useEngine=None):
 		if useEngine is None:

@@ -12,8 +12,10 @@ class BrowserUI:  # pylint: disable=too-few-public-methods
 		data = comp.op('./select_file')
 		return (
 			data[1, 'basename'].val,
-			# eg: movie://some-move-name.mov
-			'{}://{}'.format(
-				self.ownerComponent.par.Resourcetype, data[1, 'relpath'].val
+			tdu.expandPath(
+				# eg: movie://some-move-name.mov
+				'{}://{}'.format(
+					self.ownerComponent.par.Resourcetype, data[1, 'relpath'].val
+				)
 			),
 		)
