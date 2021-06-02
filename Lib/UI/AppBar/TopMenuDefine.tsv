@@ -3,16 +3,17 @@ TD Arena
 	Preferences		tdArenaPreferences	True
 	Quit		tdArenaQuit
 Composition
-	New		compositionNew					Alt N
-	Open		compositionOpen					Alt O
+	New		compositionNew		not op.tda.Loaded			Alt N
+	Open		compositionOpen		not op.tda.Loaded			Alt O
 	Recent				True
 									getCompositionRecentFiles
 		Clear Recent File List
-	Save		compositionSave		not op.tda.Loaded			Alt S
-	Save As		compositionSaveAs		not op.tda.Loaded
+	Save		compositionSave		op.tda.CompositionState !=  'loaded'			Alt S
+	Save As		compositionSaveAs		op.tda.CompositionState !=  'loaded'
 Render
 	Use Engine		renderUseEngine			op.userSettings.par.Useengine.eval()
 	Reload Engine		renderReloadEngine	True	not op.userSettings.par.Useengine
-	Reinit Composition		renderReinitComposition
+	Reinit Composition		renderReinitComposition		not op.tda.Loaded
+	Unload		renderUnload		not (op.tda.Loaded or op.tda.Loading)
 View
 	Debug Window		viewDebugWindow			op.debugUI.IsOpen.eval()

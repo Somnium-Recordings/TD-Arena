@@ -6,7 +6,7 @@ DEFAULT_STATE = {}
 
 
 class EffectCtrl(LoadableExt):
-	def Init(self):
+	def Init(self, _renderState):
 		self.setUnloaded()
 
 		self.saveState = None

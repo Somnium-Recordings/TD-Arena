@@ -17,19 +17,19 @@ class TestState():
 		return MockTable([['path', 'address']])
 
 	@pytest.fixture
-	def oscOut(self):
+	def oscIn(self):
 		return MagicMock()
 
 	@pytest.fixture()
 	def state(
-		self, ownerComponent, op, logger, oscOut, oscControlList,
+		self, ownerComponent, op, logger, oscIn, oscControlList,
 		initializedControlList
 	):
 		State.op = op
 
 		ownerComponent.op = MockOP()
 		ownerComponent.op.addPath('opfind_oscControls', oscControlList)
-		ownerComponent.op.addPath('oscout1', oscOut)
+		ownerComponent.op.addPath('oscin1', oscIn)
 		ownerComponent.op.addPath(
 			'table_initializedControls', initializedControlList
 		)
@@ -37,7 +37,7 @@ class TestState():
 		return State.State(ownerComponent, logger)
 
 	def test_OnCtrlOPListChange(
-		self, op, oscControlList, state, oscOut, initializedControlList
+		self, op, oscControlList, state, oscIn, initializedControlList
 	):
 		oscControlList.appendRows(
 			[
@@ -69,18 +69,18 @@ class TestState():
 				'op': op('/tdArena/ui/clipLauncherUI/layerContainerUI/layer3/sliderVert')
 			}
 		}
-		oscOut.sendOSC.assert_has_calls(
+		oscIn.sendOSC.assert_has_calls(
 			[
 				call('/composition/layers/1/Opacity', ('?', )),
 				call('/composition/layers/2/Opacity', ('?', )),
 				call('/composition/layers/3/Opacity', ('?', )),
 			]
 		)
-		assert oscOut.sendOSC.call_count == 3
+		assert oscIn.sendOSC.call_count == 3
 
 		# Should not request current value after first init
 		state.OnCtrlOPListChange()
-		assert oscOut.sendOSC.call_count == 3
+		assert oscIn.sendOSC.call_count == 3
 
 		# Should clear out inactive addresses
 		initializedControlList.appendRow(
@@ -95,10 +95,10 @@ class TestState():
 				'op': op('/tdArena/ui/clipLauncherUI/layerContainerUI/layer1/sliderVert')
 			}
 		}
-		assert oscOut.sendOSC.call_count == 3
+		assert oscIn.sendOSC.call_count == 3
 		assert len(initializedControlList.rows()) == 0
 
-	def test_OnOSCReply(
+	def test_onOSCReply(
 		self, state, oscControlList, logger, ownerComponent, op,
 		initializedControlList
 	):
@@ -109,7 +109,7 @@ class TestState():
 			],
 		)
 		state.OnCtrlOPListChange()
-		state.OnOSCReply('/composition/layers/1/Opacity', 123)
+		state.onOSCReply('/composition/layers/1/Opacity', 123)
 
 		assert op(
 			'/tdArena/ui/clipLauncherUI/layerContainerUI/layer1/sliderVert'
@@ -119,12 +119,12 @@ class TestState():
 		assert initializedRows[0][0].val == '/composition/layers/1/Opacity'
 		assert initializedRows[0][1].val == '/tdArena/ui/clipLauncherUI/layerContainerUI/layer1/sliderVert/valueOut' # yapf: disable
 
-		state.OnOSCReply('/unknown', 123)
+		state.onOSCReply('/unknown', 123)
 		logger.Warning.assert_called_with(
 			ownerComponent, 'recieved OSC reply for unkonwn address /unknown'
 		)
 
-		state.OnOSCReply('/composition/layers/1/Opacity', 456, 789)
+		state.onOSCReply('/composition/layers/1/Opacity', 456, 789)
 		logger.Warning.assert_called_with(
 			ownerComponent,
 			'expected OSC reply to have exactly 1 arg but got 2, ignoring message'

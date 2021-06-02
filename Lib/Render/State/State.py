@@ -5,7 +5,10 @@ Or at least some sort of Ctrl base class
 import json
 from collections import OrderedDict
 
+from oscDispatcher import OSCDispatcher
 from tda import LoadableExt
+from tdaUtils import (getLayerID, mapAddressToDeckLocation,
+                      mapAddressToEffectContainer, mapAddressToEffectLocation)
 
 
 class StateCtrl(LoadableExt):
@@ -14,6 +17,8 @@ class StateCtrl(LoadableExt):
 		effectCtrl, parameterCtrl
 	):  # pylint: disable=too-many-arguments
 		super().__init__(ownerComponent, logger)
+
+		self.oscOut = ownerComponent.op('./oscout1')
 		self.ctrls = OrderedDict(
 			{
 				# I think effects and parameters need to be initialized _before_ clips/layers/decks
@@ -28,16 +33,145 @@ class StateCtrl(LoadableExt):
 				'layers': layerCtrl
 			}
 		)
+		self.dispatcher = OSCDispatcher(
+			ownerComponent,
+			logger,
+			mappings=OrderedDict(
+				{
+					'?': {
+						'handler': parameterCtrl.ReplyWithCurrentValue
+					},
+					'/ack/render/initialized': {
+						'handler': self.acknowledgeInitialization,
+						'sendAddress': False
+					},
+					'/composition/load': {
+						'handler': self.load,
+						'sendAddress': False
+					},
+					'/composition/reinit': {
+						'handler': self.init,
+						'sendAddress': False
+					},
+					'/composition/new': {
+						'handler': self.new,
+						'sendAddress': False
+					},
+					'/composition/save': {
+						'handler': self.save,
+						'sendAddress': False
+					},
+					'/composition/clips/*/select': {
+						'handler': deckCtrl.SelectClip
+					},
+					'/composition/clips/*/video/effects/add': {
+						'handler': effectCtrl.AddEffect,
+						'mapAddress': mapAddressToEffectContainer
+					},
+					'/composition/clips/*/video/effects/*/clear': {
+						'handler': effectCtrl.ClearEffect,
+						'mapAddress': mapAddressToEffectLocation
+					},
+					'/composition/clips/*/video/effects/*/move': {
+						'handler': effectCtrl.MoveEffect,
+						'mapAddress': mapAddressToEffectLocation
+					},
+					'/composition/layers/*/clear': {
+						'handler': layerCtrl.Clear,
+						'mapAddress': getLayerID
+					},
+					'/composition/layers/*/video/effects/add': {
+						'handler': effectCtrl.AddEffect,
+						'mapAddress': mapAddressToEffectContainer
+					},
+					'/composition/layers/*/video/effects/*/clear': {
+						'handler': effectCtrl.ClearEffect,
+						'mapAddress': mapAddressToEffectLocation
+					},
+					'/composition/layers/*/video/effects/*/move': {
+						'handler': effectCtrl.MoveEffect,
+						'mapAddress': mapAddressToEffectLocation
+					},
+					'/composition/decks/*/select': {
+						'handler': deckCtrl.SelectDeck
+					},
+					'/composition/layers/*/select': {
+						'handler': layerCtrl.SelectLayer
+					},
+					'/selecteddeck/layers/*/clips/*/connect': {
+						'handler': deckCtrl.ConnectClip,
+						'mapAddress': mapAddressToDeckLocation
+					},
+					'/selecteddeck/layers/*/clips/*/clear': {
+						'handler': deckCtrl.ClearClip,
+						'mapAddress': mapAddressToDeckLocation
+					},
+					'/selecteddeck/layers/*/clips/*/move': {
+						'handler': deckCtrl.MoveClip,
+						'mapAddress': mapAddressToDeckLocation
+					},
+					'/selecteddeck/layers/*/clips/*/source/load': {
+						'handler': deckCtrl.LoadClip,
+						'mapAddress': mapAddressToDeckLocation
+					},
+					'/selecteddeck/layers/*/clips/*/video/effects/add': {
+						'handler': deckCtrl.AddEffect,
+						'mapAddress': mapAddressToDeckLocation
+					},
+					'/selecteddeck/layers/*/insert': {
+						'handler': deckCtrl.InsertLayer,
+						'mapAddress': getLayerID
+					},
+					'/selecteddeck/layers/*/remove': {
+						'handler': deckCtrl.RemoveLayer,
+						'mapAddress': getLayerID
+					},
+				}
+			)
+		)
 
-		self.Init()
+		self.init()
 
-	def Init(self):
+	def Dispatch(self, *args):
+		self.dispatcher.Dispatch(*args)
+
+	def SendMessage(self, address, *args):
+		self.logDebug(f'Render -> UI -- {address}:{args}')
+		self.oscOut.sendOSC(address, args)
+
+	def init(self):
 		self.setUnloaded()
 		self.initControllers()
 		self.logInfo('initialized')
+		self.initializedAcknowledged = False
+		self.replyWithInitialized()
 
-	def New(self):
-		self.Init()
+	def acknowledgeInitialization(self):
+		self.initializedAcknowledged = True
+
+	def replyWithInitialized(self, attempts=0):
+		"""
+		We do this over OSC rather than through something like a dat to ensure
+		the OSC messaging ports have had a chance to bind and attach
+		"""
+		if self.initializedAcknowledged:
+			return
+
+		if attempts > 20:
+			self.logError(
+				'timed out waiting for acknowledgement of initialization from ui'
+			)
+			return
+
+		self.SendMessage('/render/initialized')
+		run(
+			f'args[0].replyWithInitialized(attempts={attempts + 1})',
+			self,
+			delayMilliSeconds=500
+		)
+
+	def new(self):
+		self.init()
 		self.setLoading()
 		self.logInfo('creating new state')
 
@@ -45,21 +179,23 @@ class StateCtrl(LoadableExt):
 		self.loadControllers(newState)
 
 		self.setLoaded()
+		self.SendMessage('/composition/loaded')
 		self.logInfo('new state loaded')
 
 	# TODO: implement versioned save files
-	def Load(self, compositionFile: str):
-		self.Init()
+	def load(self, compositionFile: str):
+		self.init()
 		self.setLoading()
 		self.logInfo('loading state')
 
 		saveState = self.readSaveFile(compositionFile)
 		self.loadControllers(saveState)
-		self.setLoaded()
 
+		self.setLoaded()
+		self.SendMessage('/composition/loaded')
 		self.logInfo('loaded')
 
-	def Save(self, compositionFile: str):
+	def save(self, compositionFile: str):
 		if not self.Loaded:
 			self.logWarning('state not loaded, cannot save')
 			return
@@ -75,7 +211,7 @@ class StateCtrl(LoadableExt):
 	def initControllers(self):
 		self.logInfo('reinitilizing controllers')
 		for ctrl in self.ctrls.values():
-			ctrl.Init()
+			ctrl.Init(self)
 
 	def loadControllers(self, saveState):
 		self.logInfo('loading controllers')

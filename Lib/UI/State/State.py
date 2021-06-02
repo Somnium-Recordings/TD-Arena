@@ -1,3 +1,4 @@
+from oscDispatcher import OSCDispatcher
 from tda import BaseExt
 
 
@@ -7,7 +8,11 @@ class State(BaseExt):
     """
 	def __init__(self, ownerComponent, logger):
 		super().__init__(ownerComponent, logger)
-		self.oscOut = ownerComponent.op('oscout1')
+		self.oscIn = ownerComponent.op('oscin1')
+
+		self.dispatcher = OSCDispatcher(
+			ownerComponent, logger, defaultMapping={'handler': self.onOSCReply}
+		)
 
 		self.oscControlList = ownerComponent.op('opfind_oscControls')
 		self.initializedControlList = ownerComponent.op('table_initializedControls')
@@ -24,14 +29,20 @@ class State(BaseExt):
 		self.OnCtrlOPListChange()
 
 	def SendMessage(self, address, *args):
-		"""
-		TODO: move this out of State and into OSC/Client?
-		"""
 		if address:
-			self.logDebug('sending message to {}: {}'.format(address, args))
-			self.oscOut.sendOSC(address, args)
+			self.logDebug(f'UI -> Render -- {address}:{args}')
+			self.oscIn.sendOSC(address, args)
 		else:
 			self.logWarning('attempted to send to invalid address {}'.format(address))
+
+	def Dispatch(self, *args):
+		self.dispatcher.Dispatch(*args)
+
+	def MapOSCHandler(self, *args):
+		self.dispatcher.Map(*args)
+
+	def MapOSCHandlers(self, *args):
+		self.dispatcher.MapMultiple(*args)
 
 	def OnCtrlOPListChange(self):
 		inactiveAddresses = set(self.oscControlState.keys())
@@ -51,7 +62,7 @@ class State(BaseExt):
 			if self.initializedControlList.row(inactiveAddress) is not None:
 				self.initializedControlList.deleteRow(inactiveAddress)
 
-	def OnOSCReply(self, address, *args):
+	def onOSCReply(self, address, *args):
 		if address not in self.oscControlState:
 			self.logWarning('recieved OSC reply for unkonwn address {}'.format(address))
 			return

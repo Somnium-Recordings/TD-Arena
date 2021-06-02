@@ -37,7 +37,7 @@ class DeckCtrl(LoadableExt):
 		self.composition = ownerComponent.op('../composition')
 		assert self.composition, 'could not find composition component'
 
-	def Init(self):
+	def Init(self, _renderState):
 		self.setUnloaded()
 
 		self.deckContainer = self.composition.op('decks')

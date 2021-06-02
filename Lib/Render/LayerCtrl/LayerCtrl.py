@@ -27,7 +27,7 @@ class LayerCtrl(LoadableExt):
 		self.layerState = ownerComponent.op('./null_layerState')
 		assert self.composition, 'could not find composition component'
 
-	def Init(self):
+	def Init(self, _renderState):
 		self.setUnloaded()
 
 		self.layerContainer = self.composition.op('layers')
