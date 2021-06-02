@@ -20,7 +20,7 @@ TopMenu info keys:
 
 
 def tdArenaPreferences(_info):
-	op.tda.openParameters()
+	op.userSettings.openParameters()
 
 
 def tdArenaQuit(_info):
@@ -84,6 +84,10 @@ def renderUseEngine(_info):
 
 def renderReloadEngine(_info):
 	op.tda.ReloadEngine()
+
+
+def renderUnload(_info):
+	op.tda.Unload()
 
 
 ###############################

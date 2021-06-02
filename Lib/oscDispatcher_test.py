@@ -3,28 +3,19 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from OSC.Dispatcher.Dispatcher import OSCDispatcher
+from oscDispatcher import OSCDispatcher
 
 
 class TestDispatcher():
 	@pytest.fixture
-	def oscIn(self):
+	def ownerComponent(self):
 		return MagicMock()
-
-	@pytest.fixture
-	def ownerComponent(self, oscIn):
-		comp = MagicMock()
-
-		op = lambda path: oscIn if path == './oscin1' else None
-		comp.op.side_effect = op
-
-		return comp
 
 	@pytest.fixture
 	def dispatcher(self, ownerComponent):
 		return OSCDispatcher(
-			ownerComponent, MagicMock(), MagicMock(), MagicMock(), MagicMock(),
-			MagicMock(), MagicMock(), MagicMock(), MagicMock()
+			ownerComponent,
+			MagicMock()  # logger
 		)
 
 	def test_Map(self, dispatcher):
@@ -71,7 +62,3 @@ class TestDispatcher():
 		dispatcher.Dispatch('/foo', '?')
 		fooHandler.assert_called_once()  # should not have been called again
 		currentValueHandler.assert_called_with('/foo', '?')
-
-	def test_Reply(self, dispatcher, oscIn):
-		dispatcher.Reply('/foo/bar', 123)
-		oscIn.sendOSC.assert_called_with('/foo/bar', (123, ))

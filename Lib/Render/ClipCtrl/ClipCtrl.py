@@ -39,7 +39,7 @@ class ClipCtrl(LoadableExt):
 			}
 		}
 
-	def Init(self):
+	def Init(self, _renderState):
 		self.setUnloaded()
 
 		self.clipContainer = self.composition.op('clips')

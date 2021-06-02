@@ -12,9 +12,7 @@ class CompositionCtrl(LoadableExt):
 		self.compositionContainer = ownerComponent.op('../composition')
 		self.compositionState = ownerComponent.op('./null_compositionState')
 
-		self.Init()
-
-	def Init(self):
+	def Init(self, _renderState):
 		self.setUnloaded()
 		self.clearCompositionContents()
 		self.layoutCompositionContainer()

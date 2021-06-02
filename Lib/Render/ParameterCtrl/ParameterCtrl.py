@@ -15,20 +15,20 @@ DEFAULT_STATE = {}
 
 
 class ParameterCtrl(LoadableExt):
-	def __init__(self, ownerComponent, logger, oscDispatcher):
+	def __init__(self, ownerComponent, logger):
 		super().__init__(ownerComponent, logger)
 
-		self.oscDispatcher = oscDispatcher
 		self.parameterState = ownerComponent.op('null_internalParameterState')
 		self.initializedParameterTable = ownerComponent.op(
 			'table_initializedParameters'
 		)
 
-	def Init(self):
+	def Init(self, renderState):
 		self.setUnloaded()
 
 		self.initializedParameterTable.clear()
 		self.saveState = None
+		self.renderState = renderState
 
 		self.logInfo('initialized')
 
@@ -58,7 +58,7 @@ class ParameterCtrl(LoadableExt):
 			return
 
 		self.logDebug('replying with current value at {}'.format(address))
-		self.oscDispatcher.Reply(address, getParValue(par))
+		self.renderState.SendMessage(address, getParValue(par))
 
 	def getParameter(self, address: str):
 		controlPathCell = self.parameterState[address, 'path']

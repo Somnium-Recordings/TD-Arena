@@ -5,27 +5,6 @@ from tda import LoadableExt
 
 SETTINGS_FILE = path.join('.td-arena', 'settings.json')
 
-# TODO: test if we can use a bind now rather than manually syncing
-# 		if we can, just iterate over custom params and skip all
-# 		this synching nonsense
-SETTINGS_MAP = {
-	'Composition': {
-		'target': 'none'
-	},
-	'Useengine': {
-		'target': 'none'
-	},
-	'Effectspath': {
-		'target': 'both'
-	},
-	'Generatorspath': {
-		'target': 'both'
-	},
-	'Moviespath': {
-		'target': 'both'
-	},
-}
-
 
 class UserSettings(LoadableExt):
 	@property
@@ -33,11 +12,8 @@ class UserSettings(LoadableExt):
 		return tdu.expandPath(SETTINGS_FILE)
 
 	# pylint: disable=too-many-arguments
-	def __init__(self, ownerComponent, logger, renderLocal, renderEngine, ui):
+	def __init__(self, ownerComponent, logger):
 		super().__init__(ownerComponent, logger)
-		self.renderLocal = renderLocal
-		self.renderEngine = renderEngine
-		self.ui = ui
 
 		self.loadSettingsFile()
 
@@ -65,12 +41,13 @@ class UserSettings(LoadableExt):
 		#       break this function up into an "update" and "load" so we don't
 		#       have to process everything on every change, but for now it's not
 		#       a big deal.
-		for parName in SETTINGS_MAP:
-			par = self.ownerComponent.par[parName]
+		for par in self.ownerComponent.customPars:
+			if par.style == 'Header':
+				continue
 
 			if applyUserSettings is not None:
-				if parName in applyUserSettings:
-					par.val = applyUserSettings[parName]
+				if par.name in applyUserSettings:
+					par.val = applyUserSettings[par.name]
 				else:
 					# reset to default to avoid any non-default config
 					# carrying over from different systems where td-arena is
@@ -78,53 +55,8 @@ class UserSettings(LoadableExt):
 					par.val = par.default
 
 			if not par.isDefault:
-				userSettings[parName] = par.eval()
-
-			# TODO: test if we can use a bind now rather than manually
-			#       syncing once engine is working again
-			print(f'TODO: sync {parName} to comp')
+				userSettings[par.name] = par.eval()
 
 		if applyUserSettings is None:
 			with open(self.settingsFilePath, 'w') as saveFile:
 				json.dump(userSettings, saveFile, indent='\t')
-
-	def getTargetPar(self, targetOp, mapConfig):
-		target = getattr(targetOp.par, mapConfig['par'], None)
-		if target is None:
-			self.logWarning(
-				'mapping expected {} to have paremeter {}, parameter will not be synced'.
-				format(targetOp.name, mapConfig['par'])
-			)
-
-		return target
-
-	def getUpdateTargets(self, parName, parameterMap):
-		assert parName in parameterMap, 'expected tda par "{}" to be mapped'.format(
-			parName
-		)
-		mapConfig = parameterMap[parName]
-		if 'par' not in mapConfig:
-			mapConfig['par'] = parName
-
-		targets = []
-		if mapConfig['target'] == 'both':
-			targets.append(self.renderLocal)
-			targets.append(self.renderEngine)
-		elif mapConfig['target'] == 'engine':
-			targets.append(self.renderEngine)
-		elif mapConfig['target'] == 'local':
-			targets.append(self.renderLocal)
-		elif mapConfig['target'] == 'ui':
-			targets.append(self.ui)
-		elif mapConfig['target'] == 'active':
-			debug('TODO')
-			# targets.append(
-			# 	self.engineRender if self.par.Useengine else self.localRender
-			# )
-		elif mapConfig['target'] == 'none':
-			pass
-		else:
-			raise AssertionError('unexpected mapType of {}'.format(mapConfig['target']))
-
-		targets = [self.getTargetPar(target, mapConfig) for target in targets]
-		return filter(lambda x: x is not None, targets)
