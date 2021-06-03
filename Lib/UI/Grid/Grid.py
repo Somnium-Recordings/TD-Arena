@@ -1,7 +1,9 @@
+import json
 from functools import reduce
+from os import path
 
-from tda import BaseExt, DroppedItem
-from tdaUtils import layoutComps
+from tda import DroppedItem, LoadableExt
+from tdaUtils import getCellValues, layoutComps
 
 DIRECTIONS = ('l', 'r', 'b', 't')
 OPPOSITE_DIRECTIONS = {'l': 'r', 'r': 'l', 't': 'b', 'b': 't'}
@@ -79,9 +81,48 @@ DEFAULT_LAYOUT = {
 # yapf: enable
 
 
-class Grid(BaseExt):
-	def __init__(self, ownerComponent, logger):
+def dividerState(par):
+	targetOp = par.eval()
+
+	return targetOp.digits if targetOp else None
+
+
+def getOpSaveState(op, posPar=None):
+	state = {
+		'id': op.digits,
+		'l': dividerState(op.par.Dividerl),
+		'r': dividerState(op.par.Dividerr),
+		'b': dividerState(op.par.Dividerb),
+		't': dividerState(op.par.Dividert),
+	}
+
+	if posPar:
+		state['pos'] = op.par[posPar].eval()
+
+	return state
+
+
+def layoutFilePath(layoutName):
+	return tdu.expandPath(path.join('.td-arena', f'layout.{layoutName}.json'))
+
+
+def layoutExists(layoutName):
+	return path.isfile(layoutFilePath(layoutName))
+
+
+class Grid(LoadableExt):
+	@property
+	def layoutUserSetting(self):
+		return self.userSettings.par.Gridlayout.eval()
+
+	@layoutUserSetting.setter
+	def layoutUserSetting(self, value):
+		self.userSettings.par.Gridlayout = value
+
+	def __init__(self, ownerComponent, logger, userSettings):
 		super().__init__(ownerComponent, logger)
+		self.userSettings = userSettings
+
 		self.Init()
 
 	def Init(self):
@@ -99,13 +140,38 @@ class Grid(BaseExt):
 		self.panelMapTable = self.ownerComponent.op('table_panelMap')
 		self.cellPanelState = self.ownerComponent.op('table_cellPanelState')
 
-		if not self.ownerComponent.op('cell0'):
-			self.LoadLayout()
+		if self.ownerComponent.op('cell0'):
+			self.setLoaded()
+		else:
+			self.loadLayout()
 
 		self.logInfo('initalized')
 
-	def LoadLayout(self, layout=None):
-		layout = layout or DEFAULT_LAYOUT
+	def SelectLayout(self, layoutName):
+		self.logInfo(f'selecting layout {layoutName}')
+		self.Unload()
+
+		self.layoutUserSetting = '' if layoutName == 'Default' else layoutName
+
+		self.Init()
+
+	def loadLayoutFile(self, layoutName):
+		if layoutName == 'Default':
+			return DEFAULT_LAYOUT
+
+		try:
+			with open(layoutFilePath(layoutName)) as saveFile:
+				return json.load(saveFile)
+		except (json.JSONDecodeError, FileNotFoundError):
+			self.logError(
+				f'no layout file found at {layoutFilePath(layoutName)}, '
+				'loading default instead'
+			)
+			return DEFAULT_LAYOUT
+
+	def loadLayout(self, layout=None):
+		self.setLoading()
+		layout = self.loadLayoutFile(self.layoutUserSetting)
 
 		for spec in layout['vDividers']:
 			divider = self.createNextVDivider(spec['id'])
@@ -123,9 +189,43 @@ class Grid(BaseExt):
 		panelMap = layout['panelMap']
 		self.panelMapTable.appendRows(panelMap, 0)
 		self.panelMapTable.setSize(len(panelMap), len(panelMap[0]))
+		self.setLoaded()
 
-	def Reset(self):
-		self.Init()
+	# pylint: disable=no-self-use
+	def GetAvailableLayouts(self):
+		layouts = ['Default']
+
+		# TODO: figure out why rowCallback isn't fired every time
+		# if self.layoutExists('User'):
+		layouts.append('User')
+
+		return layouts
+
+	def SaveLayout(self):
+		if not self.Loaded:
+			self.logError('cannot save layout, grid has not been loaded')
+			return
+
+		self.logInfo('saving user layout')
+
+		saveState = {
+			'cells': [getOpSaveState(cell) for cell in self.cells],
+			'vDividers':
+			[getOpSaveState(divider, 'rightanchor') for divider in self.vDividers],
+			'hDividers':
+			[getOpSaveState(divider, 'topanchor') for divider in self.hDividers],
+			'panelMap': [getCellValues(row) for row in self.panelMapTable.rows()]
+		}
+
+		saveFilePath = layoutFilePath('User')
+		with open(saveFilePath, 'w') as saveFile:
+			json.dump(saveState, saveFile, indent='\t')
+
+		self.logDebug(f'layout saved to {saveFilePath }')
+
+	def Unload(self):
+		self.setUnloaded()
+
 		for cell in self.cells:
 			cell.destroy()
 
@@ -135,6 +235,9 @@ class Grid(BaseExt):
 		for divider in self.hDividers:
 			divider.destroy()
 
+	def Reset(self):
+		self.Init()
+		self.Unload()
 		self.Init()
 
 	def AddCell(
@@ -201,8 +304,8 @@ class Grid(BaseExt):
 		if panelPath in panelPaths:
 			panelPaths.remove(panelPath)
 		panelPaths.insert(droppedItem.selectedItemIndex, panelPath)
-		for index, path in enumerate(panelPaths):
-			self.panelMapTable[path, 'order'] = index
+		for index, value in enumerate(panelPaths):
+			self.panelMapTable[value, 'order'] = index
 
 		self.RemoveEmptyCells()
 

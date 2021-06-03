@@ -95,6 +95,32 @@ def renderUnload(_info):
 ###############################
 
 
+def getViewLayouts(_info):
+	layouts = [
+		{
+			'item2': layoutName,
+			'callback': 'viewLayoutsSelect'
+		} for layoutName in op.uiGrid.GetAvailableLayouts()
+	]
+	layouts[-1]['dividerAfter'] = True
+
+	footer = [{'item2': 'Save', 'callback': 'viewLayoutsSave'}]
+
+	return layouts + footer
+
+
+def viewLayoutsSelect(info):
+	op.uiGrid.SelectLayout(info['define']['name'])
+
+
+def viewLayoutsSave(_info):
+	op.uiGrid.SaveLayout()
+
+
+def viewToggleUiDpiScaling(_info):
+	op.userSettings.par.Uidpiscaling = not op.userSettings.par.Uidpiscaling.eval()
+
+
 def viewDebugWindow(_info):
 	if op.debugUI.IsOpen:
 		op.debugUI.Close()
