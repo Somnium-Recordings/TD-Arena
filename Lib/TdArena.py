@@ -69,7 +69,7 @@ class TdArena(LoadableExt):
 	# pylint: disable=too-many-arguments
 	def __init__(
 		self, ownerComponent, logger, uiState, userSettings, renderLocal,
-		renderEngine
+		renderEngine, uiGrid
 	):
 		super().__init__(ownerComponent, logger)
 		self.uiState = uiState
@@ -88,6 +88,7 @@ class TdArena(LoadableExt):
 		self.userSettings = userSettings
 		self.renderLocal = renderLocal
 		self.renderEngine = renderEngine
+		self.uiGrid = uiGrid
 
 		self.CompositionState: str
 		TDF = op.TDModules.mod.TDFunctions
@@ -108,6 +109,7 @@ class TdArena(LoadableExt):
 				'add logic to delay system init until user settings loaded'
 			)
 
+		self.uiGrid.Init()
 		self.bindUserSettings()
 
 		if useEngine is None:
@@ -184,6 +186,8 @@ class TdArena(LoadableExt):
 
 		self.renderLocal.par.Reinitctrls.pulse()
 		self.clearBoundUserSettings()
+
+		self.uiGrid.Unload()
 
 		self.setUnloaded()
 		self.CompositionState = STATE_UNLOADED

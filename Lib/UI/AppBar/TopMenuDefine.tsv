@@ -16,4 +16,7 @@ Render
 	Reinit Composition		renderReinitComposition		not op.tda.Loaded
 	Unload		renderUnload		not (op.tda.Loaded or op.tda.Loading)
 View
+	Layout				not op.uiGrid.Loaded
+									getViewLayouts
+	DPI Scaling		viewToggleUiDpiScaling	True		op.userSettings.par.Uidpiscaling.eval()
 	Debug Window		viewDebugWindow			op.debugUI.IsOpen.eval()
