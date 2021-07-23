@@ -227,13 +227,16 @@ class Grid(LoadableExt):
 		self.setUnloaded()
 
 		for cell in self.cells:
-			cell.destroy()
+			if cell.valid:
+				cell.destroy()
 
 		for divider in self.vDividers:
-			divider.destroy()
+			if divider.valid:
+				divider.destroy()
 
 		for divider in self.hDividers:
-			divider.destroy()
+			if divider.valid:
+				divider.destroy()
 
 	def Reset(self):
 		self.Init()
