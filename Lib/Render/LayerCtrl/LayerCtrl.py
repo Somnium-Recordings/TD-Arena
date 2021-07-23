@@ -17,10 +17,9 @@ class LayerCtrl(LoadableExt):
 	def LayerCount(self):
 		return max(0, len(self.layers) - 1) if self.Loaded else 0
 
-	def __init__(self, ownerComponent, logger, clipCtrl, thumbnails):  # pylint: disable=too-many-arguments
+	def __init__(self, ownerComponent, logger, clipCtrl):  # pylint: disable=too-many-arguments
 		super().__init__(ownerComponent, logger)
 		self.clipCtrl = clipCtrl
-		self.thumbnails = thumbnails
 		self.layerTemplate = ownerComponent.op('./layerTemplate')
 		self.composition = ownerComponent.op('../composition')
 		self.layerList = ownerComponent.op('./table_layerIDs')
