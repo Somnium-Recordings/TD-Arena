@@ -22,12 +22,30 @@ I'm currently developing this using [VS Code](https://code.visualstudio.com/) on
 
 Install the [version of python TouchDesigner is using](https://docs.derivative.ca/Release_Notes#New_Python), currently `3.7.2`.
 
-_My personal preference is through [pyenv-win](https://github.com/pyenv-win/pyenv-win)_
+_My personal preference is through [pyenv](https://github.com/pyenv/pyenv) running in [wsl](https://docs.microsoft.com/en-us/windows/wsl/install-win10)._
 
 ```
 pyenv install 3.7.2
 pyenv rehash
 pip install --upgrade pip
+```
+
+#### Telling TouchDesigner to use VSCode in WSL
+
+In order to have TouchDesigner use VScode within your WSL environment when using the edit shortcut, you have to use a little bit of scripting.
+
+Create a powershell script somewhere on your computer with the following content:
+
+_For example `C:\Users\Steven\Bin\util\wslcode.ps1`_
+
+```ps1
+& wsl code "`$(wslpath `"$args`")"
+```
+
+Then in the TouchDesigner preferences set `DATs -> Text Editor` to the following, replacing the path with your path:
+
+```ps1
+powershell.exe C:/Users/Steven/Bin/util/wslcode.ps1
 ```
 
 ### Pipenv
