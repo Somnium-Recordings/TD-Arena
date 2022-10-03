@@ -187,7 +187,8 @@ class Grid(LoadableExt):
 			setDividerReferences(self.createNextCell(spec['id']), spec)
 
 		panelMap = layout['panelMap']
-		self.panelMapTable.appendRows(panelMap, 0)
+		self.panelMapTable.replaceRow(0, panelMap[0])
+		self.panelMapTable.appendRows(panelMap[1:], 0)
 		self.panelMapTable.setSize(len(panelMap), len(panelMap[0]))
 		self.setLoaded()
 

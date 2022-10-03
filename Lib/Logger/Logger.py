@@ -10,10 +10,15 @@ IGNORED_ERROR_SOURCES = [
 ]
 
 
+def escapeLogMessage(message: str) -> str:
+	# TODO: can we use encode for this?
+	return message.replace('\n', '\\n').replace('\t', '\\t')
+
+
 def formatLog(comp, message):
 	return LOG_FORMAT.format(
 		source=comp.path,
-		message=message,
+		message=escapeLogMessage(message),
 		absframe=absTime.frame,
 		frame=comp.time.frame,
 		type=comp.type,
@@ -38,7 +43,7 @@ class Logger:
 			if not self.debug:
 				self.fileHandler = self.logger.handlers[0]
 
-				self.Debug(self.ownerComp, 'logger already inialized, skipping re-init')
+				self.Debug(self.ownerComp, 'logger already initialized, skipping re-init')
 				return
 
 			for handler in self.logger.handlers:
@@ -49,7 +54,7 @@ class Logger:
 			maxBytes=1024 * 256,
 			backupCount=1,
 		)
-		formatter = logging.Formatter('%(levelname)s\t%(message)s\t%(asctime)s')
+		formatter = logging.Formatter('%(message)s\t%(levelname)s\t%(asctime)s')
 		fileHandler.setFormatter(formatter)
 		self.fileHandler = fileHandler
 
@@ -65,11 +70,14 @@ class Logger:
 		self.Info(self.ownerComp, '%s logger initialized', self.logName)
 
 	def Clear(self):
-		assert self.fileHandler, 'Logger.Clear() cannot be called before the handler is inialized'
+		assert self.fileHandler, 'Logger.Clear() cannot be called before the handler is initialized'
 		self.fileHandler.doRollover()
 
 	def ClearErrors(self):
 		self.ownerComp.par.Clearerrors.pulse()
+
+	def LogCurrentErrors(self):
+		self.ownerComp.par.Logcurrenterrors.pulse()
 
 	def LogTouchError(self, message, absFrame, frame, severity, compType, source):  # pylint: disable=too-many-arguments
 		if source in IGNORED_ERROR_SOURCES:
@@ -77,7 +85,7 @@ class Logger:
 
 		message = LOG_FORMAT.format(
 			source=source,
-			message=message.replace('\n', ''),
+			message=escapeLogMessage(message),
 			absframe=absFrame,
 			frame=frame,
 			type=compType
