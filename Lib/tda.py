@@ -20,6 +20,13 @@ class Par(Generic[T]):
 		pass
 
 
+# pylint: disable=too-few-public-methods
+class Cell():
+	@property
+	def val(self) -> str:
+		pass
+
+
 class BaseExt():
 	def __init__(self, ownerComponent, logger):
 		self.ownerComponent = ownerComponent

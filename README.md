@@ -55,7 +55,7 @@ Project dependencies are currently managed through [pipenv](https://pipenv.pypa.
 **Note:** An empty `.venv` directory is committed so the vscode config can use a relative path to python for dev tools like `pytest`.
 
 ```sh
-pip install --user pipenv
+pip install pipenv
 pipenv install --dev
 pipenv shell
 pre-commit install
