@@ -19,5 +19,6 @@
   "python.analysis.extraPaths": ["Lib"],
   "[python]": {
     "editor.defaultFormatter": "ms-python.python"
-  }
+  },
+  "cSpell.words": ["absframe", "Toxes"]
 }

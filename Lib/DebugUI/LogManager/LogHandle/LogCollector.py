@@ -1,5 +1,6 @@
+import math
 from collections import namedtuple
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from tda import Cell
 from tdaUtils import getCellValues
@@ -38,8 +39,8 @@ class LogCollector:
 		return self.ownerComp.par.Lastcollectedframe.eval()
 
 	@lastCollectedFrame.setter
-	def lastCollectedFrame(self, val: int) -> int:
-		self.ownerComp.par.Lastcollectedframe = val
+	def lastCollectedFrame(self, val: Union[int, float]) -> int:
+		self.ownerComp.par.Lastcollectedframe = 0 if math.isinf(val) else int(val)
 
 	# TODO: clear logs on first load
 	def __init__(self, ownerComp) -> None:
@@ -63,9 +64,6 @@ class LogCollector:
 
 	def ProcessLogChange(self, dat) -> None:
 		if dat.numRows == 0:
-			debug(
-				f'{self.ownerComp.par.Logname} processing skipped, empty input dat provided.'
-			)
 			return
 
 		headerRow: Cell
@@ -75,13 +73,22 @@ class LogCollector:
 
 		# TODO: Error if missing critical columns like message, source or absframe
 
-		highestCollectedFrame = self.lastCollectedFrame
+		# Treat "0" as negative infinity so we can display negative frames
+		# (e.g. frames from previous sessions)
+		highestCollectedFrame = self.lastCollectedFrame or float('-inf')
 
 		for logRow in logRows:
 			logRecord = rowToLogRecord(logRow, logColumns)
-			highestCollectedFrame = max(
-				self.lastCollectedFrame, int(logRecord.absframe)
-			)
+
+			logFrame = int(logRecord.absframe)
+			# If the frame number is higher than the current frame, the log is from
+			# a past session. Convert it to a negative number so that it doesn't prevent
+			# future logs from being read.
+			if logFrame > absTime.frame + 1:
+				logFrame = -logFrame
+				logRecord = logRecord._replace(absframe=logFrame)
+
+			highestCollectedFrame = max(self.lastCollectedFrame, logFrame)
 			self.processLogRecord(logRecord)
 
 		# We need to wait to update the lastCollectedFrame until after

@@ -40,6 +40,7 @@ def onCook(scriptOp):
 	logs = {}
 
 	for i in range(1, d.numRows):
+		# TODO: don't .val directly as it can error if column is missing
 		timestamp = d[i, 'timestamp'].val
 		timeMatch = TIME_RE.search(timestamp)
 		timeStr = timeMatch.group(0) if timeMatch else ''
