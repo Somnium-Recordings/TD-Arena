@@ -84,7 +84,7 @@ class LogCollector:
 			# If the frame number is higher than the current frame, the log is from
 			# a past session. Convert it to a negative number so that it doesn't prevent
 			# future logs from being read.
-			if logFrame > absTime.frame + 1:
+			if logFrame > absTime.frame + 2:
 				logFrame = -logFrame
 				logRecord = logRecord._replace(absframe=logFrame)
 
