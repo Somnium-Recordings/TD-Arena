@@ -38,6 +38,10 @@ class LogCollector:
 	def lastCollectedFrame(self) -> int:
 		return self.ownerComp.par.Lastcollectedframe.eval()
 
+	@property
+	def maxLogStorage(self) -> int:
+		return self.ownerComp.par.Maxlogstorage.eval()
+
 	@lastCollectedFrame.setter
 	def lastCollectedFrame(self, val: Union[int, float]) -> int:
 		self.ownerComp.par.Lastcollectedframe = 0 if math.isinf(val) else int(val)
@@ -96,6 +100,18 @@ class LogCollector:
 		# the first record, the filter will kick in and we won't be able
 		# to access the table data for the remaining records
 		self.lastCollectedFrame = highestCollectedFrame
+
+	def OnSortedStorageLengthChange(self, sortedStorageDat) -> None:
+		if sortedStorageDat.numRows <= self.maxLogStorage:
+			return
+
+		messagesToDelete = [
+			sortedStorageDat[rowNumber, 'message'].val
+			for rowNumber in range(self.maxLogStorage, sortedStorageDat.numRows)
+		]
+
+		# This works since the first column is always the message
+		self.logStorage.deleteRows(messagesToDelete)
 
 	def processLogRecord(self, logRecord: LogRecord) -> None:
 		log = self.findMatchingLog(logRecord)
