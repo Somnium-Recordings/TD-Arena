@@ -1,4 +1,4 @@
-# pylint: disable=no-self-use,too-few-public-methods,too-many-arguments,line-too-long
+# pylint: disable=no-self-use,too-few-public-methods,too-many-arguments
 import pytest
 
 from tdaTesting import MockCell, MockTable
