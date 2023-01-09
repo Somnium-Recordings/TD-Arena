@@ -9,6 +9,8 @@ from typing import List
 
 TIME_RE = re.compile(r'\d\d:\d\d:\d\d')
 
+SEVERITY_REMAP = {'ABORT': 'ERROR'}
+
 
 def onSetupParameters(_scriptOp):
 	# page = scriptOp.appendCustomPage('Custom')
@@ -53,7 +55,9 @@ def onCook(scriptOp):
 		sourceParts = [absFrame, timeStr, logName, source, countMsg]
 
 		# severity = '{#color(255,0,0)}' + d[i, 'severity'].val + '{#reset()}'
-		severity = d[i, 'severity'].val
+		severity = d[i, 'severity'].val.upper()
+		if severity in SEVERITY_REMAP:  # pylint: disable=consider-using-get
+			severity = SEVERITY_REMAP[severity]
 		message = decode(d[i, 'message'].val, 'unicode-escape')
 		message = f'{severity}: {message}'
 

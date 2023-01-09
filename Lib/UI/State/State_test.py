@@ -1,4 +1,4 @@
-# pylint: disable=no-self-use,too-many-arguments,line-too-long
+# pylint: disable=no-self-use,too-many-arguments
 from unittest.mock import MagicMock, call
 
 import pytest

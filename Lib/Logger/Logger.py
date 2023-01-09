@@ -91,11 +91,14 @@ class Logger:
 			type=compType
 		)
 
-		if severity == 0:
+		# NOTE: The documented numbers don't seem to line up with reality
+		# See: https://forum.derivative.ca/t/error-dat-is-saing-severity-warning-while-its-python-callbacks-are-reporting-severity-error/286370/2
+		# Docs(incorrect): https://docs.derivative.ca/ErrorDAT_Class#Callbacks
+		if severity <= 1:
 			self.logger.info(message)
-		elif severity == 1:
-			self.logger.warning(message)
 		elif severity == 2:
+			self.logger.warning(message)
+		elif severity == 3:
 			self.logger.error(message)
 		else:  # severity == 3
 			self.logger.critical(message)
