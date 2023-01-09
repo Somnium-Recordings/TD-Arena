@@ -56,8 +56,8 @@ def onCook(scriptOp):
 
 		# severity = '{#color(255,0,0)}' + d[i, 'severity'].val + '{#reset()}'
 		severity = d[i, 'severity'].val.upper()
-		if severity in SEVERITY_REMAP:  # pylint: disable=consider-using-get
-			severity = SEVERITY_REMAP[severity]
+		severity = SEVERITY_REMAP.get(severity, severity)
+
 		message = decode(d[i, 'message'].val, 'unicode-escape')
 		message = f'{severity}: {message}'
 
