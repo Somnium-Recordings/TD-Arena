@@ -1,4 +1,8 @@
 class LogManager:
+	@property
+	def LogCountsDat(self):
+		return self.ownerComp.op('./null_counts')
+
 	def __init__(self, ownerComp) -> None:
 		self.ownerComp = ownerComp
 
