@@ -14,3 +14,9 @@ class DebugUI:
 
 	def Close(self):
 		self.window.par.winclose.pulse()
+
+	def Toggle(self):
+		if self.IsOpen:
+			self.Close()
+		else:
+			self.Open()
