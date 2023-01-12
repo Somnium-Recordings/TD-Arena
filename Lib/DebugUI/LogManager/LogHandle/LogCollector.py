@@ -42,6 +42,10 @@ class LogCollector:
 	def maxLogStorage(self) -> int:
 		return self.ownerComp.par.Maxlogstorage.eval()
 
+	@property
+	def shouldGroupSimilarLogs(self) -> bool:
+		return self.ownerComp.par.Groupsimilarlogs.eval()
+
 	@lastCollectedFrame.setter
 	def lastCollectedFrame(self, val: Union[int, float]) -> int:
 		self.ownerComp.par.Lastcollectedframe = 0 if math.isinf(val) else int(val)
@@ -114,7 +118,9 @@ class LogCollector:
 		self.logStorage.deleteRows(messagesToDelete)
 
 	def processLogRecord(self, logRecord: LogRecord) -> None:
-		log = self.findMatchingLog(logRecord)
+		log = self.findMatchingLog(
+			logRecord
+		) if self.shouldGroupSimilarLogs else None
 
 		if log is None:
 			self.logStorage.appendRow(logRecord)
