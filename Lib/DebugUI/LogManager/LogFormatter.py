@@ -76,6 +76,8 @@ def onCook(scriptOp):
 	scriptOp.clear()
 
 	d = scriptOp.inputs[0]
+	searchQuery = scriptOp.inputs[1].text.lower().split()
+	enabledLogLevels = [c.val for c in scriptOp.inputs[2].col(0) or []]
 
 	if op.logManager.par.Groupsimilarlogs.eval():
 		logs = GroupedLogCollector()
@@ -98,6 +100,8 @@ def onCook(scriptOp):
 		# severity = '{#color(255,0,0)}' + d[i, 'severity'].val + '{#reset()}'
 		severity = d[i, 'severity'].val.upper()
 		severity = SEVERITY_REMAP.get(severity, severity)
+		if severity not in enabledLogLevels:
+			continue
 
 		message = decode(d[i, 'message'].val, 'unicode-escape')
 		message = f'{severity}: {message}'
@@ -108,7 +112,6 @@ def onCook(scriptOp):
 		formatLog(message, sources) for message, sources in logs.items()
 	]
 
-	searchQuery = scriptOp.inputs[1].text.lower().split()
 	scriptOp.text = '\n\n'.join(
 		message for message in formattedLogs
 		if not searchQuery or matchesSearchQuery(message.lower(), searchQuery)
