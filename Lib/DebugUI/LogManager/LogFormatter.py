@@ -7,7 +7,7 @@ import re
 from codecs import decode
 from typing import List
 
-TIME_RE = re.compile(r'\d\d:\d\d:\d\d')
+TIME_RE = re.compile(r'\d\d:\d\d:\d\d(,\d\d\d)?')
 
 SEVERITY_REMAP = {'ABORT': 'ERROR'}
 
@@ -24,7 +24,10 @@ def onPulse(_par):
 	pass
 
 
-def justifyColumns(rows: List[List[str]]) -> List[str]:
+LogSource = List[str]
+
+
+def justifyColumns(rows: List[LogSource]) -> List[str]:
 	justifiedColumns = []
 
 	for column in zip(*rows):
@@ -34,12 +37,39 @@ def justifyColumns(rows: List[List[str]]) -> List[str]:
 	return [' '.join(filter(len, row)) for row in zip(*justifiedColumns)]
 
 
+class GroupedLogCollector:
+	def __init__(self) -> None:
+		self.storage = {}
+
+	def add(self, message: str, sourceParts: LogSource) -> None:
+		if message in self.storage:
+			self.storage[message].append(sourceParts)
+		else:
+			self.storage[message] = [sourceParts]
+
+	def items(self):
+		return self.storage.items()
+
+
+class UngroupedLogCollector:
+	def __init__(self) -> None:
+		self.storage = []
+
+	def add(self, message: str, sourceParts: LogSource) -> None:
+		self.storage.append((message, [sourceParts]))
+
+	def items(self):
+		return self.storage
+
+
 def onCook(scriptOp):
 	scriptOp.clear()
 
 	d = scriptOp.inputs[0]
-
-	logs = {}
+	if op.logManager.par.Groupsimilarlogs.eval():
+		logs = GroupedLogCollector()
+	else:
+		logs = UngroupedLogCollector()
 
 	for i in range(1, d.numRows):
 		# TODO: don't .val directly as it can error if column is missing
@@ -61,13 +91,11 @@ def onCook(scriptOp):
 		message = decode(d[i, 'message'].val, 'unicode-escape')
 		message = f'{severity}: {message}'
 
-		if message in logs:
-			logs[message].append(sourceParts)
-		else:
-			logs[message] = [sourceParts]
+		logs.add(message, sourceParts)
 
 	log = ''
 	for message, sources in logs.items():
+		print(sources)
 		log += '\n'.join(justifyColumns(sources))
 		log += '\n' + message + '\n\n'
 
