@@ -5,6 +5,7 @@
 # press 'Setup Parameters' in the OP to call this function to re-create the parameters.
 import re
 from codecs import decode
+from shlex import split
 from typing import List
 
 TIME_RE = re.compile(r'\d\d:\d\d:\d\d(,\d\d\d)?')
@@ -63,9 +64,7 @@ class UngroupedLogCollector:
 
 
 def matchesSearchQuery(message: str, searchQuery: List[str]) -> bool:
-	print(searchQuery)
-	print(message + '\n\n')
-	return any([part in message for part in searchQuery])
+	return all([part in message for part in searchQuery])
 
 
 def formatLog(message: str, sources: List[LogSource]) -> str:
@@ -76,7 +75,13 @@ def onCook(scriptOp):
 	scriptOp.clear()
 
 	d = scriptOp.inputs[0]
-	searchQuery = scriptOp.inputs[1].text.lower().split()
+
+	searchText = scriptOp.inputs[1].text.lower()
+	try:
+		searchQuery = split(searchText)
+	except ValueError:  # handle "no closing quote" errors by falling back to .split
+		searchQuery = searchText.split()
+
 	enabledLogLevels = [c.val for c in scriptOp.inputs[2].col(0) or []]
 
 	if op.logManager.par.Groupsimilarlogs.eval():
@@ -116,12 +121,3 @@ def onCook(scriptOp):
 		message for message in formattedLogs
 		if not searchQuery or matchesSearchQuery(message.lower(), searchQuery)
 	)
-
-	# log = ''
-	# for message, sources in logs.items():
-	# 	if matchesSearchQuery(message, searchQuery):
-	# 		# logParts.append()
-	# 		log += '\n'.join(justifyColumns(sources))
-	# 		log += '\n' + message + '\n\n'
-
-	# scriptOp.text = log
