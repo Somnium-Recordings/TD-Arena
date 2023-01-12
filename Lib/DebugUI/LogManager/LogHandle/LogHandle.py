@@ -5,6 +5,8 @@ class LogHandle:
 		self.logStorageDat = logStorageDat
 		self.logDataBeforeSave = None
 
+		self.ownerComp.par.Active = 1
+
 	def OnBeforeSave(self):
 		if self.ownerComp.par.Active.eval():
 			self.wasPreviouslyActive = True
