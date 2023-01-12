@@ -62,10 +62,21 @@ class UngroupedLogCollector:
 		return self.storage
 
 
+def matchesSearchQuery(message: str, searchQuery: List[str]) -> bool:
+	print(searchQuery)
+	print(message + '\n\n')
+	return any([part in message for part in searchQuery])
+
+
+def formatLog(message: str, sources: List[LogSource]) -> str:
+	return '\n'.join([*justifyColumns(sources), message])
+
+
 def onCook(scriptOp):
 	scriptOp.clear()
 
 	d = scriptOp.inputs[0]
+
 	if op.logManager.par.Groupsimilarlogs.eval():
 		logs = GroupedLogCollector()
 	else:
@@ -93,10 +104,21 @@ def onCook(scriptOp):
 
 		logs.add(message, sourceParts)
 
-	log = ''
-	for message, sources in logs.items():
-		print(sources)
-		log += '\n'.join(justifyColumns(sources))
-		log += '\n' + message + '\n\n'
+	formattedLogs = [
+		formatLog(message, sources) for message, sources in logs.items()
+	]
 
-	scriptOp.text = log
+	searchQuery = scriptOp.inputs[1].text.lower().split()
+	scriptOp.text = '\n\n'.join(
+		message for message in formattedLogs
+		if not searchQuery or matchesSearchQuery(message.lower(), searchQuery)
+	)
+
+	# log = ''
+	# for message, sources in logs.items():
+	# 	if matchesSearchQuery(message, searchQuery):
+	# 		# logParts.append()
+	# 		log += '\n'.join(justifyColumns(sources))
+	# 		log += '\n' + message + '\n\n'
+
+	# scriptOp.text = log
