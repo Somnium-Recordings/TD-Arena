@@ -218,7 +218,9 @@ class ParameterContainer(BaseExt):
 			return
 
 		if style == 'WH':
-			self.logDebug(f'TODO: figure out what to do with WH parameters: {address}')
+			self.logWarning(
+				f'TODO: figure out what to do with WH parameters: {address}'
+			)
 			return
 
 		self.logDebug(f'creating parameter {address}')
