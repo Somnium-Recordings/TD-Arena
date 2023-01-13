@@ -229,6 +229,8 @@ class Grid(LoadableExt):
 
 		for cell in self.cells:
 			if cell.valid:
+				# turn off export before destroying to avoid "export not found" issues
+				cell.op('./null_exportDimensions').export = False
 				cell.destroy()
 
 		for divider in self.vDividers:

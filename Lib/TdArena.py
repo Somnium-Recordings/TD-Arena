@@ -42,6 +42,24 @@ BOUND_USER_SETTINGS = {
 	},
 }
 
+RENDER_OUTPUT_MAP = [
+	{
+		'local': 'null_renderLocalErrors',
+		'engine': 'merge_renderEngineErrors'
+	},
+	'null_renderState',
+	'null_compositionState',
+	'null_clipState',
+	'null_deckState',
+	'null_selectedDeckState',
+	'null_layerState',
+	'null_parameterState',
+	'null_finalOut',
+	'null_finalPrevis',
+	'null_finalThumbnails',
+	'null_finalLayerThumbnails',
+]
+
 DEFAULT_COMPOSITIONS_DIR = 'Compositions'
 COMPOSITION_EXTENSION = 'tdac'
 
@@ -121,11 +139,32 @@ class TdArena(LoadableExt):
 			self.logInfo('starting engine renderer')
 			self.renderLocal.allowCooking = False
 			self.renderEngine.par.initialize.pulse()
+			# NOTE: we call ConnectRenderOutputs in the engine onInitialize callback
+			#       since the outputs are cleared when the engine is unloaded
 		else:
 			self.logInfo('starting local renderer')
 			self.renderLocal.allowCooking = True
 			self.renderLocal.par.Reinitctrls.pulse()
 			self.renderEngine.par.unload.pulse()
+			self.ConnectRenderOutputs()
+
+	def ConnectRenderOutputs(self):
+		if self.useEngine:
+			targetName = 'engine'
+			renderOp = self.renderEngine
+		else:
+			targetName = 'local'
+			renderOp = self.renderLocal
+
+		for outputIndex, target in enumerate(RENDER_OUTPUT_MAP):
+			targetOpName = target[targetName] if isinstance(target, dict) else target
+			targetOp = self.ownerComponent.op(targetOpName)
+
+			if targetOp is None:
+				self.logError(f'could not find render connection target {targetOpName}')
+				continue
+
+			renderOp.outputConnectors[outputIndex].connect(targetOp)
 
 	def NewComposition(self):
 		self.CompositionState = STATE_LOADING
