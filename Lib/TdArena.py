@@ -87,7 +87,7 @@ class TdArena(LoadableExt):
 	# pylint: disable=too-many-arguments
 	def __init__(
 		self, ownerComponent, logger, uiState, userSettings, renderLocal,
-		renderEngine, uiGrid
+		renderEngine, uiGrid, logManager
 	):
 		super().__init__(ownerComponent, logger)
 		self.uiState = uiState
@@ -107,6 +107,7 @@ class TdArena(LoadableExt):
 		self.renderLocal = renderLocal
 		self.renderEngine = renderEngine
 		self.uiGrid = uiGrid
+		self.logManager = logManager
 
 		self.CompositionState: str
 		TDF = op.TDModules.mod.TDFunctions
@@ -135,6 +136,17 @@ class TdArena(LoadableExt):
 		else:
 			self.useEngine = useEngine
 
+		# Turn on or off log handlers based on the renderer we are enabling
+		self.logManager.SetLoggerParam('Render-E', 'Active', useEngine)
+		self.logManager.SetLoggerParam('Render-E', 'Visible', useEngine)
+		self.logManager.SetLoggerParam('Render-L', 'Active', not useEngine)
+		self.logManager.SetLoggerParam('Render-L', 'Visible', not useEngine)
+
+		# will be reconnected in onEngineStart callback if we use engine
+		# without this, the engine init pulse can trigger errors due to
+		# not enough inputs to the nulls
+		self.ConnectRenderOutputs(useEngine=False)
+
 		if useEngine:
 			self.logInfo('starting engine renderer')
 			self.renderLocal.allowCooking = False
@@ -146,10 +158,12 @@ class TdArena(LoadableExt):
 			self.renderLocal.allowCooking = True
 			self.renderLocal.par.Reinitctrls.pulse()
 			self.renderEngine.par.unload.pulse()
-			self.ConnectRenderOutputs()
 
-	def ConnectRenderOutputs(self):
-		if self.useEngine:
+	def ConnectRenderOutputs(self, useEngine=None):
+		if useEngine is None:
+			useEngine = self.useEngine
+
+		if useEngine:
 			targetName = 'engine'
 			renderOp = self.renderEngine
 		else:
@@ -205,6 +219,8 @@ class TdArena(LoadableExt):
 			self.renderLocal.par.Reinitctrls.pulse()
 
 	def ReloadEngine(self):
+		# will be reconnected in onEngineStart callback
+		self.ConnectRenderOutputs(useEngine=False)
 		self.renderEngine.par.reload.pulse()
 
 	def ToggleEngine(self):
@@ -220,6 +236,8 @@ class TdArena(LoadableExt):
 
 	def Unload(self):
 		if self.useEngine:
+			# will be reconnected in onEngineStart callback
+			self.ConnectRenderOutputs(useEngine=False)
 			self.renderEngine.par.unload.pulse()
 			self.renderLocal.allowCooking = True
 
