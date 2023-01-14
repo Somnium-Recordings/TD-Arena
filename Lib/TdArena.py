@@ -129,18 +129,11 @@ class TdArena(LoadableExt):
 			)
 
 		self.uiGrid.Init()
-		self.bindUserSettings()
 
 		if useEngine is None:
 			useEngine = self.useEngine
 		else:
 			self.useEngine = useEngine
-
-		# Turn on or off log handlers based on the renderer we are enabling
-		self.logManager.SetLoggerParam('Render-E', 'Active', useEngine)
-		self.logManager.SetLoggerParam('Render-E', 'Visible', useEngine)
-		self.logManager.SetLoggerParam('Render-L', 'Active', not useEngine)
-		self.logManager.SetLoggerParam('Render-L', 'Visible', not useEngine)
 
 		# will be reconnected in onEngineStart callback if we use engine
 		# without this, the engine init pulse can trigger errors due to
@@ -151,13 +144,29 @@ class TdArena(LoadableExt):
 			self.logInfo('starting engine renderer')
 			self.renderLocal.allowCooking = False
 			self.renderEngine.par.initialize.pulse()
-			# NOTE: we call ConnectRenderOutputs in the engine onInitialize callback
-			#       since the outputs are cleared when the engine is unloaded
+			# NOTE: we finish engine setup in OnEngineRendererStart
+			#       to ensure render tox has had a chance to initialize
 		else:
 			self.logInfo('starting local renderer')
 			self.renderLocal.allowCooking = True
+			self.ToggleLoggers()
+			self.bindUserSettings()
 			self.renderLocal.par.Reinitctrls.pulse()
 			self.renderEngine.par.unload.pulse()
+
+	def OnEngineRendererStart(self):
+		self.logInfo('finishing engine renderer setup')
+		self.ToggleLoggers()
+		self.bindUserSettings()
+		self.ConnectRenderOutputs()
+		self.renderEngine.par.Syncouts.pulse()
+
+	def ToggleLoggers(self):
+		# Turn on or off log handlers based on the renderer we are enabling
+		self.logManager.SetLoggerParam('Render-E', 'Active', self.useEngine)
+		self.logManager.SetLoggerParam('Render-E', 'Visible', self.useEngine)
+		self.logManager.SetLoggerParam('Render-L', 'Active', not self.useEngine)
+		self.logManager.SetLoggerParam('Render-L', 'Visible', not self.useEngine)
 
 	def ConnectRenderOutputs(self, useEngine=None):
 		if useEngine is None:
@@ -323,34 +332,31 @@ class TdArena(LoadableExt):
 				par.bindExpr = ''
 
 	def bindUserSettings(self):
-		self.logDebug('binding user settings')
+		if self.useEngine:
+			targetName = 'engine'
+			targetOp = self.renderEngine
+		else:
+			targetName = 'local'
+			targetOp = self.renderLocal
 
-		for (parName, bindConfig) in BOUND_USER_SETTINGS.items():
-			for targetPar in self.getUpdateTargets(parName, bindConfig):
+		self.logDebug(f'binding user settings to {targetName}Engine')
+
+		applicableBindings = [
+			(parName, self.getTargetPar(targetOp, bindConfig))
+			for (parName, bindConfig) in BOUND_USER_SETTINGS.items()
+			if bindConfig['target'] in ['both', targetName]
+		]
+
+		for (parName, targetPar) in applicableBindings:
+			if targetPar is not None:
 				self.logDebug(
 					f'binding {parName} setting to {targetPar.owner.name}.par.{targetPar.name}'
 				)
 				targetPar.bindExpr = f'op.userSettings.par.{parName}'
-
-	def getUpdateTargets(self, parName, bindConfig):
-		if 'par' not in bindConfig:  # default target par to config name
-			bindConfig['par'] = parName
-
-		targets = []
-		if bindConfig['target'] == 'both':
-			targets.append(self.renderLocal)
-			targets.append(self.renderEngine)
-		elif bindConfig['target'] == 'engine':
-			targets.append(self.renderEngine)
-		elif bindConfig['target'] == 'local':
-			targets.append(self.renderLocal)
-		else:
-			raise AssertionError(
-				'unexpected mapType of {}'.format(bindConfig['target'])
-			)
-
-		targets = [self.getTargetPar(target, bindConfig) for target in targets]
-		return filter(lambda x: x is not None, targets)
+			else:
+				self.logError(
+					f'could not bind {parName} setting to {targetName}, configured parameter not found'
+				)
 
 	def getTargetPar(self, targetOp, mapConfig):
 		target = getattr(targetOp.par, mapConfig['par'], None)
