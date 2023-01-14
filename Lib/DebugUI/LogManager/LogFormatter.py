@@ -75,8 +75,9 @@ def onCook(scriptOp):
 	scriptOp.clear()
 
 	d = scriptOp.inputs[0]
+	logManagerParameters = scriptOp.inputs[1]
 
-	searchText = scriptOp.inputs[1].text.lower()
+	searchText = logManagerParameters['Searchquery', 1].val.lower()
 	try:
 		searchQuery = split(searchText)
 	except ValueError:  # handle "no closing quote" errors by falling back to .split
@@ -84,7 +85,7 @@ def onCook(scriptOp):
 
 	enabledLogLevels = [c.val for c in scriptOp.inputs[2].col(0) or []]
 
-	if op.logManager.par.Groupsimilarlogs.eval():
+	if logManagerParameters['Groupsimilarlogs', 1].val == '1':
 		logs = GroupedLogCollector()
 	else:
 		logs = UngroupedLogCollector()
