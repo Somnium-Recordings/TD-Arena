@@ -121,7 +121,7 @@ class TestState():
 
 		state.onOSCReply('/unknown', 123)
 		logger.Warning.assert_called_with(
-			ownerComponent, 'recieved OSC reply for unkonwn address /unknown'
+			ownerComponent, 'received OSC reply for unknown address /unknown'
 		)
 
 		state.onOSCReply('/composition/layers/1/Opacity', 456, 789)

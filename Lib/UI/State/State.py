@@ -64,7 +64,7 @@ class State(BaseExt):
 
 	def onOSCReply(self, address, *args):
 		if address not in self.oscControlState:
-			self.logWarning('recieved OSC reply for unkonwn address {}'.format(address))
+			self.logWarning('received OSC reply for unknown address {}'.format(address))
 			return
 
 		if len(args) != 1:
@@ -74,11 +74,16 @@ class State(BaseExt):
 			)
 			return
 
+		# TODO: only insert if we don't already have a control
 		self.logDebug('setting value of {} to {}'.format(address, args[0]))
 		ctrlState = self.oscControlState[address]
 		ctrlState['op'].par.Value0 = args[0]
 
-		valueOutAddress = '{}/valueOut'.format(ctrlState['op'].path)
-		opFamily = op(valueOutAddress).family  # CHOP, DAT, etc.
+		# If this is the message with the initial value for a control,
+		# mark it as initialized so that we start sending data out through
+		# OSC
+		if self.initializedControlList.row(address) is None:
+			valueOutAddress = '{}/valueOut'.format(ctrlState['op'].path)
+			opFamily = op(valueOutAddress).family  # CHOP, DAT, etc.
 
-		self.initializedControlList.appendRow([address, valueOutAddress, opFamily])
+			self.initializedControlList.appendRow([address, valueOutAddress, opFamily])
