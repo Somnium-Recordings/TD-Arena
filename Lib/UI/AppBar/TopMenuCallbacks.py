@@ -96,10 +96,13 @@ def renderUnload(_info):
 
 
 def getViewLayouts(_info):
+	# TODO: for some reason rowcallbacks don't fire every time
+	# selectedLayout = op.userSettings.par.Gridlayout.eval() or 'Default'
 	layouts = [
 		{
 			'item2': layoutName,
-			'callback': 'viewLayoutsSelect'
+			'callback': 'viewLayoutsSelect',
+			# 'highlight': layoutName == selectedLayout
 		} for layoutName in op.uiGrid.GetAvailableLayouts()
 	]
 	layouts[-1]['dividerAfter'] = True
