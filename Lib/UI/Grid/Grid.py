@@ -156,11 +156,13 @@ class Grid(LoadableExt):
 		self.Init()
 
 	def loadLayoutFile(self, layoutName):
-		if layoutName == 'Default':
+		if not layoutName or layoutName == 'Default':
+			self.logDebug('loading default layout from memory')
 			return DEFAULT_LAYOUT
 
 		try:
 			with open(layoutFilePath(layoutName)) as saveFile:
+				self.logDebug(f'loading layout file {layoutFilePath(layoutName)}')
 				return json.load(saveFile)
 		except (json.JSONDecodeError, FileNotFoundError):
 			self.logError(
