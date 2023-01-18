@@ -258,6 +258,7 @@ class TdArena(LoadableExt):
 		self.setUnloaded()
 		self.CompositionState = STATE_UNLOADED
 
+	# TODO: move to toxManager
 	def EditTox(self, address):
 		# TODO(#7): reuse previous panel if still open
 		# TODO(#7): show indicator in UI that thing is being edited
@@ -267,6 +268,7 @@ class TdArena(LoadableExt):
 		p = ui.panes.createFloating(type=PaneType.NETWORKEDITOR, name='Edit Tox')
 		p.owner = op(toxPath)
 
+	# TODO: move to toxManager
 	def SaveTox(self, address):
 		# TODO(#7): save / increment to Backup folder
 		toxPath = addressToToxPath(address, op.composition.path)

@@ -1,0 +1,89 @@
+﻿"""
+All callbacks for this treeLister go here. For available callbacks, see:
+
+https://docs.derivative.ca/Palette:treeLister#Custom_Callbacks
+
+treeLister also has all lister callbacks:
+https://docs.derivative.ca/Palette:lister#Custom_Callbacks
+"""
+
+import traceback
+
+# def onInit(info):
+# 	debug('initalized')
+
+# 	info['listerExt'].DefaultRoots = ['/None']
+
+# def getObjectFromID(info):
+# 	return {'name': 'TreeObject'}
+
+# def getIDFromObject(info):
+# 	return '/None'
+
+# def getObjectChildren(info):
+# 	return []
+
+# def onRefresh(info):
+# 	print('refreshed')
+
+
+def onReloadInput(info):
+	"""
+	Note, there is a FromPathsSelectRows function, but it ends up in an
+	infinite loop when there is a gap in the tree.
+	i.e. /a
+	      -> /a/b
+		     -> /a/b/c/d
+	"""
+	try:
+		treeLister = info['listerExt']
+
+		objectsToSelect = []
+		dirtyPaths = []
+		for (path, rowObj) in info['jsonIDObjDict'].items():
+			if rowObj['dirty'] == '1':
+				objectsToSelect.append(rowObj)
+				dirtyPaths.append(path)
+
+		# Create an entry for each step of a path to ensure it's fully expanded
+		# i.e. /a/b/c -> /a/b/c, /a/b, /a
+		pathsToExpand = set()
+		for path in list(dirtyPaths):
+			while path != '':
+				pathsToExpand.add(path)
+				path, _, _ = path.rpartition('/')
+
+		treeLister.CollapseAll()
+		for path in pathsToExpand:
+			treeLister.ToggleExpand(path, True)
+
+		treeLister.Refresh()
+
+		# NOTE: This must happen after the Refresh() call
+		treeLister.SelectObjects(objectsToSelect)
+
+	# For some reason the lister doesn't actually dump the error
+	except Exception as e:
+		print(traceback.format_exc())
+		raise e
+
+
+def onClick(info):
+	if info['rowData'] is None or info['colName'] == 'Expando':
+		return
+
+	lister = info['ownerComp']
+	row = info['rowData']['rowObject']
+	rowNumber = lister.GetObjectRowNum(row)
+
+	if row in lister.SelectedRowObjects:
+		lister.DeselectRow(rowNumber)
+	else:
+		lister.SelectRow(rowNumber, addRow=True)
+
+
+def onClickRight(info):
+	if info['rowData'] is None or info['colName'] == 'Expando':
+		return
+
+	op.toxManager.OpenNetworkAtPath(info['rowData']['rowObject']['path'])
