@@ -42,12 +42,16 @@ def isCloneAndNotOfSelf(c, parentsToCheck=1):
 
 
 def onInitGetColumnNames(_dat):
-	return ['dirty', 'lastEditedTime']
+	return ['networkPath', 'filePath', 'dirty', 'lastEditedTime']
 
 
 #
 def onFindOPGetValues(_dat, curOp, _row):
-	return [curOp.dirty, formatTimestamp(curOp.externalTimeStamp)]
+	return [
+		curOp.path,
+		curOp.par.externaltox.eval(), curOp.dirty,
+		formatTimestamp(curOp.externalTimeStamp)
+	]
 
 
 # Return True / False to include / exclude an operator in the table
@@ -57,12 +61,12 @@ def onFindOPGetInclude(_dat, curOp, _row):
 	if not curOp.par.externaltox.eval():
 		return False
 
+	# The composition container itself should never be saved automatically
+	if op.toxManager.IsCompositionNetworkPath(curOp.path):
+		return True
+
 	# TODO: maybe use tags or something here instead so it works for renders
 	if isCloneAndNotOfSelf(curOp):
-		return False
-
-	# The composition container itself should never be saved automatically
-	if curOp.path == '/tdArena/render/composition':
 		return False
 
 	return True

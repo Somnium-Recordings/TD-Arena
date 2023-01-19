@@ -2,9 +2,9 @@ import traceback
 from itertools import filterfalse, tee
 from typing import Iterable, NamedTuple, Tuple
 
-COMPONENT_ROOT = '/components'
+COMPOSITION_LISTER_ROOT = '/composition'
 EXTERNAL_TOX_COLOR = (0.05000000074505806, 0.3499999940395355, 0.5)
-EXCLUDE_PATHS = [COMPONENT_ROOT, '/tdArena']
+EXCLUDE_PATHS = [COMPOSITION_LISTER_ROOT, '/tdArena']
 SETTINGS_PAGE_NAME = 'Save Settings'
 SETTINGS_BEFORE_SAVE_SCRIPT = 'Savealltoxesonbeforesave'
 SETTINGS_AFTER_SAVE_SCRIPT = 'Savealltoxesonaftersave'
@@ -12,6 +12,7 @@ SETTINGS_AFTER_SAVE_SCRIPT = 'Savealltoxesonaftersave'
 
 class ToxInfo(NamedTuple):
 	path: str
+	networkPath: str
 	dirty: bool
 
 
@@ -22,24 +23,24 @@ def partition(pred, iterable):
 	return filterfalse(pred, t1), filter(pred, t2)
 
 
-def isComponentPath(path: str) -> bool:
-	return path.startswith(COMPONENT_ROOT)
+def isCompositionListerPath(path: str) -> bool:
+	return path.startswith(COMPOSITION_LISTER_ROOT)
 
 
-def isComponentTox(tox: ToxInfo) -> bool:
-	return isComponentPath(tox.path)
+def isCompositionTox(tox: ToxInfo) -> bool:
+	return isCompositionListerPath(tox.path)
 
 
 def hasDirty(toxes: Iterable[ToxInfo]):
 	return any(o.dirty for o in toxes)
 
 
-def confirmSystemSaveWithDirtyComponents():
+def confirmSystemSaveWithDirtyComposition():
 	return ui.messageBox(
 		'Warning',
 		''.join(
 			[
-				'There are unsaved Component toxes.\n',
+				'There are unsaved Composition toxes.\n',
 				'Saving system toxes will result in a loss of unsaved changes.\n\n'
 				'Continue anyway?'
 			]
@@ -54,7 +55,7 @@ def confirmShouldUnload():
 		''.join(
 			[
 				'The system must be unloaded before it can be saved.\n',
-				'Any unsaved Component toxes, user layouts, etc. will be lost.\n\n'
+				'Any unsaved composition toxes, user layouts, etc. will be lost.\n\n'
 				'Do you want to unload the system?'
 			]
 		),
@@ -98,9 +99,10 @@ def executeParameterCallback(comp, paramName):
 
 
 class ToxManager:
+
 	@property
-	def ComponentRoot(self) -> str:
-		return self.ownerComp.par.Componentroot.eval()
+	def CompositionRoot(self) -> str:
+		return self.ownerComp.par.Compositionroot.eval()
 
 	def __init__(self, ownerComp, tda):
 		self.ownerComp = ownerComp
@@ -117,7 +119,7 @@ class ToxManager:
 		self.opFind.par.cookpulse.pulse()
 		self.window.par.winopen.pulse()
 
-	def SaveSelected(self):
+	def SaveSelectedToxes(self):
 		# If in local mode and there are composition component changes
 		# show composition components
 		# If composition changes
@@ -127,10 +129,11 @@ class ToxManager:
 		# on save, call Unload first
 		# else
 		# do nothing since there is nothing to save
-		self.SaveSystem(selected=True)
+		self.SaveSystemToxes(selected=True)
 
-	def SaveSystem(self, selected=True):
-		if self.hasDirtyComponents() and not confirmSystemSaveWithDirtyComponents():
+	def SaveSystemToxes(self, selected=True):
+		if self.hasDirtyComposition(
+		) and not confirmSystemSaveWithDirtyComposition():
 			return
 
 		if self.tda.Loaded:
@@ -144,7 +147,7 @@ class ToxManager:
 		try:
 			# TODO: increment files into backup folder
 			for tox in self.getSystemToxes(selected):
-				sysOp = op(self.toNetworkPath(tox.path))
+				sysOp = op(tox.networkPath)
 				ensureExternalToxSetup(sysOp)
 				executeParameterCallback(sysOp, SETTINGS_BEFORE_SAVE_SCRIPT)
 				sysOp.save(tdu.expandPath(sysOp.par.externaltox))
@@ -158,15 +161,23 @@ class ToxManager:
 				+ traceback.format_exc(),
 			)
 
-	def SaveComponents(self):
+	def SaveCompositionToxes(self):
 		pass
 
 	def Close(self):
 		self.window.par.winclose.pulse()
 
-	def OpenNetworkAtPath(self, path) -> None:
+	def OpenNetworkAtPath(self, networkPath: str) -> None:
 		p = ui.panes.createFloating(type=PaneType.NETWORKEDITOR, name='Edit Tox')
-		p.owner = op(self.toNetworkPath(path))
+		p.owner = op(networkPath)
+
+	def ToCompositionListerPath(self, networkPath) -> str:
+		# /composition/effects/<name>/layer1-effect0
+		# /effects/<effect-name>/layerN-[1..99]|clipN-[1..99]
+		return networkPath.replace(self.CompositionRoot, COMPOSITION_LISTER_ROOT)
+
+	def IsCompositionNetworkPath(self, networkPath: str):
+		return networkPath.startswith(self.CompositionRoot + '/')
 
 	def getToxes(
 		self,
@@ -175,37 +186,34 @@ class ToxManager:
 		toxDat = self.selectedToxesDat if selected else self.allToxesDat
 
 		paths = [
-			ToxInfo(
-				toxDat[rowNumber, 'path'].val, toxDat[rowNumber, 'dirty'].val == '1'
+			ToxInfo( # yapf: disable
+				toxDat[rowNumber, 'path'].val,
+				toxDat[rowNumber, 'networkPath'].val,
+				toxDat[rowNumber, 'dirty'].val == '1'
 			)
 			for rowNumber in range(1, toxDat.numRows)
 			if toxDat[rowNumber, 'path'].val not in EXCLUDE_PATHS
 		]
 
-		return partition(isComponentTox, paths)
-
-	def toNetworkPath(self, path):
-		return path if not isComponentPath(path) else path.replace(
-			COMPONENT_ROOT, self.ComponentRoot
-		)
+		return partition(isCompositionTox, paths)
 
 	def getSystemToxes(self, selected=True):
 		systemToxes, _ = self.getToxes(selected)
 		return systemToxes
 
-	def getComponentToxes(self, selected=True):
-		_, componentToxes = self.getToxes(selected)
-		return componentToxes
+	def getCompositionToxes(self, selected=True):
+		_, compositionToxes = self.getToxes(selected)
+		return compositionToxes
 
-	def hasDirtyComponents(self):
-		return hasDirty(self.getComponentToxes(selected=False))
+	def hasDirtyComposition(self):
+		return hasDirty(self.getCompositionToxes(selected=False))
 
 	def hasDirtySystem(self):
 		return hasDirty(self.getSystemToxes(selected=False))
 
 	def hasDirtyToxes(self):
-		systemToxes, componentToxes = self.getToxes(selected=False)
-		return hasDirty(systemToxes) or hasDirty(componentToxes)
+		systemToxes, compositionToxes = self.getToxes(selected=False)
+		return hasDirty(systemToxes) or hasDirty(compositionToxes)
 
 	# TODO
 	# def CreateNewExternalizedComponent(self):
