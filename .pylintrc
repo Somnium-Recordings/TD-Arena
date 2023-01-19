@@ -4,7 +4,6 @@ load-plugins=pylint_quotes
 indent-string=\t
 indent-after-paren=1
 disable=invalid-name,
-        bad-continuation,
 		duplicate-code,
         fixme,
 		line-too-long,

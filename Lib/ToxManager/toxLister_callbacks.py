@@ -1,4 +1,4 @@
-﻿"""
+"""
 All callbacks for this treeLister go here. For available callbacks, see:
 
 https://docs.derivative.ca/Palette:treeLister#Custom_Callbacks
@@ -86,4 +86,6 @@ def onClickRight(info):
 	if info['rowData'] is None or info['colName'] == 'Expando':
 		return
 
-	op.toxManager.OpenNetworkAtPath(info['rowData']['rowObject']['path'])
+	# networkPath =
+	if networkPath := info['rowData']['rowObject']['networkPath']:
+		op.toxManager.OpenNetworkAtPath(networkPath)

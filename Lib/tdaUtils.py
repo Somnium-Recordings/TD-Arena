@@ -76,7 +76,7 @@ def syncToDat(data, targetDat):
 
 def mapAddressToDeckLocation(address: str) -> DeckLocation:
 	m = re.match(SELECTED_DECK_LOCATION_RE, address)
-	assert m, 'expected to match layer and clip number in {}'.format(address)
+	assert m, f'expected to match layer and clip number in {address}'
 
 	return DeckLocation(int(m.group(1)), int(m.group(2)))
 
@@ -97,21 +97,21 @@ def mapAddressToEffectContainer(address: str) -> str:
 
 def getDeckID(address):
 	m = re.match(DECK_ID_RE, address)
-	assert m, 'expected to match deck id in {}'.format(address)
+	assert m, f'expected to match deck id in {address}'
 
 	return int(m.group(1))
 
 
 def getLayerID(address):
 	m = re.match(LAYER_ID_RE, address)
-	assert m, 'expected to match layer id in {}'.format(address)
+	assert m, f'expected to match layer id in {address}'
 
 	return int(m.group(1))
 
 
 def getClipID(address):
 	m = re.match(CLIP_ID_RE, address)
-	assert m, 'expected to match clip id in {}'.format(address)
+	assert m, f'expected to match clip id in {address}'
 
 	return int(m.group(1))
 
@@ -143,12 +143,12 @@ def parameterPathToAddress(path: str, parameter: str):
 	compositionStart = path.find('/composition')
 	address = COLLAPSE_TO_ID_RE.sub(r'/\1s/\3', path[compositionStart:])
 
-	return '{}/{}'.format(address, parameter)
+	return f'{address}/{parameter}'
 
 
 def addressToExport(address):
 	(path, prop) = addressToValueLocation(address, '')
-	return '{}:{}'.format(path.lstrip('/'), prop)
+	return f'{path.lstrip("/")}:{prop}'
 
 
 def exportToAddress(exportName):
@@ -186,6 +186,10 @@ def addSectionParameters(op, order: int, name: str, opacity: float = None):
 def filePathToName(path: str) -> str:
 	stem = PureWindowsPath(path).stem.replace('-', ' ').replace('_', ' ')
 	return re.sub(r'(\w)([A-Z])', r'\1 \2', stem).title()
+
+
+def filePathToStemSlug(path: str) -> str:
+	return PureWindowsPath(path).stem.replace('-', '_').replace(' ', '_')
 
 
 def matchesGlob(globStr: str, path: str) -> bool:
