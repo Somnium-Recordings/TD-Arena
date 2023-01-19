@@ -20,7 +20,7 @@ I'm currently developing this using [VS Code](https://code.visualstudio.com/) on
 
 ### Python
 
-Install the [version of python TouchDesigner is using](https://docs.derivative.ca/Release_Notes#New_Python), currently `3.7.2`.
+Install the [version of python TouchDesigner is using](https://docs.derivative.ca/Release_Notes#New_Python), currently `3.9.5`.
 
 _My personal preference is through [pyenv](https://github.com/pyenv/pyenv) running in [wsl](https://docs.microsoft.com/en-us/windows/wsl/install-win10)._
 
