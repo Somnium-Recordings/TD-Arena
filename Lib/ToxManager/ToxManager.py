@@ -1,6 +1,12 @@
+import shutil
 import traceback
+from glob import glob
 from itertools import filterfalse, tee
-from typing import Iterable, NamedTuple, Tuple
+from pathlib import Path, PureWindowsPath
+from typing import Iterable, NamedTuple, Optional, Tuple, Union
+
+from tda import TDFileInfo
+from tdaUtils import resetCustomParameters
 
 COMPOSITION_LISTER_ROOT = '/composition'
 EXTERNAL_TOX_COLOR = (0.05000000074505806, 0.3499999940395355, 0.5)
@@ -13,6 +19,7 @@ SETTINGS_AFTER_SAVE_SCRIPT = 'Savealltoxesonaftersave'
 class ToxInfo(NamedTuple):
 	path: str
 	networkPath: str
+	filePath: TDFileInfo
 	dirty: bool
 
 
@@ -33,20 +40,6 @@ def isCompositionTox(tox: ToxInfo) -> bool:
 
 def hasDirty(toxes: Iterable[ToxInfo]):
 	return any(o.dirty for o in toxes)
-
-
-def confirmSystemSaveWithDirtyComposition():
-	return ui.messageBox(
-		'Warning',
-		''.join(
-			[
-				'There are unsaved Composition toxes.\n',
-				'Saving system toxes will result in a loss of unsaved changes.\n\n'
-				'Continue anyway?'
-			]
-		),
-		buttons=['Yes', 'No']
-	) == 0
 
 
 def confirmShouldUnload():
@@ -98,6 +91,105 @@ def executeParameterCallback(comp, paramName):
 		run(callbackScript, fromOP=comp)
 
 
+def hasConflictingFilePath(
+	toxes: Iterable[ToxInfo]
+) -> Union[TDFileInfo, bool]:
+	paths = set()
+
+	for tox in toxes:
+		if tox.filePath in paths:
+			return tox.filePath
+		paths.add(tox.filePath)
+
+	return False
+
+
+def displayConflictingPathError(conflictingPath: str):
+	ui.messageBox(
+		'Conflicting File Path Error',
+		''.join(
+			[
+				'Multiple toxes are attempting to save to the same file path:\n\n',
+				f'{conflictingPath}\n\n', 'Only one tox can save to a path at a time.'
+			]
+		),
+	)
+
+
+def findLastBackup(savePath: TDFileInfo):
+	fileStem = PureWindowsPath(savePath).stem
+	saveStem = f'{savePath.dir}\\{fileStem}.'
+
+	lastBackupVersion = 0
+	for backupFile in glob(f'{saveStem}*{savePath.ext}'):
+		try:
+			lastBackupVersion = max(
+				lastBackupVersion,
+				int(backupFile.replace(saveStem, '').replace(savePath.ext, ''))
+			)
+		except ValueError:
+			print(
+				f'Failed to parse version from unexpected matched backup file: {backupFile}\n'
+				+ traceback.format_exc()
+			)
+			continue
+
+	lastBackup = f'{saveStem}{lastBackupVersion}{savePath.ext}' if lastBackupVersion > 0 else None
+	nextBackup = f'{saveStem}{lastBackupVersion + 1}{savePath.ext}'
+
+	return lastBackup, nextBackup
+
+
+def moveToBackupDir(fileToMove: TDFileInfo, backupDir: str) -> None:
+	backupDir = Path(backupDir)
+
+	if not backupDir.exists():
+		backupDir.mkdir()
+	elif not backupDir.is_dir():
+		raise NotADirectoryError(
+			f'the backup directory, {backupDir}, must be a directory'
+		)
+
+	shutil.move(fileToMove, backupDir)
+
+
+def saveAndBackup(
+	op, savePath: TDFileInfo, backupDir: Optional[str] = None
+) -> None:
+	if not backupDir:
+		backupDir = f'{savePath.dir}\\Backup\\'
+
+	lastBackup, nextBackup = findLastBackup(savePath)
+	shutil.copy(savePath, nextBackup)
+	if lastBackup:
+		moveToBackupDir(lastBackup, backupDir)
+
+	op.save(savePath)
+
+
+def disconnectAndSave(tox: ToxInfo):
+	"""
+	This makes a copy of the tox in the parent and resets all custom parameters
+	to default before saving. This ensures there are no startup errors
+	or errant bound parameters when loading it back in later.
+	After saving, the copy is deleted from the parent
+	"""
+	try:
+		parentOpPath, _, _ = tox.networkPath.rpartition('/')
+		parentOp = op(parentOpPath)
+		sourceOp = op(tox.networkPath)
+
+		copy = parentOp.copy(sourceOp)
+		copy.par.externaltox = ''
+		resetCustomParameters(copy)
+
+		saveAndBackup(copy, tox.filePath)
+	finally:
+		# ensure we always delete the copy, even if we have an error during processing
+		if copy:
+			copy.destroy()
+
+
 class ToxManager:
 
 	@property
@@ -120,22 +212,12 @@ class ToxManager:
 		self.window.par.winopen.pulse()
 
 	def SaveSelectedToxes(self):
-		# If in local mode and there are composition component changes
-		# show composition components
-		# If composition changes
-		# save composition (with prompt)
-		# if project changes
-		# show project changes
-		# on save, call Unload first
-		# else
-		# do nothing since there is nothing to save
-		self.SaveSystemToxes(selected=True)
+		if self.hasSelectedCompositionToxes():
+			self.SaveCompositionToxes()
+		else:
+			self.SaveSystemToxes(selected=True)
 
 	def SaveSystemToxes(self, selected=True):
-		if self.hasDirtyComposition(
-		) and not confirmSystemSaveWithDirtyComposition():
-			return
-
 		if self.tda.Loaded:
 			if confirmShouldUnload():
 				self.tda.Unload()
@@ -150,7 +232,8 @@ class ToxManager:
 				sysOp = op(tox.networkPath)
 				ensureExternalToxSetup(sysOp)
 				executeParameterCallback(sysOp, SETTINGS_BEFORE_SAVE_SCRIPT)
-				sysOp.save(tdu.expandPath(sysOp.par.externaltox))
+				sysOp.save(tox.filePath)
+				# TODO: save versioned
 				executeParameterCallback(sysOp, SETTINGS_AFTER_SAVE_SCRIPT)
 
 			self.Close()
@@ -162,7 +245,25 @@ class ToxManager:
 			)
 
 	def SaveCompositionToxes(self):
-		pass
+		selectedCompositionToxes = list(self.getCompositionToxes(selected=True))
+		if conflictingPath := hasConflictingFilePath(selectedCompositionToxes):
+			displayConflictingPathError(conflictingPath)
+			return
+
+		toxPathsToReInit = []
+		for tox in selectedCompositionToxes:
+			disconnectAndSave(tox)
+			toxPathsToReInit.append(tox.filePath)
+
+		# Reload all instances of saved toxes
+		for tox in self.getCompositionToxes(selected=False):
+			if tox.filePath in toxPathsToReInit:
+				op(tox.networkPath).par.reinitnet.pulse()
+
+		# if the system clean or the only dirty system comp is the render component
+		# close window
+		# otherwise
+		# pulse opFind
 
 	def Close(self):
 		self.window.par.winclose.pulse()
@@ -170,11 +271,6 @@ class ToxManager:
 	def OpenNetworkAtPath(self, networkPath: str) -> None:
 		p = ui.panes.createFloating(type=PaneType.NETWORKEDITOR, name='Edit Tox')
 		p.owner = op(networkPath)
-
-	def ToCompositionListerPath(self, networkPath) -> str:
-		# /composition/effects/<name>/layer1-effect0
-		# /effects/<effect-name>/layerN-[1..99]|clipN-[1..99]
-		return networkPath.replace(self.CompositionRoot, COMPOSITION_LISTER_ROOT)
 
 	def IsCompositionNetworkPath(self, networkPath: str):
 		return networkPath.startswith(self.CompositionRoot + '/')
@@ -189,10 +285,12 @@ class ToxManager:
 			ToxInfo( # yapf: disable
 				toxDat[rowNumber, 'path'].val,
 				toxDat[rowNumber, 'networkPath'].val,
+				tdu.FileInfo(toxDat[rowNumber, 'filePath'].val),
 				toxDat[rowNumber, 'dirty'].val == '1'
 			)
 			for rowNumber in range(1, toxDat.numRows)
 			if toxDat[rowNumber, 'path'].val not in EXCLUDE_PATHS
+			and toxDat[rowNumber, 'filePath'].val != ''
 		]
 
 		return partition(isCompositionTox, paths)
@@ -205,8 +303,12 @@ class ToxManager:
 		_, compositionToxes = self.getToxes(selected)
 		return compositionToxes
 
-	def hasDirtyComposition(self):
-		return hasDirty(self.getCompositionToxes(selected=False))
+	def hasSelectedCompositionToxes(self):
+		return any(self.getCompositionToxes())
+
+	# TODO: remove if no longer is in use
+	def hasDirtyComposition(self, selected=False):
+		return hasDirty(self.getCompositionToxes(selected))
 
 	def hasDirtySystem(self):
 		return hasDirty(self.getSystemToxes(selected=False))

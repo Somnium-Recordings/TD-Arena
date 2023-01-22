@@ -61,11 +61,12 @@ def onFindOPGetInclude(_dat, curOp, _row):
 	if not curOp.par.externaltox.eval():
 		return False
 
-	# The composition container itself should never be saved automatically
 	if op.toxManager.IsCompositionNetworkPath(curOp.path):
 		return True
 
 	# TODO: maybe use tags or something here instead so it works for renders
+	# TODO: maybe instead of doing this we can just leave the clones in, but use
+	#       the "onlySaveOneWithSamePath" logic we use for composition components?
 	if isCloneAndNotOfSelf(curOp):
 		return False
 

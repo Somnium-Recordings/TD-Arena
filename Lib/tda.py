@@ -8,6 +8,7 @@ class Par(Generic[T]):
 	"""
 	Minimal type info for the touch designer Parameter class
 	"""
+
 	@property
 	def val(self) -> T:
 		pass
@@ -22,12 +23,51 @@ class Par(Generic[T]):
 
 # pylint: disable=too-few-public-methods
 class Cell():
+
 	@property
 	def val(self) -> str:
 		pass
 
 
+class TDFileInfo(str):
+	"""
+	Created using tdu.FileInfo
+	See: https://docs.derivative.ca/FileInfo_Class
+	"""
+
+	path: str
+	'The filepath'
+
+	ext: str
+	'After and including "."'
+
+	baseName: str
+	'The basename of the file'
+
+	fileType: str
+	'''
+	The TD filetype (from tdu.fileTypes)
+	See: https://docs.derivative.ca/Tdu_Module
+	'''
+
+	absPath: str
+	'The absolute path to filepath'
+
+	dir: str
+	'The containing directory of filepath'
+
+	exists: bool
+	'Exists in file-system'
+
+	isDir: bool
+	'Is a directory in the file-system'
+
+	isFile: bool
+	'Is a file in the file-system'
+
+
 class BaseExt():
+
 	def __init__(self, ownerComponent, logger):
 		self.ownerComponent = ownerComponent
 		self.logger = logger
@@ -46,6 +86,7 @@ class BaseExt():
 
 
 class LoadableExt(BaseExt):
+
 	def __init__(self, ownerComponent, logger):
 		super().__init__(ownerComponent, logger)
 		self.Loaded: bool
