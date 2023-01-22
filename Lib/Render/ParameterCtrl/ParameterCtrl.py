@@ -15,6 +15,7 @@ DEFAULT_STATE = {}
 
 
 class ParameterCtrl(LoadableExt):
+
 	def __init__(self, ownerComponent, logger):
 		super().__init__(ownerComponent, logger)
 
@@ -38,11 +39,11 @@ class ParameterCtrl(LoadableExt):
 
 		# Rather than load the parameter state immediately, we load it on-demand
 		# as parameters are created (see OnParameterStateChange). Otherwise it
-		# would be a bit messy to manage things like toxes that are asynchronusly
+		# would be a bit messy to manage things like toxes that are asynchronously
 		# initialized.
 		self.saveState = saveState or DEFAULT_STATE
 
-		self.logInfo('loaded {} parameters into composition'.format(0))
+		self.logInfo('loaded parameters into composition')
 		self.setLoaded()
 
 	def GetSaveState(self):
@@ -57,7 +58,7 @@ class ParameterCtrl(LoadableExt):
 			self.logError(f'could not find parameter value for {address}')
 			return
 
-		self.logDebug('replying with current value at {}'.format(address))
+		self.logDebug(f'replying with current value at {address}')
 		self.renderState.SendMessage(address, getParValue(par))
 
 	def getParameter(self, address: str):

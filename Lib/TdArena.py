@@ -76,6 +76,7 @@ STATE_LOADED = 'loaded'
 # TODO: rename this class. "TD..." prefix should be reserved for system things
 # @see https://forum.derivative.ca/t/simple-error-logging/8894/5?u=llwt
 class TdArena(LoadableExt):
+
 	@property
 	def useEngine(self) -> bool:
 		return self.userSettings.par.Useengine.eval()
@@ -364,8 +365,7 @@ class TdArena(LoadableExt):
 		target = getattr(targetOp.par, mapConfig['par'], None)
 		if target is None:
 			self.logError(
-				'mapping expected {} to have paremeter {}, parameter will not be bound'.
-				format(targetOp.name, mapConfig['par'])
+				f'mapping expected {targetOp.name} to have parameter {mapConfig["par"]}, parameter will not be bound'
 			)
 
 		return target
