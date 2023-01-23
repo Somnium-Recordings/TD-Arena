@@ -21,4 +21,4 @@ if ! which isort &>/dev/null; then
   >&2 echo 'isort command not found'
   exit 1
 fi
-isort -ac "$@"
+isort --ac "$@"
