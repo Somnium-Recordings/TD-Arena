@@ -20,5 +20,6 @@
   "[python]": {
     "editor.defaultFormatter": "ms-python.python"
   },
-  "cSpell.words": ["absframe", "Toxes"]
+  "cSpell.words": ["absframe", "Toxes"],
+  "files.eol": "\r\n"
 }
