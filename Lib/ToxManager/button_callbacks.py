@@ -18,8 +18,11 @@ def onOffToOn(panelValue):
 	elif buttonName == 'button_saveAllSystemToxes':
 		op.toxManager.SaveSystemToxes(selected=False)
 
-	elif buttonName == 'button_saveSelectedToxes':
-		op.toxManager.SaveSelectedToxes()
+	elif buttonName == 'button_saveSelectedSystemToxes':
+		op.toxManager.SaveSystemToxes(selected=True)
+
+	elif buttonName == 'button_saveSelectedCompositionToxes':
+		op.toxManager.SaveCompositionToxes()
 
 	else:
 		raise KeyError(f'{buttonName} is not handled')

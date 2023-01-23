@@ -211,12 +211,6 @@ class ToxManager:
 		self.opFind.par.cookpulse.pulse()
 		self.window.par.winopen.pulse()
 
-	def SaveSelectedToxes(self):
-		if self.hasSelectedCompositionToxes():
-			self.SaveCompositionToxes()
-		else:
-			self.SaveSystemToxes(selected=True)
-
 	def SaveSystemToxes(self, selected=True):
 		if self.tda.Loaded:
 			if confirmShouldUnload():
@@ -260,10 +254,7 @@ class ToxManager:
 			if tox.filePath in toxPathsToReInit:
 				op(tox.networkPath).par.reinitnet.pulse()
 
-		# if the system clean or the only dirty system comp is the render component
-		# close window
-		# otherwise
-		# pulse opFind
+		self.Close()
 
 	def Close(self):
 		self.window.par.winclose.pulse()
@@ -303,8 +294,11 @@ class ToxManager:
 		_, compositionToxes = self.getToxes(selected)
 		return compositionToxes
 
-	def hasSelectedCompositionToxes(self):
-		return any(self.getCompositionToxes())
+	def HasSelectedCompositionToxes(self):
+		return any(self.getCompositionToxes(selected=True))
+
+	def HasSelectedSystemToxes(self):
+		return any(self.getSystemToxes(selected=True))
 
 	# TODO: remove if no longer is in use
 	def hasDirtyComposition(self, selected=False):
