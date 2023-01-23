@@ -160,7 +160,7 @@ def backupAndSave(
 		backupDir = tdu.expandPath(f'{savePath.dir}/Backup')
 
 	lastBackup, nextBackup = findLastBackup(savePath)
-	shutil.copy(savePath, nextBackup)
+	shutil.move(savePath, nextBackup)
 	if lastBackup:
 		moveToBackupDir(lastBackup, backupDir)
 
