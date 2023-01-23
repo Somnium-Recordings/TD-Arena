@@ -12,6 +12,7 @@ from tdaUtils import (getLayerID, mapAddressToDeckLocation,
 
 
 class StateCtrl(LoadableExt):
+
 	def __init__(
 		self, ownerComponent, logger, compositionCtrl, clipCtrl, deckCtrl, layerCtrl,
 		effectCtrl, parameterCtrl
@@ -76,10 +77,6 @@ class StateCtrl(LoadableExt):
 						'handler': effectCtrl.MoveEffect,
 						'mapAddress': mapAddressToEffectLocation
 					},
-					'/composition/layers/*/clear': {
-						'handler': layerCtrl.Clear,
-						'mapAddress': getLayerID
-					},
 					'/composition/layers/*/video/effects/add': {
 						'handler': effectCtrl.AddEffect,
 						'mapAddress': mapAddressToEffectContainer
@@ -91,6 +88,10 @@ class StateCtrl(LoadableExt):
 					'/composition/layers/*/video/effects/*/move': {
 						'handler': effectCtrl.MoveEffect,
 						'mapAddress': mapAddressToEffectLocation
+					},
+					'/composition/layers/*/clear': {
+						'handler': layerCtrl.Clear,
+						'mapAddress': getLayerID
 					},
 					'/composition/decks/*/select': {
 						'handler': deckCtrl.SelectDeck
@@ -220,13 +221,13 @@ class StateCtrl(LoadableExt):
 				ctrl.Load(saveState[ctrlName])
 
 	def writeSaveFile(self, saveState, filePath: str):
-		self.logInfo('saving state to {}'.format(filePath))
+		self.logInfo(f'saving state to {filePath}')
 
-		with open(filePath, 'w') as saveFile:
+		with open(filePath, 'w', encoding='utf-8') as saveFile:
 			json.dump(saveState, saveFile, indent='\t')
 
 	def readSaveFile(self, filePath: str):
-		self.logInfo('loading save file from {}'.format(filePath))
+		self.logInfo(f'loading save file from {filePath}')
 
-		with open(filePath) as saveFile:
+		with open(filePath, encoding='utf-8') as saveFile:
 			return json.load(saveFile)
