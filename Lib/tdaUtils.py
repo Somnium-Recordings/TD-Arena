@@ -182,12 +182,12 @@ def addSectionParameters(op, order: int, name: str, opacity: float = None):
 	op.sortCustomPages(*pageOrder)
 
 
-def resetCustomParameters(operator):
+def resetCustomParameters(operator, checkDefaultExpr=False):
 	for p in operator.customPars:
 		# There's some weird cases where the defaultExpr is string 'None'
 		# Ignore those when using the expr. Specifically, I noticed this
 		# on old Toggle custom parameters
-		if p.defaultExpr and p.defaultExpr != 'None':
+		if checkDefaultExpr and p.defaultExpr and p.defaultExpr != 'None':
 			p.expr = p.defaultExpr
 			p.mode = ParMode.EXPRESSION
 		else:

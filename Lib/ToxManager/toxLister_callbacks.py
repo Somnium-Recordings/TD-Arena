@@ -72,8 +72,11 @@ def onClick(info):
 	if info['rowData'] is None or info['colName'] == 'Expando':
 		return
 
-	lister = info['ownerComp']
 	row = info['rowData']['rowObject']
+	if 'filePath' not in row or row['filePath'] == '':
+		return
+
+	lister = info['ownerComp']
 	rowNumber = lister.GetObjectRowNum(row)
 
 	if row in lister.SelectedRowObjects:
