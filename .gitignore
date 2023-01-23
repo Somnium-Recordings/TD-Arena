@@ -2,7 +2,8 @@
 
 /Backup
 /Backup-Original
-TD-Arena*.*.toe
+*.*.toe
+*.*.tox
 CrashAutoSave.TD-Arena*.*.toe
 TouchDesignerCrash.*
 

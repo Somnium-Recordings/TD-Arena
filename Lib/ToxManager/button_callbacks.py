@@ -3,8 +3,7 @@ def onOffToOn(panelValue):
 	buttonName = panelValue.owner.name
 
 	if buttonName == 'button_reload':
-		op('opfind_externalToxes').par.cookpulse.pulse()
-		toxLister.par.Reloadinput.pulse()
+		parent.toxManager.RefreshToxList()
 
 	elif buttonName == 'button_expandAll':
 		for pathCell in op('null_allToxes').col('path')[1:]:
