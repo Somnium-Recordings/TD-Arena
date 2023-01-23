@@ -45,13 +45,13 @@ def onInitGetColumnNames(_dat):
 	return ['networkPath', 'filePath', 'dirty', 'lastEditedTime']
 
 
-#
 def onFindOPGetValues(_dat, curOp, _row):
 	return [
 		curOp.path,
-		curOp.par.externaltox.eval(), curOp.dirty,
+		tdu.expandPath(curOp.par.externaltox.eval()),
+		curOp.dirty,
 		formatTimestamp(curOp.externalTimeStamp)
-	]
+	] # yapf: disable
 
 
 # Return True / False to include / exclude an operator in the table

@@ -62,8 +62,9 @@ def onCook(scriptOp):
 			continue
 
 		toxData[NAME_COL] = filePathToName(toxData[FILE_PATH_COL])
+		if toxData[NAME_COL] == 'T D Arena Render':
+			toxData[NAME_COL] = 'Render'
 
-		# TODO, clean this up
 		if toxData[FILE_PATH_COL].startswith(baseEffectPath):
 			rootSlug = filePathToStemSlug(toxData[FILE_PATH_COL])
 			rootPath = f'/composition/effects/{rootSlug}'

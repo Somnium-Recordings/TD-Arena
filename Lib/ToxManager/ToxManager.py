@@ -144,7 +144,7 @@ def moveToBackupDir(fileToMove: TDFileInfo, backupDir: str) -> None:
 	backupDir = Path(backupDir)
 
 	if not backupDir.exists():
-		backupDir.mkdir()
+		backupDir.mkdir(parents=True)
 	elif not backupDir.is_dir():
 		raise NotADirectoryError(
 			f'the backup directory, {backupDir}, must be a directory'
@@ -153,11 +153,11 @@ def moveToBackupDir(fileToMove: TDFileInfo, backupDir: str) -> None:
 	shutil.move(fileToMove, backupDir)
 
 
-def saveAndBackup(
+def backupAndSave(
 	op, savePath: TDFileInfo, backupDir: Optional[str] = None
 ) -> None:
 	if not backupDir:
-		backupDir = f'{savePath.dir}\\Backup\\'
+		backupDir = tdu.expandPath(f'{savePath.dir}/Backup')
 
 	lastBackup, nextBackup = findLastBackup(savePath)
 	shutil.copy(savePath, nextBackup)
@@ -183,11 +183,25 @@ def disconnectAndSave(tox: ToxInfo):
 		copy.par.externaltox = ''
 		resetCustomParameters(copy)
 
-		saveAndBackup(copy, tox.filePath)
+		backupAndSave(copy, tox.filePath)
 	finally:
 		# ensure we always delete the copy, even if we have an error during processing
 		if copy:
 			copy.destroy()
+
+
+def toSystemToxBackupDir(tox: ToxInfo) -> str:
+	"""
+	Constructs a path in the project backup folder that
+	matches the local directory structure for system toxes.
+
+	From: Lib/UI/ui.tox
+	To: C:/path-to-project/Backup/Lib/Ui
+	"""
+	toxDir = tdu.expandPath(tox.filePath.dir)
+	relativePath = toxDir.replace(project.folder, '')
+
+	return tdu.expandPath(f'{project.folder}/Backup/{relativePath}')
 
 
 class ToxManager:
@@ -203,18 +217,21 @@ class ToxManager:
 		self.opFind = ownerComp.op('opfind_externalToxes')
 		self.selectedToxesDat = ownerComp.op('null_selectedToxes')
 		self.allToxesDat = ownerComp.op('null_allToxes')
+		self.toxLister = ownerComp.op('toxLister')
 
 	def Display(self, onlyIfDirty=False):
 		if onlyIfDirty and not self.hasDirtyToxes():
 			return
 
-		self.opFind.par.cookpulse.pulse()
+		self.RefreshToxList()
 		self.window.par.winopen.pulse()
 
 	def SaveSystemToxes(self, selected=True):
 		if self.tda.Loaded:
 			if confirmShouldUnload():
 				self.tda.Unload()
+				# best-effort attempt to refresh the ui after things have been unloaded
+				run('op.toxManager.RefreshToxList()', delayFrames=30)
 			# NOTE: we return here because we can't ensure that everything is immediately
 			#       reset to initial state before moving on, so we rely on the user to
 			#       click save after things have settled
@@ -226,8 +243,7 @@ class ToxManager:
 				sysOp = op(tox.networkPath)
 				ensureExternalToxSetup(sysOp)
 				executeParameterCallback(sysOp, SETTINGS_BEFORE_SAVE_SCRIPT)
-				sysOp.save(tox.filePath)
-				# TODO: save versioned
+				backupAndSave(sysOp, tox.filePath, toSystemToxBackupDir(tox))
 				executeParameterCallback(sysOp, SETTINGS_AFTER_SAVE_SCRIPT)
 
 			self.Close()
@@ -265,6 +281,10 @@ class ToxManager:
 
 	def IsCompositionNetworkPath(self, networkPath: str):
 		return networkPath.startswith(self.CompositionRoot + '/')
+
+	def RefreshToxList(self):
+		self.opFind.par.cookpulse.pulse()
+		self.toxLister.par.Reloadinput.pulse()
 
 	def getToxes(
 		self,
