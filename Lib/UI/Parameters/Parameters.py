@@ -27,14 +27,15 @@ def getSectionCloseScript(address: str):
 
 
 def getSectionEditScript(address: str):
-	return f'op.tda.EditTox(\'{address}\')'
+	return f'op.toxManager.EditCompositionAddress(\'{address}\')'
 
 
-def getSectionSaveScript(address: str):
-	return f'op.tda.SaveTox(\'{address}\')'
+def getSectionSaveScript():
+	return 'op.toxManager.Display()'
 
 
 class ParameterContainer(BaseExt):
+
 	@property
 	def address(self):
 		return self.ownerComponent.par.Address.eval()
@@ -86,7 +87,7 @@ class ParameterContainer(BaseExt):
 		if effectAddress:
 			section.par.Onclosescript = getSectionCloseScript(effectAddress)
 			section.par.Oneditscript = getSectionEditScript(effectAddress)
-			section.par.Onsavescript = getSectionSaveScript(effectAddress)
+			section.par.Onsavescript = getSectionSaveScript()
 			section.par.Address = effectAddress
 
 		generatorAddress = matchGeneratorAddress(
@@ -95,7 +96,7 @@ class ParameterContainer(BaseExt):
 		if generatorAddress:
 			# TODO(#7): add close script that clears the tox
 			section.par.Oneditscript = getSectionEditScript(generatorAddress)
-			section.par.Onsavescript = getSectionSaveScript(generatorAddress)
+			section.par.Onsavescript = getSectionSaveScript()
 
 		self.sections[address] = section
 		self.updateSectionNetowrkPositions()
@@ -257,6 +258,7 @@ class ParameterContainer(BaseExt):
 
 
 class Parameters(BaseExt):
+
 	def __init__(self, ownerComponent, logger):
 		super().__init__(ownerComponent, logger)
 		self.parameterList = ownerComponent.op('null_parameterList')
@@ -311,14 +313,12 @@ class Parameters(BaseExt):
 
 		inactiveAddresses = set(self.containerState.keys()) - activeAddresses
 		for address in inactiveAddresses:
-			self.logDebug('clearing parameter container state for {}'.format(address))
+			self.logDebug(f'clearing parameter container state for {address}')
 			del self.containerState[address]
 
 	def syncContainerState(self, address: str, opPath: str) -> ParameterContainer:
 		if address not in self.containerState:
-			self.logDebug(
-				'initializing parameter container state for {}'.format(address)
-			)
+			self.logDebug(f'initializing parameter container state for {address}')
 			containerOP = op(opPath)
 			containerOP.Init()
 			self.containerState[address] = containerOP
