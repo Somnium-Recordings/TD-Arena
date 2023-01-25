@@ -6,7 +6,7 @@ from pathlib import Path, PureWindowsPath
 from typing import Iterable, NamedTuple, Optional, Tuple, Union
 
 from tda import TDFileInfo
-from tdaUtils import resetCustomParameters
+from tdaUtils import addressToToxPath, resetCustomParameters
 
 COMPOSITION_LISTER_ROOT = '/composition'
 EXTERNAL_TOX_COLOR = (0.05000000074505806, 0.3499999940395355, 0.5)
@@ -278,6 +278,10 @@ class ToxManager:
 	def OpenNetworkAtPath(self, networkPath: str) -> None:
 		p = ui.panes.createFloating(type=PaneType.NETWORKEDITOR, name='Edit Tox')
 		p.owner = op(networkPath)
+
+	def EditCompositionAddress(self, address):
+		toxPath = addressToToxPath(address, self.CompositionRoot)
+		self.OpenNetworkAtPath(toxPath)
 
 	def IsCompositionNetworkPath(self, networkPath: str):
 		return networkPath.startswith(self.CompositionRoot + '/')
