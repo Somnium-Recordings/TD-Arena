@@ -18,7 +18,10 @@
   "python.envFile": "${workspaceFolder}\\.env",
   "python.analysis.extraPaths": ["Lib"],
   "[python]": {
-    "editor.defaultFormatter": "ms-python.python"
+    "editor.defaultFormatter": "ms-python.python",
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": true
+    }
   },
   "cSpell.words": ["absframe", "Toxes"],
   "files.eol": "\r\n"
