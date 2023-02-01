@@ -206,6 +206,13 @@ class ParameterContainer(BaseExt):
 
 		return parameter
 
+	def SetCtrlValue(self, address: str, newValue):
+		if address not in self.parameters:
+			self.logWarning(f'received value change for unknown parameter: f{address}')
+
+		self.logDebug(f'setting control for {address} to {newValue}')
+		self.parameters[address].par.Value0 = newValue
+
 	def SyncParameter(
 		self, address, label, style, normMin, normMax, menuLabels, order
 	):  # pylint: disable=too-many-arguments
@@ -230,8 +237,11 @@ class ParameterContainer(BaseExt):
 		parameter = self.createSectionParameter(section, style, label)
 		self.parameters[address] = parameter
 
+		self.state.RegisterCtrl(address, self.SetCtrlValue)
+
 		if style != 'Header':
 			# NOTE: Setting Valname0 triggers UIState to initialize the parameter binding
+			# TODO: is ^^^^ still needed with State.RegisterCtrl?
 			parameter.par.Valname0 = address
 
 		# The section parameters are hard-coded, all we need is to set Valname0 to trigger binding

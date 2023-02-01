@@ -238,7 +238,6 @@ class ToxManager:
 			return
 
 		try:
-			# TODO: increment files into backup folder
 			for tox in self.getSystemToxes(selected):
 				sysOp = op(tox.networkPath)
 				ensureExternalToxSetup(sysOp)
@@ -335,7 +334,7 @@ class ToxManager:
 		systemToxes, compositionToxes = self.getToxes(selected=False)
 		return hasDirty(systemToxes) or hasDirty(compositionToxes)
 
-	# TODO
+	# TODO(#84)
 	# def CreateNewExternalizedComponent(self):
 	#  - set color
 	#  - set external parameter

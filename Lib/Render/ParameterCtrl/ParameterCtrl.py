@@ -14,6 +14,11 @@ def getParValue(parameter):
 DEFAULT_STATE = {}
 
 
+# TODO: remove this and change all parameters to us `:` format
+def normalizeParameterAddress(address: str) -> str:
+	return address.replace(':', '/')
+
+
 class ParameterCtrl(LoadableExt):
 
 	def __init__(self, ownerComponent, logger):
@@ -61,11 +66,25 @@ class ParameterCtrl(LoadableExt):
 		self.logDebug(f'replying with current value at {address}')
 		self.renderState.SendMessage(address, getParValue(par))
 
+	def SetParameter(self, address: str, val) -> None:
+		self.logDebug(f'setting f{address} to {val}')
+		par = self.getParameter(address)
+
+		if par is None:
+			self.logWarning(
+				f'attempted to set parameter that doesn\'t exist @ {address}'
+			)
+			return
+
+		par.val = val
+
 	def getParameter(self, address: str):
-		controlPathCell = self.parameterState[address, 'path']
-		parNameCell = self.parameterState[address, 'name']
+		normalizedAddress = normalizeParameterAddress(address)
+
+		controlPathCell = self.parameterState[normalizedAddress, 'path']
+		parNameCell = self.parameterState[normalizedAddress, 'name']
 		if controlPathCell is None or parNameCell is None:
-			self.logWarning(f'could not find parameter state for {address}')
+			self.logWarning(f'could not find parameter state for {normalizedAddress}')
 			return None
 
 		controlOp = op(controlPathCell.val)
@@ -96,15 +115,7 @@ class ParameterCtrl(LoadableExt):
 		# 		parameter with the same address is created in the
 		#       future
 		saveValue = self.saveState.pop(address)
-		par = self.getParameter(address)
-
-		if par is None:
-			self.logWarning(
-				f'attempted to initialize parameter that doesn\'t exist @ {address}'
-			)
-			return
-
-		par.val = saveValue
+		self.SetParameter(address, saveValue)
 
 	def OnParameterStateChange(self):
 		initializedAddresses = {
