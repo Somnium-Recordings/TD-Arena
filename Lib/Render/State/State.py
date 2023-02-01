@@ -62,6 +62,9 @@ class StateCtrl(LoadableExt):
 						'handler': self.save,
 						'sendAddress': False
 					},
+					'/composition/*:*': {
+						'handler': parameterCtrl.SetParameter
+					},
 					'/composition/clips/*/select': {
 						'handler': deckCtrl.SelectClip
 					},
