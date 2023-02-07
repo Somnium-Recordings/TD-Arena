@@ -14,11 +14,6 @@ def getParValue(parameter):
 DEFAULT_STATE = {}
 
 
-# TODO: remove this and change all parameters to us `:` format
-def normalizeParameterAddress(address: str) -> str:
-	return address.replace(':', '/')
-
-
 class ParameterCtrl(LoadableExt):
 
 	def __init__(self, ownerComponent, logger):
@@ -79,12 +74,10 @@ class ParameterCtrl(LoadableExt):
 		par.val = val
 
 	def getParameter(self, address: str):
-		normalizedAddress = normalizeParameterAddress(address)
-
-		controlPathCell = self.parameterState[normalizedAddress, 'path']
-		parNameCell = self.parameterState[normalizedAddress, 'name']
+		controlPathCell = self.parameterState[address, 'path']
+		parNameCell = self.parameterState[address, 'name']
 		if controlPathCell is None or parNameCell is None:
-			self.logWarning(f'could not find parameter state for {normalizedAddress}')
+			self.logWarning(f'could not find parameter state for {address}')
 			return None
 
 		controlOp = op(controlPathCell.val)
