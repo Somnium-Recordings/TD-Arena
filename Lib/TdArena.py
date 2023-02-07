@@ -27,17 +27,9 @@ BOUND_USER_SETTINGS = {
 		'target': 'local',
 		'par': 'Oscinport'
 	},
-	'Localoscctrlinport': {
-		'target': 'local',
-		'par': 'Oscctrlinport'
-	},
 	'Engineoscinport': {
 		'target': 'engine',
 		'par': 'Oscinport'
-	},
-	'Engineoscctrlinport': {
-		'target': 'engine',
-		'par': 'Oscctrlinport'
 	},
 }
 

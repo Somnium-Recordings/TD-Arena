@@ -1,5 +1,4 @@
 import pytest
-
 from tdaUtils import (addressToToxPath, addressToValueLocation,
                       exportToAddress, filePathToName, getClipID, getDeckID,
                       getLayerID, intIfSet, mapAddressToDeckLocation,
@@ -127,16 +126,16 @@ def test_exportToAddress():
 def test_parameterPathToAddress():
 	assert parameterPathToAddress(
 		'/tdArena/render/composition/decks/deck0', 'foo'
-	) == '/composition/decks/0/foo'
+	) == '/composition/decks/0:foo'
 	assert parameterPathToAddress(
 		'/render/composition/decks/deck0', 'foo'
-	) == '/composition/decks/0/foo'
+	) == '/composition/decks/0:foo'
 	assert parameterPathToAddress(
 		'/render/composition/clips/clip14', 'foo'
-	) == '/composition/clips/14/foo'
+	) == '/composition/clips/14:foo'
 	assert parameterPathToAddress(
 		'/render/composition/clips/clip4/video/effects/effect0/tox', 'foo'
-	) == '/composition/clips/4/video/effects/0/tox/foo'
+	) == '/composition/clips/4/video/effects/0/tox:foo'
 
 
 def test_filePathToName():

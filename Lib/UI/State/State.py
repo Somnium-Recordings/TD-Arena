@@ -1,15 +1,14 @@
-from typing import Callable, Dict, List, TypedDict, Union
+from typing import Callable, Dict, TypedDict, Union
 
 from oscDispatcher import OSCDispatcher
 from tda import BaseExt
 
-OSCValue = Union[str, int, float]
-
-# CtrlState = Typed
+OSCValue = Union[str, int, float, bool]
 
 
 class CtrlState(TypedDict, total=False):
-	handlers: List[Callable]
+	# key is sourceName
+	handlers: Dict[str, Callable]
 	currentValue: Union[OSCValue, None]
 
 
@@ -37,11 +36,6 @@ class State(BaseExt):
 		"""
 		self.oscControlState = {}
 
-		# TODO: remove below this line
-		return
-		self.initializedControlList.clear()
-		self.OnCtrlOPListChange()
-
 	def SendMessage(self, address, *args):
 		if address:
 			self.logDebug(f'UI -> Render -- {address} with {args}')
@@ -58,28 +52,88 @@ class State(BaseExt):
 	def MapOSCHandlers(self, *args):
 		self.dispatcher.MapMultiple(*args)
 
-	def RegisterCtrl(
-		self, address: str, setCtrlValueHandler: Callable[[str, OSCValue], None]
-	) -> Union[None, OSCValue]:
-		self.logDebug(f'registering control handler for {address}')
+	def DumpCtrlState(self):
+		print(self.oscControlState)
 
-		if ctrlState := self.oscControlState.get(address, None) is None:
-			ctrlState = {'currentValue': None, 'handlers': [setCtrlValueHandler]}
+	def RegisterCtrl(
+		self, address: str, sourceName: str,
+		setCtrlValueHandler: Callable[[str, OSCValue], None]
+	) -> Union[None, OSCValue]:
+		self.logDebug(f'registering control {sourceName} handler @ {address}')
+
+		if (ctrlState := self.oscControlState.get(address, None)) is None:
+			ctrlState = {
+				'currentValue': None,
+				'handlers': {
+					sourceName: setCtrlValueHandler
+				}
+			}
 			self.oscControlState[address] = ctrlState
 		else:
-			ctrlState['handlers'].append(setCtrlValueHandler)
+			if sourceName in ctrlState['handlers']:
+				# This can happen if DeregisterCtrl isn't called on cleanup,
+				# or if a ctrl is registered more than once
+				self.logWarning(
+					f'duplicate ctrl handler registered for {sourceName} @ {address}'
+				)
+			ctrlState['handlers'][sourceName] = setCtrlValueHandler
 
-		if ctrlState['currentValue'] is None:
-			self.logDebug(f'requesting initial value for {address}')
+		if ctrlState['currentValue'] is None:  # TODO: an len(handlers) == 1?
+			self.logDebug(f'requesting initial value @ {address}')
 			self.SendMessage(address, '?')
 		else:
+			self.logDebug(
+				f'currentValue in state, calling handler immediately @ {address}'
+			)
 			setCtrlValueHandler(address, ctrlState['currentValue'])
+
+	def DeregisterCtrl(self, address, sourceName):
+		if (ctrlState := self.oscControlState.get(address, None)) is None:
+			self.logWarning(
+				f'attempted to deregister an unknown ctrl for {sourceName} @ {address}'
+			)
+			return
+
+		if not sourceName in ctrlState['handlers']:
+			self.logWarning(
+				f'attempted to deregister unknown handler {sourceName} @ {address}'
+			)
+			return
+
+		if len(ctrlState['handlers']) > 1:
+			self.logDebug(f'deregistering {sourceName} handler @ {address}')
+			del ctrlState['handlers'][sourceName]
+		else:
+			self.logDebug(
+				f'deregistering ctrl since {sourceName} is the last handler @ {address}'
+			)
+			del self.oscControlState[address]
+
+	def UpdateCtrlValue(
+		self, address: str, newValue: OSCValue, source: str
+	) -> None:
+		if (controlState := self.oscControlState.get(address, None)) is None:
+			self.logWarning(
+				f'attempted to update CTRL value for unknown address {address}'
+			)
+			return
+
+		if newValue == controlState['currentValue']:
+			return
+
+		# Optimistically update any other UI controls
+		for sourceName, handler in controlState['handlers'].items():
+			if sourceName != source:
+				handler(address, newValue)
+
+		# Send change to renderer
+		self.SendMessage(address, newValue)
 
 	def UnRegisterCtrl(self):
 		pass
 
 	def onOSCReply(self, address, *args):
-		if address not in self.oscControlState:
+		if (controlState := self.oscControlState.get(address, None)) is None:
 			self.logWarning(f'received OSC reply for unknown address {address}')
 			return
 
@@ -89,45 +143,7 @@ class State(BaseExt):
 			)
 			return
 
-		return
-		# TODO: delete below this line
-		self.logDebug(f'setting value of {address} to {args[0]}')
-
-		ctrlState = self.oscControlState[address]
-		# TODO: rather than set Value0 here, store value on state and call handlers
-		# the "local UI" handler should handle mapping changes
-		# TODO: call registered ctrl handlers
-		ctrlState['op'].par.Value0 = args[0]
-
-		# If this is the message with the initial value for a control,
-		# mark it as initialized so that we start sending data out through
-		# OSC
-		if self.initializedControlList.row(address) is None:
-			valueOutAddress = '{}/valueOut'.format(ctrlState['op'].path)
-			opFamily = op(valueOutAddress).family  # CHOP, DAT, etc.
-
-			self.initializedControlList.appendRow([address, valueOutAddress, opFamily])
-
-	###################################################
-	##              Deprecated                       ##
-	###################################################
-	def OnCtrlOPListChange(self):
-		return
-		inactiveAddresses = set(self.oscControlState.keys())
-		for row in self.oscControlList.rows()[1:]:
-			[path, address] = [c.val for c in row]
-
-			inactiveAddresses.discard(address)
-			if address not in self.oscControlState:
-				self.logDebug('initializing ui state for {address}')
-				self.oscControlState[address] = {'op': op(path)}
-
-				# TODO: don't do this here, do it in RegisterCtrl instead
-				self.SendMessage(address, '?')  # request initial value
-				# NOTE: on receipt of initial value, address will be added to initializedControlList
-
-		for inactiveAddress in inactiveAddresses:
-			self.logDebug(f'clearing ui state for {inactiveAddress}')
-			del self.oscControlState[inactiveAddress]
-			if self.initializedControlList.row(inactiveAddress) is not None:
-				self.initializedControlList.deleteRow(inactiveAddress)
+		currentValue = args[0]
+		controlState['currentValue'] = currentValue
+		for handler in controlState['handlers'].values():
+			handler(address, currentValue)

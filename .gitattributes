@@ -1,1 +1,2 @@
 * text=auto eol=crlf
+.pre-commit-hooks/yapf-isort.sh eol=lf

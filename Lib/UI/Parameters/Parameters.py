@@ -3,6 +3,9 @@ import re
 from tda import BaseExt, DroppedItem
 from tdaUtils import clearChildren, layoutChildren, layoutComps
 
+CTRL_SRC_NAME = 'ui:parameters'
+'The name of source used when registering and updating state controllers'
+
 SECTION_EFFECT_RE = re.compile(
 	r'(/composition/(layer|clip)s/\d+/video/effects/\d+)/.*'
 )
@@ -119,8 +122,13 @@ class ParameterContainer(BaseExt):
 		for address in inactiveParameters:
 			self.logDebug(f'clearing inactive parameter at {address}')
 			parameter = self.parameters.pop(address)
-			if parameter.valid:  # If parent section destroys the containing par this will be fals
+			self.state.DeregisterCtrl(address, CTRL_SRC_NAME)
+			if parameter.valid:  # If parent section destroys the containing par this will be false
 				parameter.destroy()
+
+	def OnBeforeDestroy(self):
+		for address in self.parameters:
+			self.state.DeregisterCtrl(address, CTRL_SRC_NAME)
 
 	def OnDrop(
 		self, droppedItem: DroppedItem, targetSection=None, direction: str = None
@@ -216,7 +224,7 @@ class ParameterContainer(BaseExt):
 	def SyncParameter(
 		self, address, label, style, normMin, normMax, menuLabels, order
 	):  # pylint: disable=too-many-arguments
-		sectionAddress, _ = address.rsplit('/', 1)  # The last value is the parameter
+		sectionAddress, _ = address.rsplit(':', 1)  # The last value is the parameter
 		self.activeParameters.add(address)
 		self.activeSections.add(sectionAddress)
 
@@ -236,13 +244,11 @@ class ParameterContainer(BaseExt):
 		section = self.getParameterSection(sectionAddress)
 		parameter = self.createSectionParameter(section, style, label)
 		self.parameters[address] = parameter
+		self.state.RegisterCtrl(address, CTRL_SRC_NAME, self.SetCtrlValue)
 
-		self.state.RegisterCtrl(address, self.SetCtrlValue)
-
-		if style != 'Header':
-			# NOTE: Setting Valname0 triggers UIState to initialize the parameter binding
-			# TODO: is ^^^^ still needed with State.RegisterCtrl?
-			parameter.par.Valname0 = address
+		# Setting Valname0 to something that starts with /composition
+		# triggers the OpFind -> Parameter Dat -> State.UpdateCtrlValue flow
+		parameter.par.Valname0 = address
 
 		# The section parameters are hard-coded, all we need is to set Valname0 to trigger binding
 		if label.startswith('Section'):

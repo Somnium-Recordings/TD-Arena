@@ -138,12 +138,12 @@ def parameterPathToAddress(path: str, parameter: str):
 	"""
 	from: /tdArena/composition/layers/layer1/...
 	from: /tdArena/render/composition/layers/layer1/...
-	to  : /composition/layers/1/...
+	to  : /composition/layers/1/...:parameter
 	"""
 	compositionStart = path.find('/composition')
 	address = COLLAPSE_TO_ID_RE.sub(r'/\1s/\3', path[compositionStart:])
 
-	return f'{address}/{parameter}'
+	return f'{address}:{parameter}'
 
 
 def addressToExport(address):
