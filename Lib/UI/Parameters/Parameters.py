@@ -248,8 +248,9 @@ class ParameterContainer(BaseExt):
 			address, CTRL_SRC_NAME, self.SetCtrlValue, alwaysRequestValue=True
 		)
 
+		valueAccessor = 'menuIndex' if style in ('StrMenu', 'Menu') else 'eval()'
 		parameter.par.Onvaluechangescript0 = (
-			f'op.uiState.UpdateCtrlValue(\'{address}\', me.par.Value0.eval(), \'{CTRL_SRC_NAME}\')'
+			f'op.uiState.UpdateCtrlValue(\'{address}\', me.par.Value0.{valueAccessor}, \'{CTRL_SRC_NAME}\')'
 		)
 
 		# The section parameters are hard-coded
