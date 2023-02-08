@@ -56,8 +56,11 @@ class State(BaseExt):
 		print(self.oscControlState)
 
 	def RegisterCtrl(
-		self, address: str, sourceName: str,
-		setCtrlValueHandler: Callable[[str, OSCValue], None]
+		self,
+		address: str,
+		sourceName: str,
+		setCtrlValueHandler: Callable[[str, OSCValue], None],
+		alwaysRequestValue=False
 	) -> Union[None, OSCValue]:
 		self.logDebug(f'registering control {sourceName} handler @ {address}')
 
@@ -78,10 +81,14 @@ class State(BaseExt):
 				)
 			ctrlState['handlers'][sourceName] = setCtrlValueHandler
 
-		if ctrlState['currentValue'] is None:  # TODO: an len(handlers) == 1?
+		if (
+			alwaysRequestValue
+			or (ctrlState['currentValue'] is None and len(ctrlState['handlers']) == 1)
+		):
 			self.logDebug(f'requesting initial value @ {address}')
 			self.SendMessage(address, '?')
-		else:
+
+		if ctrlState['currentValue'] is not None:
 			self.logDebug(
 				f'currentValue in state, calling handler immediately @ {address}'
 			)

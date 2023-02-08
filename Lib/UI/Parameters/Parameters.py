@@ -244,13 +244,15 @@ class ParameterContainer(BaseExt):
 		section = self.getParameterSection(sectionAddress)
 		parameter = self.createSectionParameter(section, style, label)
 		self.parameters[address] = parameter
-		self.state.RegisterCtrl(address, CTRL_SRC_NAME, self.SetCtrlValue)
+		self.state.RegisterCtrl(
+			address, CTRL_SRC_NAME, self.SetCtrlValue, alwaysRequestValue=True
+		)
 
-		# Setting Valname0 to something that starts with /composition
-		# triggers the OpFind -> Parameter Dat -> State.UpdateCtrlValue flow
-		parameter.par.Valname0 = address
+		parameter.par.Onvaluechangescript0 = (
+			f'op.uiState.UpdateCtrlValue(\'{address}\', me.par.Value0.eval(), \'{CTRL_SRC_NAME}\')'
+		)
 
-		# The section parameters are hard-coded, all we need is to set Valname0 to trigger binding
+		# The section parameters are hard-coded
 		if label.startswith('Section'):
 			return
 
