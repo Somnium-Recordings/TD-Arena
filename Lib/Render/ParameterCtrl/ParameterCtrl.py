@@ -1,4 +1,5 @@
 from tda import LoadableExt
+from tdaUtils import parameterPathToAddress
 
 
 def getParValue(parameter):
@@ -12,6 +13,9 @@ def getParValue(parameter):
 
 
 DEFAULT_STATE = {}
+
+# # The UI doesn't rely on us sending all
+# SYNCED_PARAMETER_NAMES = ['Sectionorder']
 
 
 class ParameterCtrl(LoadableExt):
@@ -61,6 +65,14 @@ class ParameterCtrl(LoadableExt):
 		self.logDebug(f'replying with current value at {address}')
 		self.renderState.SendMessage(address, getParValue(par))
 
+	def OnParameterChanges(self, changes):
+		self.logDebug(f'change detected in {len(changes)} parameters, sending to UI')
+		for change in changes:
+			self.renderState.SendMessage(
+				parameterPathToAddress(change.par.owner.path, change.par.name),
+				change.par.eval()
+			)
+
 	def SetParameter(self, address: str, val) -> None:
 		self.logDebug(f'setting f{address} to {val}')
 		par = self.getParameter(address)
@@ -96,8 +108,8 @@ class ParameterCtrl(LoadableExt):
 		return par
 
 	def initializeParameter(self, address: str):
-		assert hasattr(
-			self, 'saveState'
+		assert (
+			hasattr(self, 'saveState') and self.saveState is not None
 		), 'parameters cannot be initialized before save state is loaded'
 
 		if address not in self.saveState:

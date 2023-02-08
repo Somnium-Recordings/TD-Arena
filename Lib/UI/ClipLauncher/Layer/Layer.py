@@ -2,6 +2,7 @@ from tda import BaseExt
 
 
 class Layer(BaseExt):
+
 	@property
 	def LayerID(self):
 		return self.ownerComponent.digits
@@ -10,10 +11,20 @@ class Layer(BaseExt):
 	def LayerNumber(self):
 		return self.ownerComponent.par.alignorder.eval()
 
+	@property
+	def CtrlSrcName(self) -> str:
+		return f'ui:clipLauncher:{self.ownerComponent.name}'
+
+	@property
+	def ctrlOpacityAddress(self) -> str:
+		return f'/composition/layers/{self.LayerID}/video:Opacity'
+
 	def __init__(self, ownerComponent, logger, uiState):  # pylint: disable=too-many-arguments
 		super().__init__(ownerComponent, logger)
 		self.uiState = uiState
 		self.popMenu = op.TDResources.op('popMenu')
+		self.opacityCtrl = ownerComponent.op('sliderVert')
+		self.registerLayerOpacityCtrl()
 
 	def OpenRightClickMenu(self):
 		self.popMenu.Open(
@@ -44,3 +55,21 @@ class Layer(BaseExt):
 			raise NotImplementedError(
 				f'Handler for layer menu item "{click["item"]}" not implemented'
 			)
+
+	def updateOpacityCtrlValue(self, _address: str, newValue: float) -> None:
+		self.opacityCtrl.par.Value0 = newValue
+
+	def registerLayerOpacityCtrl(self):
+		if 'Template' in self.ownerComponent.name:
+			return
+
+		self.opacityCtrl.par.Onvaluechangescript0 = (
+			f'op.uiState.UpdateCtrlValue(\'{self.ctrlOpacityAddress}\', me.par.Value0.eval(), \'{self.CtrlSrcName}\')'
+		)
+
+		self.uiState.RegisterCtrl(
+			self.ctrlOpacityAddress, self.CtrlSrcName, self.updateOpacityCtrlValue
+		)
+
+	def OnBeforeDestroy(self):
+		self.uiState.DeregisterCtrl(self.ctrlOpacityAddress, self.CtrlSrcName)
