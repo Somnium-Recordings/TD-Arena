@@ -1,3 +1,4 @@
+import traceback
 from typing import Callable, Dict, TypedDict, Union
 
 from oscDispatcher import OSCDispatcher
@@ -128,10 +129,18 @@ class State(BaseExt):
 		if newValue == controlState['currentValue']:
 			return
 
+		controlState['currentValue'] = newValue
+
 		# Optimistically update any other UI controls
 		for sourceName, handler in controlState['handlers'].items():
 			if sourceName != source:
-				handler(address, newValue)
+				try:
+					handler(address, newValue)
+				except:  # pylint: disable=bare-except
+					self.logError(
+						f'failed to apply CtrlValue change handler ({sourceName}) @ {address}:' +
+						f'\n{traceback.format_exc()}'
+					)
 
 		# Send change to renderer
 		self.SendMessage(address, newValue)
