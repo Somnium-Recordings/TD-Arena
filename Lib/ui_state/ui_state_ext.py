@@ -29,7 +29,7 @@ class UIStateExt(BaseExt):
 		self.initializedControlList = ownerComponent.op('table_initializedControls')
 		self.InitOSCControls()
 
-		self.logInfo('UIState initialized')
+		self.logInfo('initialized')
 
 	def InitOSCControls(self):
 		"""

@@ -1,7 +1,8 @@
+import typing as T
 from os import path
-from typing import Callable
 
 from tda import LoadableExt
+from ui_state import ui_state_ext
 
 BOUND_USER_SETTINGS = {
 	# Composition
@@ -66,7 +67,7 @@ STATE_LOADED = 'loaded'
 
 # TODO: rename this class. "TD..." prefix should be reserved for system things
 # @see https://forum.derivative.ca/t/simple-error-logging/8894/5?u=llwt
-class TdArena(LoadableExt):
+class TDAExt(LoadableExt):
 
 	@property
 	def useEngine(self) -> bool:
@@ -78,11 +79,11 @@ class TdArena(LoadableExt):
 
 	# pylint: disable=too-many-arguments
 	def __init__(
-		self, ownerComponent, logger, uiState, userSettings, renderLocal,
-		renderEngine, uiGrid, logManager
+		self, ownerComponent, logger, userSettings, renderLocal, renderEngine,
+		uiGrid, logManager
 	):
 		super().__init__(ownerComponent, logger)
-		self.uiState = uiState
+		self.uiState = T.cast(ui_state_ext.UIStateExt, op.ui_state.ext.UIStateExt)
 		self.uiState.MapOSCHandlers(
 			{
 				'/render/initialized': {
@@ -105,9 +106,9 @@ class TdArena(LoadableExt):
 		TDF = op.TDModules.mod.TDFunctions
 		TDF.createProperty(self, 'CompositionState', value=STATE_UNLOADED)
 
-		self.onRenderLoaded: Callable = None
+		self.onRenderLoaded: T.Callable = None
 
-		self.logInfo('TdArena initialized')
+		self.logInfo('initialized')
 		self.StartRenderer()
 
 	def StartRenderer(self, useEngine=None):
