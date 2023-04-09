@@ -13,6 +13,7 @@ DEFAULT_STATE = {
 
 
 class LayerCtrl(LoadableExt):
+
 	@property
 	def LayerCount(self):
 		return max(0, len(self.layers) - 1) if self.Loaded else 0
@@ -26,8 +27,9 @@ class LayerCtrl(LoadableExt):
 		self.layerState = ownerComponent.op('./null_layerState')
 		assert self.composition, 'could not find composition component'
 
-	def Init(self, _renderState):
+	def Init(self, renderState):
 		self.setUnloaded()
+		self.renderState = renderState
 
 		self.layerContainer = self.composition.op('layers')
 		if self.layerContainer:
@@ -135,6 +137,7 @@ class LayerCtrl(LoadableExt):
 	def SelectLayer(self, address):
 		layerID = getLayerID(address)
 		self.composition.par.Previstarget = f'composition/layers/layer{layerID}/video/null_previs'
+		previousSelectedLayer = self.composition.par.Selectedlayer.eval()
 		self.composition.par.Selectedlayer = layerID
 
 	def createLayer(

@@ -12,19 +12,6 @@ TIME_RE = re.compile(r'\d\d:\d\d:\d\d(,\d\d\d)?')
 
 SEVERITY_REMAP = {'ABORT': 'ERROR'}
 
-
-def onSetupParameters(_scriptOp):
-	# page = scriptOp.appendCustomPage('Custom')
-	# p = page.appendFloat('Valuea', label='Value A')
-	# p = page.appendFloat('Valueb', label='Value B')
-	pass
-
-
-# called whenever custom pulse parameter is pushed
-def onPulse(_par):
-	pass
-
-
 LogSource = List[str]
 
 
@@ -39,6 +26,7 @@ def justifyColumns(rows: List[LogSource]) -> List[str]:
 
 
 class GroupedLogCollector:
+
 	def __init__(self) -> None:
 		self.storage = {}
 
@@ -53,6 +41,7 @@ class GroupedLogCollector:
 
 
 class UngroupedLogCollector:
+
 	def __init__(self) -> None:
 		self.storage = []
 
@@ -69,6 +58,23 @@ def matchesSearchQuery(message: str, searchQuery: List[str]) -> bool:
 
 def formatLog(message: str, sources: List[LogSource]) -> str:
 	return '\n'.join([*justifyColumns(sources), message])
+
+
+############################
+# Script Sop Callbacks
+############################
+
+
+def onSetupParameters(_scriptOp):
+	# page = scriptOp.appendCustomPage('Custom')
+	# p = page.appendFloat('Valuea', label='Value A')
+	# p = page.appendFloat('Valueb', label='Value B')
+	pass
+
+
+# called whenever custom pulse parameter is pushed
+def onPulse(_par):
+	pass
 
 
 def onCook(scriptOp):

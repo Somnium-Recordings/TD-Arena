@@ -33,7 +33,8 @@ def rowToLogRecord(row: List[Cell], rowCols: List[str]) -> LogRecord:
 	)
 
 
-class LogCollector:
+class LogCollectorExt:
+
 	@property
 	def lastCollectedFrame(self) -> int:
 		return self.ownerComp.par.Lastcollectedframe.eval()

@@ -19,4 +19,4 @@ View
 	Layout				not op.uiGrid.Loaded
 									getViewLayouts
 	DPI Scaling		viewToggleUiDpiScaling	True		op.userSettings.par.Uidpiscaling.eval()
-	Debug Window		viewDebugWindow			op.debugUI.IsOpen.eval()
+	Debug Window		viewDebugWindow			op.debug_ui.IsOpen.eval()

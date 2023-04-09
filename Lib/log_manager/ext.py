@@ -1,7 +1,8 @@
 from typing import Any
 
 
-class LogManager:
+class LogManagerExt:
+
 	@property
 	def LogCountsDat(self):
 		return self.ownerComp.op('./null_counts')
@@ -24,4 +25,4 @@ class LogManager:
 			handle.par[paramName] = value
 
 	def allLogHandles(self):
-		return self.ownerComp.findChildren(name='logHandle[0-99]')
+		return self.ownerComp.findChildren(name='log_handle[0-99]')
