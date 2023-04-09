@@ -1,13 +1,14 @@
-# pylint: disable=no-self-use,too-many-arguments
+# pylint: disable=too-many-arguments
 from unittest.mock import MagicMock, call
 
 import pytest
-
 from tdaTesting import MockOP, MockTable
-from UI.State import State
+
+from . import ui_state_ext
 
 
-class TestState():
+class TestUIStateExt():
+
 	@pytest.fixture
 	def oscControlList(self):
 		return MockTable([['path', 'address']])
@@ -25,7 +26,7 @@ class TestState():
 		self, ownerComponent, op, logger, oscIn, oscControlList,
 		initializedControlList
 	):
-		State.op = op
+		ui_state_ext.op = op
 
 		ownerComponent.op = MockOP()
 		ownerComponent.op.addPath('opfind_oscControls', oscControlList)
@@ -34,7 +35,7 @@ class TestState():
 			'table_initializedControls', initializedControlList
 		)
 
-		return State.State(ownerComponent, logger)
+		return ui_state_ext.UIStateExt(ownerComponent, logger)
 
 	def test_OnCtrlOPListChange(
 		self, op, oscControlList, state, oscIn, initializedControlList
