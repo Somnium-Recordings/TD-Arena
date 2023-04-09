@@ -1,4 +1,5 @@
-class LogHandle:
+class LogHandleExt:
+
 	def __init__(self, ownerComp, logStorageDat) -> None:
 		self.ownerComp = ownerComp
 		self.wasPreviouslyActive = False

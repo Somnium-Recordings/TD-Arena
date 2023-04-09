@@ -1,4 +1,5 @@
-class DebugUI:
+class DebugUIExt:
+
 	@property
 	def IsOpen(self):
 		return self.WindowInfo['winopen']

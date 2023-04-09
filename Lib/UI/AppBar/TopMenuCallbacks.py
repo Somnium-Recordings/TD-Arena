@@ -125,10 +125,10 @@ def viewToggleUiDpiScaling(_info):
 
 
 def viewDebugWindow(_info):
-	if op.debugUI.IsOpen:
-		op.debugUI.Close()
+	if op.debug_ui.IsOpen:
+		op.debug_ui.Close()
 	else:
-		op.debugUI.Open()
+		op.debug_ui.Open()
 
 
 ###############################
