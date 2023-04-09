@@ -16,6 +16,7 @@ OSCMappings: T.OrderedDict[str, T.Dict]
 
 
 class OSCDispatcher(BaseExt):
+
 	def __init__(
 		self, ownerComponent, logger, mappings=None, defaultMapping=None
 	) -> None:
@@ -23,7 +24,7 @@ class OSCDispatcher(BaseExt):
 		self.mappings: OSCMappings = mappings if mappings else OrderedDict()
 		self.defaultMapping = defaultMapping
 
-		self.logInfo('initialized')
+		self.logInfo('OSCDispatcher initialized')
 
 	def Map(self, address, handler):
 		self.mappings[address] = handler
