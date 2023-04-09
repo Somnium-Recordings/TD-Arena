@@ -13,7 +13,7 @@ class CtrlState(TypedDict, total=False):
 	currentValue: Union[OSCValue, None]
 
 
-class State(BaseExt):
+class UIStateExt(BaseExt):
 
 	oscControlState: Dict[str, CtrlState]
 

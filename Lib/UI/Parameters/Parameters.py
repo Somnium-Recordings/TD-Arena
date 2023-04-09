@@ -26,7 +26,7 @@ def matchGeneratorAddress(address: str):
 
 
 def getSectionCloseScript(address: str):
-	return f'op.uiState.SendMessage(\'{address}/clear\')'
+	return f'op.ui_state.SendMessage(\'{address}/clear\')'
 
 
 def getSectionEditScript(address: str):
@@ -250,7 +250,7 @@ class ParameterContainer(BaseExt):
 
 		valueAccessor = 'menuIndex' if style in ('StrMenu', 'Menu') else 'eval()'
 		parameter.par.Onvaluechangescript0 = (
-			f'op.uiState.UpdateCtrlValue(\'{address}\', me.par.Value0.{valueAccessor}, \'{CTRL_SRC_NAME}\')'
+			f'op.ui_state.UpdateCtrlValue(\'{address}\', me.par.Value0.{valueAccessor}, \'{CTRL_SRC_NAME}\')'
 		)
 
 		# The section parameters are hard-coded

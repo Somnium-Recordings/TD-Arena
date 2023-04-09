@@ -64,7 +64,7 @@ class Layer(BaseExt):
 			return
 
 		self.opacityCtrl.par.Onvaluechangescript0 = (
-			f'op.uiState.UpdateCtrlValue(\'{self.ctrlOpacityAddress}\', me.par.Value0.eval(), \'{self.CtrlSrcName}\')'
+			f'op.ui_state.UpdateCtrlValue(\'{self.ctrlOpacityAddress}\', me.par.Value0.eval(), \'{self.CtrlSrcName}\')'
 		)
 
 		self.uiState.RegisterCtrl(
