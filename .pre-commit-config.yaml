@@ -17,7 +17,7 @@ repos:
         language: system
       - id: unify
         name: unify
-        entry: pipenv run unify --in-place
+        entry: poetry run unify --in-place
         language: system
         types: [python]
       - id: yapf-isort
@@ -28,12 +28,12 @@ repos:
         files: \.py$
       - id: pylint
         name: pylint
-        entry: pipenv run pylint
+        entry: poetry run pylint
         language: system
         types: [python]
       - id: pytest
         name: Run Tests
-        entry: pipenv run pytest
+        entry: poetry run pytest
         language: system
         pass_filenames: false
         always_run: true

@@ -1,8 +1,7 @@
-# pylint: disable=no-self-use,too-many-arguments,bad-whitespace
+# pylint: disable=too-many-arguments
 from unittest.mock import MagicMock, call
 
 import pytest
-
 from tdaTesting import MockOP, MockTable
 from UI.Parameters import Parameters
 
@@ -17,10 +16,11 @@ def test_matchEffectAddress():
 def test_getSectionCloseScript():
 	assert Parameters.getSectionCloseScript(
 		'/composition/clips/4/video/effects/0'
-	) == 'op.uiState.SendMessage(\'/composition/clips/4/video/effects/0/clear\')'
+	) == 'op.ui_state.SendMessage(\'/composition/clips/4/video/effects/0/clear\')'
 
 
 class TestParameters():
+
 	@pytest.fixture
 	def parameterList(self):
 		return MockTable(
