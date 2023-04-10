@@ -30,7 +30,7 @@ class Updater:
 
 	def onUpdateCompParValueChange(self, par, prev, updater):
 		pass
-		
+
 	def onUpdateCompParPulse(self, par, updater):
 		if par.name == 'Update':
 			self.Update(par.owner, updater)

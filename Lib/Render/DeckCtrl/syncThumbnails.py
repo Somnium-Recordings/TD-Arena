@@ -1,5 +1,7 @@
-deckCells = op('table_deckCells')
-activeDeck = op('select_activeDeck')
+from typing import cast
+
+deckCells = cast(DAT, op('table_deckCells'))
+activeDeck = cast(DAT, op('select_activeDeck'))
 
 deckCells.setSize(activeDeck.numRows * activeDeck.numCols, 1)
 

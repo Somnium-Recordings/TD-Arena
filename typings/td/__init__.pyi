@@ -1,25 +1,49 @@
-from abc import ABC as _ABC
-import typing as _T
-import enum as _E
+# pylint: disable=redefined-outer-name,too-many-lines,redefined-builtin,unused-argument,dangerous-default-value,abstract-method
 import datetime as _DT
+import enum as _E
+from abc import ABC as _ABC
+from typing import (
+	Any, Callable, Collection, Dict, Iterable, Iterator, List, Mapping,
+	NamedTuple, Optional
+)
+from typing import Sequence as _Sequence
+from typing import (
+	Set, Sized, SupportsAbs, SupportsBytes, SupportsFloat, SupportsInt, Tuple,
+	Type, TypeVar, Union, overload
+)
 
 import numpy
 
+
 class _Expando:
-	def __getattr__(self, item) -> _T.Any: pass
+
+	def __getattr__(self, item) -> Any:
+		...
+
 
 ui: 'UI'
 
+
 class MOD:
-	def __call__(self, *args, **kwargs): pass
-	def __getattr__(self, item) -> _T.Any: pass
+
+	def __call__(self, *args, **kwargs):
+		...
+
+	def __getattr__(self, item) -> Any:
+		...
+
 
 mod: MOD
 
+
 class Ext:
-	def __getattr__(self, item) -> _T.Any: pass
+
+	def __getattr__(self, item) -> Any:
+		...
+
 
 ext: Ext
+
 
 class PaneType(_E.Enum):
 	NETWORKEDITOR = 0
@@ -30,6 +54,7 @@ class PaneType(_E.Enum):
 	ANIMATIONEDITOR = 0
 	PARAMETERS = 0
 	TEXTPORT = 0
+
 
 class UI:
 	clipboard: str
@@ -52,85 +77,195 @@ class UI:
 	windowX: int
 	windowY: int
 
-	def copyOPs(self, listOfOPs: _T.List['_AnyOpT']): pass
+	def copyOPs(self, listOfOPs: List['_AnyOpT']):
+		...
+
 	# noinspection PyShadowingNames
-	def pasteOPs(self, comp: 'COMP', x: _T.Optional[int] = None, y: _T.Optional[int] = None): pass
+	def pasteOPs(
+		self, comp: 'COMP', x: Optional[int] = None, y: Optional[int] = None
+	):
+		...
+
 	# noinspection PyDefaultArgument
-	def messageBox(self, title: str, message: str, buttons: _T.List[str] = ['Ok']) -> int: pass
-	def refresh(self): pass
-	def chooseFile(self, load=True, start=None, fileTypes=None, title=None, asExpression=False) -> _T.Optional[str]: pass
-	def chooseFolder(self, title='Select Folder', start=None, asExpression=False) -> _T.Optional[str]: pass
-	def viewFile(self, url_or_path: str): pass
-	def openAbletonControl(self): pass
-	def openBeat(self): pass
-	def openBookmarks(self): pass
-	def openCOMPEditor(self, path): pass
-	def openConsole(self): pass
-	def openDialogHelp(self, title): pass
-	def openErrors(self): pass
-	def openExplorer(self): pass
-	def openExportMovie(self, path=""): pass
-	def openHelp(self): pass
-	def openImportFile(self): pass
-	def openKeyManager(self): pass
-	def openMIDIDeviceMapper(self): pass
-	def openNewProject(self): pass
+	def messageBox(
+		self, title: str, message: str, buttons: List[str] = ['Ok']
+	) -> int:
+		...
+
+	def refresh(self):
+		...
+
+	def chooseFile(
+		self,
+		load=True,
+		start=None,
+		fileTypes=None,
+		title=None,
+		asExpression=False
+	) -> Optional[str]:
+		...
+
+	def chooseFolder(self,
+																		title='Select Folder',
+																		start=None,
+																		asExpression=False) -> Optional[str]:
+		...
+
+	def viewFile(self, url_or_path: str):
+		...
+
+	def openAbletonControl(self):
+		...
+
+	def openBeat(self):
+		...
+
+	def openBookmarks(self):
+		...
+
+	def openCOMPEditor(self, path):
+		...
+
+	def openConsole(self):
+		...
+
+	def openDialogHelp(self, title):
+		...
+
+	def openErrors(self):
+		...
+
+	def openExplorer(self):
+		...
+
+	def openExportMovie(self, path=""):
+		...
+
+	def openHelp(self):
+		...
+
+	def openImportFile(self):
+		...
+
+	def openKeyManager(self):
+		...
+
+	def openMIDIDeviceMapper(self):
+		...
+
+	def openNewProject(self):
+		...
+
 	# noinspection PyShadowingBuiltins
-	def openOperatorSnippets(self, family=None, type=None, example=None): pass
-	def openPaletteBrowser(self): pass
-	def openPerformanceMonitor(self): pass
-	def openPreferences(self): pass
-	def openSearch(self): pass
-	def openTextport(self): pass
-	def openVersion(self): pass
-	def openWindowPlacement(self): pass
-	def findEditDAT(self, filename: str) -> _T.Optional['DAT']: pass
+	def openOperatorSnippets(self, family=None, type=None, example=None):
+		...
+
+	def openPaletteBrowser(self):
+		...
+
+	def openPerformanceMonitor(self):
+		...
+
+	def openPreferences(self):
+		...
+
+	def openSearch(self):
+		...
+
+	def openTextport(self):
+		...
+
+	def openVersion(self):
+		...
+
+	def openWindowPlacement(self):
+		...
+
+	def findEditDAT(self, filename: str) -> Optional['DAT']:
+		...
 
 	status: str
 
-class Preferences(_T.Mapping[str, _T.Any], _ABC):
-	defaults: _T.Dict[str, _T.Any]
 
-	def save(self): pass
-	def resetToDefaults(self): pass
-	def load(self): pass
+class Preferences(Mapping[str, Any], _ABC):
+	defaults: Dict[str, Any]
 
-class Options(_T.Mapping[str, _T.Any], _ABC):
-	def resetToDefaults(self): pass
+	def save(self):
+		...
 
-_RgbTupletT = _T.Tuple[float, float, float]
+	def resetToDefaults(self):
+		...
 
-class Colors(_T.Mapping[str, _RgbTupletT], _ABC):
-	def resetToDefaults(self): pass
+	def load(self):
+		...
 
-class Panes(_T.Iterable['_AnyPaneT'], _T.Iterator['_AnyPaneT'], _T.Sized):
-	def __getitem__(self, key: _T.Union[int, str]) -> '_AnyPaneT': pass
-	# noinspection PyShadowingBuiltins
+
+class Options(Mapping[str, Any], _ABC):
+
+	def resetToDefaults(self):
+		...
+
+
+_RgbTupletT = Tuple[float, float, float]
+
+
+class Colors(Mapping[str, _RgbTupletT], _ABC):
+
+	def resetToDefaults(self):
+		...
+
+
+class Panes(Iterable['_AnyPaneT'], Iterator['_AnyPaneT'], Sized):
+
+	def __getitem__(self, key: Union[int, str]) -> '_AnyPaneT':
+		...
+
 	def createFloating(
-			self,
-			type=PaneType.NETWORKEDITOR,
-			name=None,
-			maxWidth=1920, maxHeight=1080,
-			monitorSpanWidth=0.9, monitorSpanHeight=0.9,
-	) -> 'Pane': pass
+		self,
+		type=PaneType.NETWORKEDITOR,
+		name=None,
+		maxWidth=1920,
+		maxHeight=1080,
+		monitorSpanWidth=0.9,
+		monitorSpanHeight=0.9,
+	) -> 'Pane':
+		...
 
 	current: '_AnyPaneT'
 
-class Coords(_T.NamedTuple):
+
+class Coords(NamedTuple):
 	x: int
 	y: int
 	u: float
 	v: float
 
+
 class Pane:
-	def changeType(self, paneType: 'PaneType') -> '_AnyPaneT': pass
-	def close(self): pass
-	def floatingCopy(self) -> '_AnyPaneT': pass
-	def splitBottom(self) -> '_AnyPaneT': pass
-	def splitLeft(self) -> '_AnyPaneT': pass
-	def splitRight(self) -> '_AnyPaneT': pass
-	def splitTop(self) -> '_AnyPaneT': pass
-	def tearAway(self) -> bool: pass
+
+	def changeType(self, paneType: 'PaneType') -> '_AnyPaneT':
+		...
+
+	def close(self):
+		...
+
+	def floatingCopy(self) -> '_AnyPaneT':
+		...
+
+	def splitBottom(self) -> '_AnyPaneT':
+		...
+
+	def splitLeft(self) -> '_AnyPaneT':
+		...
+
+	def splitRight(self) -> '_AnyPaneT':
+		...
+
+	def splitTop(self) -> '_AnyPaneT':
+		...
+
+	def tearAway(self) -> bool:
+		...
 
 	bottomLeft: 'Coords'
 	id: int
@@ -141,6 +276,7 @@ class Pane:
 	ratio: float
 	topRight: 'Coords'
 	type: 'PaneType'
+
 
 class NetworkEditor(Pane):
 	showBackdropCHOPs: bool
@@ -156,18 +292,32 @@ class NetworkEditor(Pane):
 	y: float
 	zoom: float
 
-	def fitWidth(self, width) -> None: pass
+	def fitWidth(self, width) -> None:
+		...
 
-	def fitHeight(self, height) -> None: pass
+	def fitHeight(self, height) -> None:
+		...
 
 	# noinspection PyShadowingNames
-	def home(self, zoom=True, op=None) -> None: pass
+	def home(self, zoom=True, op=None) -> None:
+		...
 
-	def homeSelected(self, zoom=True) -> None: pass
+	def homeSelected(self, zoom=True) -> None:
+		...
 
-	def placeOPs(self, listOfOPs, inputIndex=None, outputIndex=None, delOP=None, undoName='Operators') -> None: pass
+	def placeOPs(
+		self,
+		listOfOPs,
+		inputIndex=None,
+		outputIndex=None,
+		delOP=None,
+		undoName='Operators'
+	) -> None:
+		...
+
 
 _AnyPaneT = Union['Pane', 'NetworkEditor']
+
 
 class Undo:
 	globalState: bool
@@ -175,12 +325,24 @@ class Undo:
 	state: bool
 	undoStack: list
 
-	def startBlock(self, name, enable=True): pass
-	def clear(self): pass
-	def addCallback(self, callback: _T.Callable[[bool, _T.Any], None], info=None): pass
-	def redo(self): pass
-	def undo(self): pass
-	def endBlock(self): pass
+	def startBlock(self, name, enable=True):
+		...
+
+	def clear(self):
+		...
+
+	def addCallback(self, callback: Callable[[bool, Any], None], info=None):
+		...
+
+	def redo(self):
+		...
+
+	def undo(self):
+		...
+
+	def endBlock(self):
+		...
+
 
 class WindowStartMode(_E.Enum):
 	DEFAULT = 'DEFAULT'
@@ -188,6 +350,7 @@ class WindowStartMode(_E.Enum):
 	LEFT = 'LEFT'
 	RIGHT = 'RIGHT'
 	CUSTOM = 'CUSTOM'
+
 
 class Project:
 	name: str
@@ -197,7 +360,7 @@ class Project:
 	saveTime: str
 	saveOsName: str
 	saveOsVersion: str
-	paths: _T.Dict[str, str]
+	paths: Dict[str, str]
 	cookRate: float
 	realTime: bool
 	isPrivate: bool
@@ -215,17 +378,36 @@ class Project:
 	performOnStart: bool
 	performWindowPath: 'OP'
 
-	def load(self, path: str) -> None: pass
-	def save(self, path: str, saveExternalToxs=False) -> bool: pass
-	def quit(self, force=False, crash=False) -> None: pass
-	def addPrivacy(self, key) -> bool: pass
-	def removePrivacy(self, key) -> bool: pass
-	def accessPrivateContents(self, key) -> bool: pass
-	def applyWindowSettings(self) -> None: pass
-	def stack(self) -> str: pass
-	def pythonStack(self) -> str: pass
+	def load(self, path: str) -> None:
+		...
+
+	def save(self, path: str, saveExternalToxs=False) -> bool:
+		...
+
+	def quit(self, force=False, crash=False) -> None:
+		...
+
+	def addPrivacy(self, key) -> bool:
+		...
+
+	def removePrivacy(self, key) -> bool:
+		...
+
+	def accessPrivateContents(self, key) -> bool:
+		...
+
+	def applyWindowSettings(self) -> None:
+		...
+
+	def stack(self) -> str:
+		...
+
+	def pythonStack(self) -> str:
+		...
+
 
 project: Project
+
 
 class Monitor:
 	index: int
@@ -248,24 +430,27 @@ class Monitor:
 	scaledBottom: int
 	refreshRate: float
 
-class Monitors(_ABC, _T.Sequence[Monitor]):
+
+class Monitors(_ABC, _Sequence[Monitor]):
 	primary: Monitor
-	width: 0
-	height: 0
-	left: 0
-	right: 0
-	top: 0
-	bottom: 0
+	width: int
+	height: int
+	left: int
+	right: int
+	top: int
+	bottom: int
 
 	@staticmethod
 	def locate(x, y) -> Monitor:
-		pass
+		...
 
 	@staticmethod
 	def refresh():
-		pass
+		...
 
-monitors:  Monitors
+
+monitors: Monitors
+
 
 class SysInfo:
 	numCPUs: int
@@ -275,45 +460,91 @@ class SysInfo:
 	yres: int
 	tfs: str
 
+
 sysinfo: SysInfo
 
+
 class _Parent:
-	def __call__(self, *args, **kwargs) -> '_AnyOpT': pass
-	def __getattr__(self, item) -> '_AnyOpT': pass
+
+	def __call__(self, *args, **kwargs) -> '_AnyOpT':
+		...
+
+	def __getattr__(self, item) -> '_AnyOpT':
+		...
+
 
 parent: _Parent
 
-class Channel(_T.SupportsInt, _T.SupportsFloat):
+
+class Channel(SupportsInt, SupportsFloat):
 	valid: bool
 	index: int
 	name: str
 	owner: '_AnyOpT'
 	exports: list
-	vals: _T.List[float]
+	vals: List[float]
 
-	def __getitem__(self, index: int) -> float: pass
-	def __setitem__(self, index: int, value: _T.Union[int, float]): pass
-	def eval(self, index: _T.Optional[int] = None) -> float: pass
-	def evalFrame(self, frame) -> float: pass
-	def evalSeconds(self, secs) -> float: pass
-	def numpyArray(self) -> numpy.array: pass
-	def destroy(self) -> None: pass
-	def average(self) -> float: pass
-	def min(self) -> float: pass
-	def max(self) -> float: pass
-	def __int__(self) -> int: pass
-	def __float__(self) -> float: pass
+	def __getitem__(self, index: int) -> float:
+		...
 
-_ValueT = _T.Union[float, int, str]
+	def __setitem__(self, index: int, value: Union[int, float]):
+		...
 
+	def eval(self, index: Optional[int] = None) -> float:
+		...
+
+	def evalFrame(self, frame) -> float:
+		...
+
+	def evalSeconds(self, secs) -> float:
+		...
+
+	def numpyArray(self) -> numpy.recarray:
+		...
+
+	def destroy(self) -> None:
+		...
+
+	def average(self) -> float:
+		...
+
+	def min(self) -> float:
+		...
+
+	def max(self) -> float:
+		...
+
+	def __int__(self) -> int:
+		...
+
+	def __float__(self) -> float:
+		...
+
+
+_ValueT = Union[float, int, str]
+
+
+# TODO: Make this generic instead of hard coding available types
+# T = TypeVar('T')
+# class Par(Generic[T]):
+# 	@property
+# 	def val(self) -> T:
+# 		...
+#
+# 	@val.setter
+# 	def val(self, newVal: T) -> None:
+# 		...
+#
+# 	def eval(self) -> T:
+# 		...
 class Par:
 	valid: bool
 	val: _ValueT
 	expr: str
-	exportOP: _T.Optional['OP']
-	exportSource: _T.Optional[_T.Union['Cell', 'Channel']]
+	exportOP: Optional['OP']
+	exportSource: Optional[Union['Cell', 'Channel']]
 	bindExpr: str
-	bindMaster: _T.Optional[_T.Union['Channel', 'Cell', 'Par']]
+	bindMaster: Optional[Union['Channel', 'Cell', 'Par']]
 	bindRange: bool
 	bindReferences: list
 	index: int
@@ -345,17 +576,17 @@ class Par:
 
 	mode: 'ParMode'
 	prevMode: 'ParMode'
-	menuNames: _T.List[str]
-	menuLabels: _T.List[str]
+	menuNames: List[str]
+	menuLabels: List[str]
 	menuIndex: int
 	menuSource: str
 	owner: '_AnyOpT'
 	styleCloneImmune: bool
-	lastScriptChange: _T.Optional['SetInfo']
+	lastScriptChange: Optional['SetInfo']
 
 	collapser: bool
 	collapsable: bool
-	sequence: _T.Set
+	sequence: Set
 
 	isDefault: bool
 	isCustom: bool
@@ -373,26 +604,46 @@ class Par:
 
 	collapser: bool
 	collapsable: bool
-	sequence: None
 
-	def copy(self, par: 'Par') -> None: pass
-	def eval(self) -> _T.Union[_ValueT, '_AnyOpT']: pass
-	def evalNorm(self) -> _ValueT: pass
-	def evalExpression(self) -> _ValueT: pass
-	def evalExport(self) -> _ValueT: pass
-	def evalOPs(self) -> '_T.List[_AnyOpT]': pass
-	def pulse(self, value=None, frames=0, seconds=0) -> None: pass
-	def destroy(self) -> None: pass
+	def copy(self, par: 'Par') -> None:
+		...
 
-	def __int__(self) -> int: pass
-	def __float__(self) -> float: pass
-	def __str__(self) -> str: pass
+	def eval(self) -> Union[_ValueT, '_AnyOpT']:
+		...
+
+	def evalNorm(self) -> _ValueT:
+		...
+
+	def evalExpression(self) -> _ValueT:
+		...
+
+	def evalExport(self) -> _ValueT:
+		...
+
+	def evalOPs(self) -> 'List[_AnyOpT]':
+		...
+
+	def pulse(self, value=None, frames=0, seconds=0) -> None:
+		...
+
+	def destroy(self) -> None:
+		...
+
+	def __int__(self) -> int:
+		...
+
+	def __float__(self) -> float:
+		...
+
+	def __str__(self) -> str:
+		...
+
 
 class ParGroup(tuple):
 	bindExpr: tuple
 	bindMaster: tuple
 	bindRange: bool
-	bindReferences: _T.List[tuple]
+	bindReferences: List[tuple]
 	clampMin: tuple
 	clampMax: tuple
 	collapser: bool
@@ -400,24 +651,33 @@ class ParGroup(tuple):
 	default: tuple
 	defaultExpr: tuple
 
+
 class SetInfo(tuple):
-	dat: _T.Optional['DAT']
+	dat: Optional['DAT']
 	path: str
-	function: _T.Optional[str]
-	line: _T.Optional[int]
+	function: Optional[str]
+	line: Optional[int]
 	frame: int
 	timeStamp: int
+
 
 class Sequence:
 	owner: 'OP'
 	numBlocks: int
 	maxBlocks: int
-	blocks: _T.List['ParTupletT']
+	blocks: List['ParTupletT']
 
-ParTupletT = _T.Union[
-	_T.Tuple['Par'], _T.Tuple['Par', 'Par'], _T.Tuple['Par', 'Par', 'Par'], _T.Tuple['Par', 'Par', 'Par', 'Par']]
 
-class ParTuple(ParTupletT):
+ParTupletT = Union[Tuple['Par'], Tuple['Par', 'Par'],
+																			Tuple['Par', 'Par', 'Par'], Tuple['Par', 'Par', 'Par',
+																																																					'Par']]
+_ParTupleT = TypeVar(
+	'_ParTupleT', Tuple[Par], Tuple[Par, Par], Tuple[Par, Par, Par],
+	Tuple[Par, Par, Par, Par]
+)
+
+
+class ParTuple(Generic(_ParTupleT)):
 	bindRange: bool
 	collapsable: bool
 	collapser: bool
@@ -430,7 +690,7 @@ class ParTuple(ParTupletT):
 	page: 'Page'
 	password: bool
 	readOnly: bool
-	sequence: '_T.Optional[set]'
+	sequence: 'Optional[set]'
 	startSection: bool
 	style: str
 	valid: bool
@@ -449,36 +709,65 @@ class ParTuple(ParTupletT):
 	isString: bool
 	isToggle: bool
 
-	def copy(self, parTuple: 'ParTuple') -> None: pass
-	def destroy(self) -> None: pass
-	def eval(self) -> _T.Any: pass
+	def copy(self, parTuple: 'ParTuple') -> None:
+		...
+
+	def destroy(self) -> None:
+		...
+
+	def eval(self) -> Any:
+		...
+
 
 class ParCollection:
 	owner: 'OP'
 
-	def __getattr__(self, item) -> Par: pass
-	def __setattr__(self, key, value: _T.Any): pass
-	def __getitem__(self, item) -> Par: pass
-	def __setitem__(self, key, value: _T.Any): pass
+	def __getattr__(self, item) -> Par:
+		...
+
+	def __setattr__(self, key, value: Any):
+		...
+
+	def __getitem__(self, item) -> Par:
+		...
+
+	def __setitem__(self, key, value: Any):
+		...
+
 
 class ParTupleCollection:
 	owner: 'OP'
 
-	def __getattr__(self, item) -> ParTuple: pass
-	def __setattr__(self, key, value: _T.Any): pass
-	def __getitem__(self, item) -> ParTuple: pass
-	def __setitem__(self, key, value: _T.Any): pass
+	def __getattr__(self, item) -> ParTuple:
+		...
+
+	def __setattr__(self, key, value: Any):
+		...
+
+	def __getitem__(self, item) -> ParTuple:
+		...
+
+	def __setitem__(self, key, value: Any):
+		...
+
 
 class Page:
 	name: str
 	owner: 'OP'
-	parTuplets: _T.List[ParTupletT]
-	pars: _T.List['Par']
+	parTuplets: List[ParTupletT]
+	pars: List['Par']
 	index: int
 	isCustom: bool
 
-	def _appendSized(self, name, label=None, size=1, order=None, replace=True) -> ParTupletT: pass
-	def _appendBasic(self, name, label=None, order=None, replace=True) -> ParTupletT: pass
+	def _appendSized(
+		self, name, label=None, size=1, order=None, replace=True
+	) -> ParTupletT:
+		...
+
+	def _appendBasic(
+		self, name, label=None, order=None, replace=True
+	) -> ParTupletT:
+		...
 
 	appendInt = _appendSized
 	appendFloat = _appendSized
@@ -513,10 +802,22 @@ class Page:
 	appendMomentary = _appendBasic
 	appendHeader = _appendBasic
 
-	def appendPar(self, name: str, par: 'Par' = None, label=None, order=None, replace=True) -> ParTupletT: pass
+	def appendPar(
+		self,
+		name: str,
+		par: Optional['Par'] = None,
+		label=None,
+		order=None,
+		replace=True
+	) -> ParTupletT:
+		...
 
-	def sort(self, *parameters: str): pass
-	def destroy(self): pass
+	def sort(self, *parameters: str):
+		...
+
+	def destroy(self):
+		...
+
 
 class OP:
 	valid: bool
@@ -528,24 +829,24 @@ class OP:
 	passive: bool
 	curPar: 'Par'
 	time: 'timeCOMP'
-	ext: _T.Any
-	mod: _T.Any
+	ext: Any
+	mod: Any
 	par: ParCollection
 	parTuple: ParTupleCollection
-	pages: _T.List['Page']
-	customPars: _T.List['Par']
-	customPages: _T.List['Page']
-	customTuplets: _T.List[ParTupletT]
-	builtInPars: _T.List[Par]
-	replicator: _T.Optional['OP']
-	storage: _T.Dict[str, _T.Any]
-	tags: _T.Set[str]
-	children: _T.List['_AnyOpT']
+	pages: List['Page']
+	customPars: List['Par']
+	customPages: List['Page']
+	customTuplets: List[ParTupletT]
+	builtInPars: List[Par]
+	replicator: Optional['OP']
+	storage: Dict[str, Any]
+	tags: Set[str]
+	children: List['_AnyOpT']
 	numChildren: int
 	numChildrenRecursive: int
 	parent: '_Parent'
-	iop: _T.Any
-	ipar: _T.Any
+	iop: Any
+	ipar: Any
 	currentPage: 'Page'
 
 	activeViewer: bool
@@ -563,7 +864,7 @@ class OP:
 	showDocked: bool
 	viewer: bool
 
-	color: _T.Tuple[float, float, float]
+	color: Tuple[float, float, float]
 	comment: str
 	nodeHeight: int
 	nodeWidth: int
@@ -572,12 +873,12 @@ class OP:
 	nodeCenterX: int
 	nodeCenterY: int
 	dock: 'OP'
-	docked: _T.List['_AnyOpT']
+	docked: List['_AnyOpT']
 
-	inputs: _T.List['_AnyOpT']
-	outputs: _T.List['_AnyOpT']
-	inputConnectors: _T.List['Connector']
-	outputConnectors: _T.List['Connector']
+	inputs: List['_AnyOpT']
+	outputs: List['_AnyOpT']
+	inputConnectors: List['Connector']
+	outputConnectors: List['Connector']
 
 	cookFrame: float
 	cookTime: float
@@ -620,69 +921,139 @@ class OP:
 	isTOP: bool
 	licenseType: str
 
-	def __init__(self): pass
+	def __init__(self):
+		...
 
-	def destroy(self): pass
+	def destroy(self):
+		...
 
-	def op(self, path) -> '_AnyOpT': pass
-	def ops(self, *args) -> _T.List['_AnyOpT']: pass
-	def shortcutPath(self, o: '_AnyOpT', toParName=None) -> str: pass
-	def relativePath(self, o: '_AnyOpT') -> str: pass
-	def openMenu(self, x=None, y=None): pass
-	def var(self, name, search=True) -> str: pass
-	def evalExpression(self, expr) -> _T.Any: pass
-	def dependenciesTo(self, o: '_AnyOpT') -> _T.List['_AnyOpT']: pass
-	def changeType(self, optype: _T.Type) -> '_AnyOpT': pass
-	def copyParameters(self, o: '_AnyOpT', custom=True, builtin=True): pass
-	def cook(self, force=False, recurse=False): pass
-	def pars(self, *pattern: str) -> _T.List['Par']: pass
+	def op(self, path) -> '_AnyOpT':
+		...
 
-	def openParameters(self): pass
-	def openViewer(self, unique=False, borders=True): pass
-	def closeViewer(self): pass
+	def ops(self, *args) -> List['_AnyOpT']:
+		...
 
-	def store(self, key, value): pass
-	def unstore(self, keys1, *morekeys): pass
-	def storeStartupValue(self, key, value): pass
-	def unstoreStartupValue(self, *keys): pass
-	def fetch(self, key, default=None, search=True, storeDefault=False): pass
-	def fetchOwner(self, key) -> '_AnyOpT': pass
+	def shortcutPath(self, o: '_AnyOpT', toParName=None) -> str:
+		...
 
-	def addScriptError(self, msg): pass
-	def addError(self, msg): pass
-	def addWarning(self, msg): pass
-	def errors(self, recurse=False) -> str: pass
-	def warnings(self, recurse=False) -> str: pass
-	def scriptErrors(self, recurse=False) -> str: pass
-	def clearScriptErrors(self, recurse=False, error='*'): pass
+	def relativePath(self, o: '_AnyOpT') -> str:
+		...
+
+	def openMenu(self, x=None, y=None):
+		...
+
+	def var(self, name, search=True) -> str:
+		...
+
+	def evalExpression(self, expr) -> Any:
+		...
+
+	def dependenciesTo(self, o: '_AnyOpT') -> List['_AnyOpT']:
+		...
+
+	def changeType(self, optype: Type) -> '_AnyOpT':
+		...
+
+	def copyParameters(self, o: '_AnyOpT', custom=True, builtin=True):
+		...
+
+	def cook(self, force=False, recurse=False):
+		...
+
+	def pars(self, *pattern: str) -> List['Par']:
+		...
+
+	def openParameters(self):
+		...
+
+	def openViewer(self, unique=False, borders=True):
+		...
+
+	def closeViewer(self):
+		...
+
+	def store(self, key, value):
+		...
+
+	def unstore(self, keys1, *morekeys):
+		...
+
+	def storeStartupValue(self, key, value):
+		...
+
+	def unstoreStartupValue(self, *keys):
+		...
+
+	def fetch(self, key, default=None, search=True, storeDefault=False):
+		...
+
+	def fetchOwner(self, key) -> '_AnyOpT':
+		...
+
+	def addScriptError(self, msg):
+		...
+
+	def addError(self, msg):
+		...
+
+	def addWarning(self, msg):
+		...
+
+	def errors(self, recurse=False) -> str:
+		...
+
+	def warnings(self, recurse=False) -> str:
+		...
+
+	def scriptErrors(self, recurse=False) -> str:
+		...
+
+	def clearScriptErrors(self, recurse=False, error='*'):
+		...
 
 	TDResources = _Expando()
 
+
 # noinspection PyUnusedLocal
-def op(path) -> '_AnyOpT': pass
+def op(path) -> '_AnyOpT':
+	...
+
 
 op.TDResources = _Expando()
 op.TDResources.op = op
 
-iop = _Expando()  # type: _T.Any
-ipar = _Expando()  # type: _T.Any
+iop = _Expando()  # type: Any
+ipar = _Expando()  # type: Any
+
 
 # noinspection PyUnusedLocal
-def ops(*paths) -> _T.List['_AnyOpT']: pass
+def ops(*paths) -> List['_AnyOpT']:
+	...
+
 
 # noinspection PyUnusedLocal
-def var(name) -> str: pass
+def var(name) -> str:
+	...
+
 
 # noinspection PyUnusedLocal
-def varExists(name: str) -> bool: pass
+def varExists(name: str) -> bool:
+	...
+
 
 # noinspection PyUnusedLocal
-def varOwner(name: str) -> _T.Optional['_AnyOpT']: pass
+def varOwner(name: str) -> Optional['_AnyOpT']:
+	...
 
-def isMainThread() -> bool: pass
+
+def isMainThread() -> bool:
+	...
+
 
 # clears textport
-def clear()-> None: pass
+def clear() -> None:
+	...
+
 
 class Run:
 	active: bool
@@ -693,24 +1064,27 @@ class Run:
 	path: OP
 	remainingFrames: int
 	remainingMilliseconds: int
-	source: _T.Union['DAT', 'Cell', str]
+	source: Union['DAT', 'Cell', str]
 
-	def kill(self): pass
+	def kill(self):
+		...
 
-class Runs(_T.List[Run]):
-	pass
+
+class Runs(List[Run]):
+	...
+
 
 class td:
-	Monitor = Monitor
-	Monitors = Monitors
-	Attribute = Attribute
-	me: 'OP'
+	Monitor: Monitor
+	Monitors: Monitors
+	Attribute: 'Attribute'
+	me: OP
 	absTime: 'AbsTime'
 	app: 'App'
-	ext: _T.Any
+	ext: Any
 	families: dict
 	licenses: 'Licenses'
-	mod: mod
+	mod: MOD
 	monitors: 'Monitors'
 	op: 'OP'
 	parent: '_Parent'
@@ -723,63 +1097,130 @@ class td:
 	ui: 'UI'
 
 	@classmethod
-	def passive(cls, o) -> 'OP': pass
+	def passive(cls, o) -> 'OP':
+		...
+
 	@classmethod
 	def run(
-			cls, script, *args, endFrame=False, fromOP: 'OP' = None, asParameter=False, group=None, delayFrames=0,
-			delayMilliSeconds=0, delayRef: 'OP' = None) -> Run: pass
+		cls,
+		script,
+		*args,
+		endFrame=False,
+		fromOP: Optional['OP'] = None,
+		asParameter=False,
+		group=None,
+		delayFrames=0,
+		delayMilliSeconds=0,
+		delayRef: Optional['OP'] = None
+	) -> Run:
+		...
+
 	@classmethod
-	def fetchStamp(cls, key, default) -> _T.Union[_ValueT, str]: pass
+	def fetchStamp(cls, key, default) -> Union[_ValueT, str]:
+		...
+
 	@classmethod
-	def var(cls, varName) -> str: pass
+	def var(cls, varName) -> str:
+		...
+
 	@classmethod
-	def varExists(cls, varName) -> bool: pass
+	def varExists(cls, varName) -> bool:
+		...
+
 	@classmethod
-	def varOwner(cls, varName) -> _T.Optional['OP']: pass
+	def varOwner(cls, varName) -> Optional['OP']:
+		...
 
 
 run = td.run
 
+
 class _Matrix:
-	vals: _T.List[float]
-	rows: _T.List[_T.List[float]]
-	cols: _T.List[_T.List[float]]
+	vals: List[float]
+	rows: List[List[float]]
+	cols: List[List[float]]
 
-	def __init__(self, *values): pass
+	def __init__(self, *values):
+		...
 
-	def transpose(self): pass
-	def invert(self): pass
-	def determinant(self) -> float: pass
-	def copy(self) -> '_Matrix': pass
-	def identity(self): pass
-	def translate(self, tx, ty, tz, fromRight=False): pass
-	def rotate(self, rx, ry, rz, fromRight=False, pivot=None): pass
-	def rotateOnAxis(self, rotationAxis, angle, fromRight=False, pivot=None): pass
-	def scale(self, sx, sy, sz, fromRight=False, pivot=None): pass
-	def lookat(self, eyePos, target, up): pass
-	def decompose(self) -> _T.Tuple[_T.Tuple]: pass
+	def transpose(self):
+		...
+
+	def invert(self):
+		...
+
+	def determinant(self) -> float:
+		...
+
+	def copy(self) -> '_Matrix':
+		...
+
+	def identity(self):
+		...
+
+	def translate(self, tx, ty, tz, fromRight=False):
+		...
+
+	def rotate(self, rx, ry, rz, fromRight=False, pivot=None):
+		...
+
+	def rotateOnAxis(self, rotationAxis, angle, fromRight=False, pivot=None):
+		...
+
+	def scale(self, sx, sy, sz, fromRight=False, pivot=None):
+		...
+
+	def lookat(self, eyePos, target, up):
+		...
+
+	def decompose(self) -> Tuple[Tuple]:
+		...
+
 
 class _Position:
 	x: int
 	y: int
 	z: int
 
-	def __init__(self, *vals): pass
+	def __init__(self, *vals):
+		...
 
-	def translate(self, x, y, z): pass
+	def translate(self, x, y, z):
+		...
 
-	def scale(self, x, y, z): pass
+	def scale(self, x, y, z):
+		...
 
-	def copy(self) -> '_Position': pass
+	def copy(self) -> '_Position':
+		...
 
-	def __getitem__(self, item: int) -> float: pass
-	def __setitem__(self, key, value): pass
-	def __mul__(self, other: _T.Union[float, _Matrix]) -> _T.Union[float, '_Position']: pass
-	def __add__(self, other: _T.Union[float, '_Position', '_Vector']) -> _T.Union[float, '_Position']: pass
-	def __sub__(self, other: _T.Union[float, '_Position', '_Vector']) -> _T.Union[float, '_Position']: pass
-	def __div__(self, other: float) -> '_Position': pass
-	def __abs__(self) -> '_Position': pass
-	def __neg__(self) -> '_Position': pass
+	def __getitem__(self, item: int) -> float:
+		...
+
+	def __setitem__(self, key, value):
+		...
+
+	def __mul__(self, other: Union[float, _Matrix]) -> Union[float, '_Position']:
+		...
+
+	def __add__(
+		self, other: Union[float, '_Position', '_Vector']
+	) -> Union[float, '_Position']:
+		...
+
+	def __sub__(
+		self, other: Union[float, '_Position', '_Vector']
+	) -> Union[float, '_Position']:
+		...
+
+	def __div__(self, other: float) -> '_Position':
+		...
+
+	def __abs__(self) -> '_Position':
+		...
+
+	def __neg__(self) -> '_Position':
+		...
 
 
 class _Vector:
@@ -787,23 +1228,52 @@ class _Vector:
 	y: float
 	z: float
 
-	def __init__(self, *vals): pass
+	def __init__(self, *vals):
+		...
 
-	def translate(self, x, y, z): pass
-	def scale(self, x, y, z): pass
-	def __getitem__(self, item: int) -> float: pass
-	def __setitem__(self, key, value): pass
-	def normalize(self): pass
-	def length(self) -> float: pass
-	def lengthSquared(self) -> float: pass
-	def copy(self) -> '_Vector': pass
-	def distance(self, vec: '_Vector') -> float: pass
-	def lerp(self, vec: '_Vector', t: float) -> '_Vector': pass
-	def slerp(self, vec: '_Vector', t: float) -> '_Vector': pass
-	def project(self, vec1: '_Vector', vec2: '_Vector'): pass
-	def reflect(self, vec: '_Vector'): pass
+	def translate(self, x, y, z):
+		...
 
-_OperableWithQuaternion = _T.Union['Quaternion', _T.Tuple[float, float, float, float], _Matrix]
+	def scale(self, x, y, z):
+		...
+
+	def __getitem__(self, item: int) -> float:
+		...
+
+	def __setitem__(self, key, value):
+		...
+
+	def normalize(self):
+		...
+
+	def length(self) -> float:
+		...
+
+	def lengthSquared(self) -> float:
+		...
+
+	def copy(self) -> '_Vector':
+		...
+
+	def distance(self, vec: '_Vector') -> float:
+		...
+
+	def lerp(self, vec: '_Vector', t: float) -> '_Vector':
+		...
+
+	def slerp(self, vec: '_Vector', t: float) -> '_Vector':
+		...
+
+	def project(self, vec1: '_Vector', vec2: '_Vector'):
+		...
+
+	def reflect(self, vec: '_Vector'):
+		...
+
+
+_OperableWithQuaternion = Union['Quaternion', Tuple[float, float, float,
+																																																				float], _Matrix]
+
 
 class Quaternion:
 	x: float
@@ -811,24 +1281,55 @@ class Quaternion:
 	z: float
 	w: float
 
-	def lerp(self, q2: _OperableWithQuaternion, factor: float) -> 'Quaternion': pass
-	def length(self) -> float: pass
-	def cross(self, q2: _OperableWithQuaternion) -> _Vector: pass
-	def rotate(self, vec: _Vector) -> _Vector: pass
-	def slerp(self, q2: _OperableWithQuaternion, factor: float) -> 'Quaternion': pass
-	def eulerAngles(self, order='xyz') -> _T.Tuple[float, float, float]: pass
-	def fromEuler(self, order='xyz') -> _T.Tuple[float, float, float]: pass
-	def axis(self) -> _Vector: pass
-	def dot(self, q2: _OperableWithQuaternion) -> float: pass
-	def exp(self) -> 'Quaternion': pass
-	def copy(self) -> 'Quaternion': pass
-	def log(self) -> 'Quaternion': pass
-	def inverse(self) -> None: pass
-	def angle(self) -> float: pass
+	def lerp(self, q2: _OperableWithQuaternion, factor: float) -> 'Quaternion':
+		...
 
-	def __imul__(self, other: _OperableWithQuaternion) -> 'Quaternion': pass
+	def length(self) -> float:
+		...
 
-_OperableWithColor = _T.Union['_Color', _T.Tuple[float, float, float, float], _T.List[float], float]
+	def cross(self, q2: _OperableWithQuaternion) -> _Vector:
+		...
+
+	def rotate(self, vec: _Vector) -> _Vector:
+		...
+
+	def slerp(self, q2: _OperableWithQuaternion, factor: float) -> 'Quaternion':
+		...
+
+	def eulerAngles(self, order='xyz') -> Tuple[float, float, float]:
+		...
+
+	def fromEuler(self, order='xyz') -> Tuple[float, float, float]:
+		...
+
+	def axis(self) -> _Vector:
+		...
+
+	def dot(self, q2: _OperableWithQuaternion) -> float:
+		...
+
+	def exp(self) -> 'Quaternion':
+		...
+
+	def copy(self) -> 'Quaternion':
+		...
+
+	def log(self) -> 'Quaternion':
+		...
+
+	def inverse(self) -> None:
+		...
+
+	def angle(self) -> float:
+		...
+
+	def __imul__(self, other: _OperableWithQuaternion) -> 'Quaternion':
+		...
+
+
+_OperableWithColor = Union['_Color', Tuple[float, float, float, float],
+																											List[float], float]
+
 
 class _Color:
 	r: float
@@ -836,41 +1337,105 @@ class _Color:
 	b: float
 	a: float
 
-	def __init__(self, *vals): pass
+	def __init__(self, *vals):
+		...
 
-	def __abs__(self) -> '_Color': pass
-	def __add__(self, other: _OperableWithColor) -> '_Color': pass
-	def __sub__(self, other: _OperableWithColor) -> '_Color': pass
-	def __mul__(self, other: _OperableWithColor) -> '_Color': pass
-	def __floordiv__(self, other: _OperableWithColor) -> '_Color': pass
-	def __truediv__(self, other: _OperableWithColor) -> '_Color': pass
-	def __iadd__(self, other: _OperableWithColor) -> '_Color': pass
-	def __isub__(self, other: _OperableWithColor) -> '_Color': pass
-	def __imul__(self, other: _OperableWithColor) -> '_Color': pass
-	def __ifloordiv__(self, other: _OperableWithColor) -> '_Color': pass
-	def __itruediv__(self, other: _OperableWithColor) -> '_Color': pass
-	def __radd__(self, other: _OperableWithColor) -> '_Color': pass
-	def __rsub__(self, other: _OperableWithColor) -> '_Color': pass
-	def __rmul__(self, other: _OperableWithColor) -> '_Color': pass
-	def __rfloordiv__(self, other: _OperableWithColor) -> '_Color': pass
-	def __rtruediv__(self, other: _OperableWithColor) -> '_Color': pass
-	def __len__(self): return 4
-	def __getitem__(self, item) -> float: pass
-	def __setitem__(self, key, value): pass
-	def __iter__(self): pass
+	def __abs__(self) -> '_Color':
+		...
+
+	def __add__(self, other: _OperableWithColor) -> '_Color':
+		...
+
+	def __sub__(self, other: _OperableWithColor) -> '_Color':
+		...
+
+	def __mul__(self, other: _OperableWithColor) -> '_Color':
+		...
+
+	def __floordiv__(self, other: _OperableWithColor) -> '_Color':
+		...
+
+	def __truediv__(self, other: _OperableWithColor) -> '_Color':
+		...
+
+	def __iadd__(self, other: _OperableWithColor) -> '_Color':
+		...
+
+	def __isub__(self, other: _OperableWithColor) -> '_Color':
+		...
+
+	def __imul__(self, other: _OperableWithColor) -> '_Color':
+		...
+
+	def __ifloordiv__(self, other: _OperableWithColor) -> '_Color':
+		...
+
+	def __itruediv__(self, other: _OperableWithColor) -> '_Color':
+		...
+
+	def __radd__(self, other: _OperableWithColor) -> '_Color':
+		...
+
+	def __rsub__(self, other: _OperableWithColor) -> '_Color':
+		...
+
+	def __rmul__(self, other: _OperableWithColor) -> '_Color':
+		...
+
+	def __rfloordiv__(self, other: _OperableWithColor) -> '_Color':
+		...
+
+	def __rtruediv__(self, other: _OperableWithColor) -> '_Color':
+		...
+
+	def __len__(self):
+		return 4
+
+	def __getitem__(self, item) -> float:
+		...
+
+	def __setitem__(self, key, value):
+		...
+
+	def __iter__(self):
+		...
+
 
 class _ArcBall:
-	def beginPan(self, u, v) -> None: pass
-	def beginRotate(self, u, v) -> None: pass
-	def beginDolly(self, u, v) -> None: pass
-	def pan(self, u, v) -> None: pass
-	def panTo(self, u, v, scale=1.0) -> None: pass
-	def rotateTo(self, u, v, scale=1.0) -> None: pass
-	def dolly(self, z) -> None: pass
-	def dollyTo(self, u, v, scale=1.0) -> None: pass
-	def transform(self) -> _Matrix: pass
-	def setTransform(self, matrix: _Matrix) -> None: pass
-	def identity(self) -> None: pass
+
+	def beginPan(self, u, v) -> None:
+		...
+
+	def beginRotate(self, u, v) -> None:
+		...
+
+	def beginDolly(self, u, v) -> None:
+		...
+
+	def pan(self, u, v) -> None:
+		...
+
+	def panTo(self, u, v, scale=1.0) -> None:
+		...
+
+	def rotateTo(self, u, v, scale=1.0) -> None:
+		...
+
+	def dolly(self, z) -> None:
+		...
+
+	def dollyTo(self, u, v, scale=1.0) -> None:
+		...
+
+	def transform(self) -> _Matrix:
+		...
+
+	def setTransform(self, matrix: _Matrix) -> None:
+		...
+
+	def identity(self) -> None:
+		...
+
 
 class _PathInfo(str):
 	path: str
@@ -882,41 +1447,53 @@ class _PathInfo(str):
 	isFile: bool
 
 	# noinspection PyMissingConstructor,PyUnusedLocal
-	def __init__(self, path: str = None): pass
+	def __init__(self, path: Optional[str] = None):
+		...
 
 
 class _Dependency:
+
 	def __init__(self, _=None):
 		self.val = None
 
-	def modified(self): pass
+	def modified(self):
+		...
 
-	callbacks: _T.List[_T.Callable[[dict], None]]
-	ops: _T.List['_AnyOpT']
+	callbacks: List[Callable[[dict], None]]
+	ops: List['_AnyOpT']
 	listAttributes: '_ListAttributesList'
 
+
 class tdu:
-	@staticmethod
-	def legalName(s: str) -> str: pass
 
 	@staticmethod
-	def legalMenuName(s: str) -> str: pass
+	def legalName(s: str) -> str:
+		...
+
+	@staticmethod
+	def legalMenuName(s: str) -> str:
+		...
 
 	# noinspection PyShadowingBuiltins
 	@staticmethod
-	def clamp(inputVal, min, max): pass
+	def clamp(inputVal, min, max):
+		...
 
 	@staticmethod
-	def remap(inputVal, fromMin, fromMax, toMin, toMax): pass
+	def remap(inputVal, fromMin, fromMax, toMin, toMax):
+		...
 
 	@staticmethod
-	def rand(seed: _T.Any) -> float: pass
+	def rand(seed: Any) -> float:
+		...
 
 	@staticmethod
-	def base(s: str) -> str: pass
+	def base(s: str) -> str:
+		...
 
 	@staticmethod
-	def digits(s: str) -> _T.Optional[int]: pass
+	def digits(s: str) -> Optional[int]:
+		...
 
 	ArcBall = _ArcBall
 	Dependency = _Dependency
@@ -928,39 +1505,60 @@ class tdu:
 
 	# noinspection PyShadowingBuiltins
 	@staticmethod
-	def split(string, eval=False) -> _T.List[str]: pass
+	def split(string, eval=False) -> List[str]:
+		...
 
 	@staticmethod
-	def expand(pattern: str) -> _T.List[str]: pass
+	def expand(pattern: str) -> List[str]:
+		...
 
 	@staticmethod
-	def match(pattern, inputList, caseSensitive=True) -> _T.List[str]: pass
+	def match(pattern, inputList, caseSensitive=True) -> List[str]:
+		...
 
 	@staticmethod
-	def collapsePath(path: str, asExpression=False) -> str: pass
+	def collapsePath(path: str, asExpression=False) -> str:
+		...
 
 	@staticmethod
-	def expandPath(path: str) -> str: pass
+	def expandPath(path: str) -> str:
+		...
 
 	@staticmethod
-	def tryExcept(func1: _T.Callable[[], _T.Any], func2OrValue: _T.Union[_T.Callable[[], _T.Any], _T.Any]) -> _T.Any: pass
+	def tryExcept(
+		func1: Callable[[], Any], func2OrValue: Union[Callable[[], Any], Any]
+	) -> Any:
+		...
 
 	@staticmethod
-	def forceCrash(): pass
+	def forceCrash():
+		...
 
 	fileTypes = {
 		'audio': ['aif', 'aiff', 'flac', 'm4a', 'mp3', 'ogg', 'wav'],
 		'channel': ['aif', 'aiff', 'bchan', 'bclip', 'chan', 'clip', 'csv', 'wav'],
 		'component': ['tox'],
 		'geometry': ['bhclassic', 'hclassic', 'obj', 'tog'],
-		'image': ['bmp', 'dds', 'dpx', 'exr', 'ffs', 'fit', 'fits', 'gif', 'hdr', 'jpeg', 'jpg', 'pic', 'png', 'swf', 'tga', 'tif', 'tiff'],
+		'image': [
+			'bmp', 'dds', 'dpx', 'exr', 'ffs', 'fit', 'fits', 'gif', 'hdr', 'jpeg',
+			'jpg', 'pic', 'png', 'swf', 'tga', 'tif', 'tiff'
+		],
 		'midi': ['mid', 'midi'],
-		'movie': ['3gp', 'avi', 'flv', 'm2ts', 'm4v', 'mkv', 'mov', 'mp4', 'mpeg', 'mpg', 'mts', 'mxf', 'r3d', 'ts', 'webm', 'wmv'],
+		'movie': [
+			'3gp', 'avi', 'flv', 'm2ts', 'm4v', 'mkv', 'mov', 'mp4', 'mpeg', 'mpg',
+			'mts', 'mxf', 'r3d', 'ts', 'webm', 'wmv'
+		],
 		'object': ['3ds', 'abc', 'dae', 'dxf', 'fbx', 'obj', 'usd', 'usda', 'usdc'],
 		'project': ['toe'],
-		'text': ['csv', 'dat', 'frag', 'glsl', 'html', 'md', 'py', 'rtf', 'tsv', 'txt', 'vert', 'xml'],
+		'text': [
+			'csv', 'dat', 'frag', 'glsl', 'html', 'md', 'py', 'rtf', 'tsv', 'txt',
+			'vert', 'xml'
+		],
 		'material': ['sbsar'],
-		'pointdata': ['csv', 'exr', 'fit', 'fits', 'obj', 'ply', 'pts', 'txt', 'xyz']}
+		'pointdata':
+		['csv', 'exr', 'fit', 'fits', 'obj', 'ply', 'pts', 'txt', 'xyz']
+	}
+
 
 class JustifyType(_E.Enum):
 	TOPLEFT = 0
@@ -973,79 +1571,200 @@ class JustifyType(_E.Enum):
 	BOTTOMCENTER = 0
 	BOTTOMRIGHT = 0
 
+
 class ParMode(_E.Enum):
 	CONSTANT = 0
 	EXPRESSION = 1
 	EXPORT = 2
 	BIND = 3
 
+
 ExpandoStub = _Expando
 
-# noinspection PyAbstractClass
-class Cell(_T.SupportsInt, _T.SupportsAbs, _T.SupportsFloat, _T.SupportsBytes):
+
+class Cell(SupportsInt, SupportsAbs, SupportsFloat, SupportsBytes):
 	val: str
 	row: int
 	col: int
 
-	def offset(self, r: int, c: int) -> _T.Optional['Cell']: pass
+	def offset(self, r: int, c: int) -> Optional['Cell']:
+		...
 
-_NameOrIndex = _T.Union[str, int, 'Cell', 'Channel']
-_NamesOrIndices = _T.Iterable[_NameOrIndex]
+
+_NameOrIndex = Union[str, int, 'Cell', 'Channel']
+_NamesOrIndices = Iterable[_NameOrIndex]
+
 
 class DAT(OP):
-	def row(self, *nameorindex: _NameOrIndex, caseSensitive=True) -> _T.List[Cell]: pass
-	def col(self, *nameorindex: _NameOrIndex, caseSensitive=True) -> _T.List[Cell]: pass
-	def rows(self, *nameorindex: _NameOrIndex, caseSensitive=True) -> _T.List[_T.List[Cell]]: pass
-	def cols(self, *nameorindex: _NameOrIndex, caseSensitive=True) -> _T.List[_T.List[Cell]]: pass
-	def clear(self, keepSize=False, keepFirstRow=False, keepFirstCol=False): pass
+
+	def row(self, *nameorindex: _NameOrIndex, caseSensitive=True) -> List[Cell]:
+		...
+
+	def col(self, *nameorindex: _NameOrIndex, caseSensitive=True) -> List[Cell]:
+		...
+
+	def rows(self,
+										*nameorindex: _NameOrIndex,
+										caseSensitive=True) -> List[List[Cell]]:
+		...
+
+	def cols(self,
+										*nameorindex: _NameOrIndex,
+										caseSensitive=True) -> List[List[Cell]]:
+		...
+
+	def clear(self, keepSize=False, keepFirstRow=False, keepFirstCol=False):
+		...
 
 	# noinspection PyMethodOverriding
-	def copy(self, dat: 'DAT'): pass
+	def copy(self, dat: 'DAT'):
+		...
 
-	def appendRow(self, cells: _T.List[_T.Any], nameOrIndex: _NameOrIndex = None, sort: _NameOrIndex = None): pass
-	def appendCol(self, cells: _T.List[_T.Any], nameOrIndex: _NameOrIndex = None, sort: _NameOrIndex = None): pass
-	def appendRows(self, cells: _T.List[_T.List[_T.Any]], nameOrIndex: _NameOrIndex = None, sort: _NameOrIndex = None):
-		pass
-	def appendCols(self, cells: _T.List[_T.List[_T.Any]], nameOrIndex: _NameOrIndex = None, sort: _NameOrIndex = None):
-		pass
-	def insertRow(self, vals: _T.List[_T.Any], nameOrIndex: _NameOrIndex, sort=None) -> int: pass
-	def insertCol(self, vals: _T.List[_T.Any], nameOrIndex: _NameOrIndex, sort=None) -> int: pass
-	def replaceRow(self, nameOrIndex: _NameOrIndex, vals: _T.List[_T.Any], entireRow=True) -> int: pass
-	def replaceCol(self, nameOrIndex: _NameOrIndex, vals: _T.List[_T.Any], entireCol=True) -> int: pass
-	def deleteRow(self, nameOrIndex: _NameOrIndex): pass
-	def deleteCol(self, nameOrIndex: _NameOrIndex): pass
-	def deleteRows(self, vals: _NamesOrIndices): pass
-	def deleteCols(self, vals: _NamesOrIndices): pass
-	def setSize(self, numrows: int, numcols: int): pass
-	def __getitem__(self, rowcol: _T.Tuple[_NameOrIndex, _NameOrIndex]) -> Cell: pass
-	def __setitem__(self, rowcol: _T.Tuple[_NameOrIndex, _NameOrIndex], value): pass
-	def cell(self, rowNameOrIndex: _NameOrIndex, colNameOrIndex: _NameOrIndex, caseSensitive=True) -> _T.Optional[Cell]:
-		pass
-	def cells(self, rowNameOrIndex: _NameOrIndex, colNameOrIndex: _NameOrIndex, caseSensitive=True) -> _T.List[Cell]: pass
+	def appendRow(
+		self,
+		cells: Union[List[Any], Tuple[Any, ...]],
+		nameOrIndex: Optional[_NameOrIndex] = None,
+		sort: Optional[_NameOrIndex] = None
+	):
+		...
+
+	def appendCol(
+		self,
+		cells: List[Any],
+		nameOrIndex: Optional[_NameOrIndex] = None,
+		sort: Optional[_NameOrIndex] = None
+	):
+		...
+
+	def appendRows(
+		self,
+		cells: List[Union[List[Any], Tuple[Any, ...]]],
+		nameOrIndex: Optional[_NameOrIndex] = None,
+		sort: Optional[_NameOrIndex] = None
+	):
+		...
+
+	def appendCols(
+		self,
+		cells: List[List[Any]],
+		nameOrIndex: Optional[_NameOrIndex] = None,
+		sort: Optional[_NameOrIndex] = None
+	):
+		...
+
+	def insertRow(
+		self, vals: List[Any], nameOrIndex: _NameOrIndex, sort=None
+	) -> int:
+		...
+
+	def insertCol(
+		self, vals: List[Any], nameOrIndex: _NameOrIndex, sort=None
+	) -> int:
+		...
+
+	def replaceRow(
+		self, nameOrIndex: _NameOrIndex, vals: List[Any], entireRow=True
+	) -> int:
+		...
+
+	def replaceCol(
+		self, nameOrIndex: _NameOrIndex, vals: List[Any], entireCol=True
+	) -> int:
+		...
+
+	def deleteRow(self, nameOrIndex: _NameOrIndex):
+		...
+
+	def deleteCol(self, nameOrIndex: _NameOrIndex):
+		...
+
+	def deleteRows(self, vals: _NamesOrIndices):
+		...
+
+	def deleteCols(self, vals: _NamesOrIndices):
+		...
+
+	def setSize(self, numrows: int, numcols: int):
+		...
+
+	def __getitem__(self, rowcol: Tuple[_NameOrIndex, _NameOrIndex]) -> Cell:
+		...
+
+	def __setitem__(self, rowcol: Tuple[_NameOrIndex, _NameOrIndex], value):
+		...
+
+	def cell(
+		self,
+		rowNameOrIndex: _NameOrIndex,
+		colNameOrIndex: _NameOrIndex,
+		caseSensitive=True
+	) -> Optional[Cell]:
+		...
+
+	def cells(
+		self,
+		rowNameOrIndex: _NameOrIndex,
+		colNameOrIndex: _NameOrIndex,
+		caseSensitive=True
+	) -> List[Cell]:
+		...
+
 	def findCell(
-			self,
-			pattern: str,
-			rows: _T.Optional[_NamesOrIndices] = None,
-			cols: _T.Optional[_NamesOrIndices] = None,
-			valuePattern=True, rowPattern=True, colPattern=True, caseSensitive=False) -> _T.Optional[Cell]: pass
+		self,
+		pattern: str,
+		rows: Optional[_NamesOrIndices] = None,
+		cols: Optional[_NamesOrIndices] = None,
+		valuePattern=True,
+		rowPattern=True,
+		colPattern=True,
+		caseSensitive=False
+	) -> Optional[Cell]:
+		...
+
 	def findCells(
-			self,
-			pattern: str,
-			rows: _T.Optional[_NamesOrIndices] = None,
-			cols: _T.Optional[_NamesOrIndices] = None,
-			valuePattern=True, rowPattern=True, colPattern=True, caseSensitive=False) -> _T.List[Cell]: pass
-	def write(self, *args, **kwargs) -> str: pass
+		self,
+		pattern: str,
+		rows: Optional[_NamesOrIndices] = None,
+		cols: Optional[_NamesOrIndices] = None,
+		valuePattern=True,
+		rowPattern=True,
+		colPattern=True,
+		caseSensitive=False
+	) -> List[Cell]:
+		...
+
+	def write(self, *args, **kwargs) -> str:
+		...
+
 	def run(
-			self, *args, endFrame=False, fromOP: 'OP' = None, asParameter=False, group=None, delayFrames=0,
-			delayMilliSeconds=0, delayRef: 'OP' = None) -> Run: pass
-	def save(self, filepath: str = None, append=False, createFolders=False) -> str: pass
+		self,
+		*args,
+		endFrame=False,
+		fromOP: Optional[OP] = None,
+		asParameter=False,
+		group=None,
+		delayFrames=0,
+		delayMilliSeconds=0,
+		delayRef: Optional[OP] = None
+	) -> Run:
+		...
+
+	def save(
+		self,
+		filepath: Optional[str] = None,
+		append=False,
+		createFolders=False
+	) -> str:
+		...
+
 	module: 'MOD'
 	numRows: int
 	numCols: int
 	text: str
 	isTable: bool
 	isText: bool
-	locals: _T.Dict[str, _T.Any]
+	locals: Dict[str, Any]
+
 
 class evaluateDAT(DAT):
 	exprCell: 'Cell'
@@ -1057,36 +1776,49 @@ class evaluateDAT(DAT):
 	inputRow: int
 	inputTable: 'DAT'
 
+
 class oscoutDAT(DAT):
-	def sendBytes(self, *messages) -> int: pass
+
+	def sendBytes(self, *messages) -> int:
+		...
 
 	def sendOSC(
-			self, *addressesFollowedByValueLists: _T.Union[str, _T.List[_T.Any]],
-			asBundle=True, useNonStandardTypes=True, use64BitPrecision=False) -> int:
-		pass
+		self,
+		*addressesFollowedByValueLists: Union[str, List[Any]],
+		asBundle=True,
+		useNonStandardTypes=True,
+		use64BitPrecision=False
+	) -> int:
+		...
 
-	def send(self, *messages: str, terminator='') -> int: pass
+	def send(self, *messages: str, terminator='') -> int:
+		...
+
 
 oscinDAT = oscoutDAT
 
+
 class webclientDAT(DAT):
+
 	def request(
-			self,
-			url: str,
-			method: str,
-			header: dict = None,
-			data=None,
-			pars: dict = None,
-			authType: str = None,
-			username: str = None,
-			password: str = None,
-			appKey: str = None,
-			appSecret: str = None,
-			oauth1Token: str = None,
-			oauth1Secret: str = None,
-			oauth2Token: str = None,
-			uploadFile: str = None,
-	) -> None: pass
+		self,
+		url: str,
+		method: str,
+		header: Optional[dict] = None,
+		data=None,
+		pars: Optional[dict] = None,
+		authType: Optional[str] = None,
+		username: Optional[str] = None,
+		password: Optional[str] = None,
+		appKey: Optional[str] = None,
+		appSecret: Optional[str] = None,
+		oauth1Token: Optional[str] = None,
+		oauth1Secret: Optional[str] = None,
+		oauth2Token: Optional[str] = None,
+		uploadFile: Optional[str] = None,
+	) -> None:
+		...
+
 
 class CHOP(OP):
 	numChans: int
@@ -1099,23 +1831,39 @@ class CHOP(OP):
 	isCHOP: bool
 	isTimeSlice: bool
 
-	def __getitem__(self, nameOrIndex: _NameOrIndex) -> 'Channel': pass
-	def chan(self, *nameOrIndex: _NameOrIndex, caseSensitive=True) -> _T.Optional['Channel']: pass
-	def chans(self, *nameOrIndex: _NameOrIndex, caseSensitive=True) -> _T.List['Channel']: pass
-	def numpyArray(self) -> 'numpy.array': pass
-	def convertToKeyframes(self, tolerance=0.1) -> 'animationCOMP': pass
-	def save(self, filepath) -> str: pass
+	def __getitem__(self, nameOrIndex: _NameOrIndex) -> 'Channel':
+		...
+
+	def chan(self,
+										*nameOrIndex: _NameOrIndex,
+										caseSensitive=True) -> Optional['Channel']:
+		...
+
+	def chans(self,
+											*nameOrIndex: _NameOrIndex,
+											caseSensitive=True) -> List['Channel']:
+		...
+
+	def numpyArray(self) -> 'numpy.recarray':
+		...
+
+	def convertToKeyframes(self, tolerance=0.1) -> 'animationCOMP':
+		...
+
+	def save(self, filepath) -> str:
+		...
+
 
 class COMP(OP):
 	extensions: list
 	extensionsReady: bool
-	clones: _T.List['COMP']
+	clones: List['COMP']
 	componentCloneImmune: bool
 	vfs: 'VFS'
 	dirty: bool
 	externalTimeStamp: int
 	currentChild: '_AnyOpT'
-	selectedChildren: _T.List['_AnyOpT']
+	selectedChildren: List['_AnyOpT']
 	pickable: bool
 	isPrivate: bool
 	isPrivacyActive: bool
@@ -1124,60 +1872,130 @@ class COMP(OP):
 	privacyProductCode: int
 	privacyDeveloperName: str
 	privacyDeveloperEmail: str
-	inputCOMPs: _T.List['_AnyCompT']
-	outputCOMPs: _T.List['_AnyCompT']
-	inputCOMPConnectors: _T.List['Connector']
-	outputCOMPConnectors: _T.List['Connector']
+	inputCOMPs: List['_AnyCompT']
+	outputCOMPs: List['_AnyCompT']
+	inputCOMPConnectors: List['Connector']
+	outputCOMPConnectors: List['Connector']
 
+	def destroyCustomPars(self):
+		...
 
-	def destroyCustomPars(self): pass
-	def sortCustomPages(self, *pages): pass
-	def appendCustomPage(self, name: str) -> 'Page': pass
-	# noinspection PyShadowingBuiltins
+	def sortCustomPages(self, *pages):
+		...
+
+	def appendCustomPage(self, name: str) -> 'Page':
+		...
+
 	def findChildren(
-			self,
-			type: _T.Type = None,
-			path: str = None,
-			depth: int = None,
-			text: str = None,
-			comment: str = None,
-			maxDepth: int = 1,
-			tags: _T.List[str] = None,
-			allTags: _T.List[str] = None,
-			parValue: str = None,
-			parExpr: str = None,
-			parName: str = None,
-			onlyNonDefaults: bool = False,
-			key: _T.Callable[['_AnyOpT'], bool] = None,
-	) -> '_T.List[_AnyOpT]': pass
-	def copy(self, o: '_AnyOpT', name: str = None, includeDocked=True) -> 'op': pass
-	def create(self, OPtype: _T.Union[str, _T.Type['_AnyOpT']], name: _T.Optional[str] = None, initialize=True) -> '_AnyOpT': pass
-	def collapseSelected(self): pass
-	def copyOPs(self, listOfOPs: _T.List['_AnyOpT']) -> _T.List['_AnyOpT']: pass
-	def initializeExtensions(self, index: int = None) -> _T.Any: pass
-	def loadTox(self, filepath: str, unwired=False, pattern: str = None, password: str = None) -> 'COMP': pass
-	def resetNetworkView(self, recurse: bool = False): pass
-	def save(self, filepath: str, createFolders: bool = False, password: str = None) -> 'str': pass
-	def saveExternalTox(self, recruse: bool = False, password: str = None) -> int: pass
-	def accessPrivateContents(self, key: str) -> bool: pass
-	@_T.overload
-	def addPrivacy(self, key: str, developerName: str = None): pass
-	@_T.overload
-	def addPrivacy(self, firmCode: int, productCode: int, developerName: str = None, developerEmail: str = None): pass
-	def addPrivacy(self, *args, **kwargs): pass
-	def blockPrivateContents(self, key: str): pass
-	def removePrivacy(self, key: str) -> bool: pass
-	def setVar(self, name: str, value): pass
-	def unsetVar(self, name: str): pass
-	def vars(self, *patterns: str) -> list: pass
+		self,
+		type: Optional[Type] = None,
+		path: Optional[str] = None,
+		depth: Optional[int] = None,
+		text: Optional[str] = None,
+		comment: Optional[str] = None,
+		maxDepth: Optional[int] = 1,
+		tags: Optional[List[str]] = None,
+		allTags: Optional[List[str]] = None,
+		parValue: Optional[str] = None,
+		parExpr: Optional[str] = None,
+		parName: Optional[str] = None,
+		onlyNonDefaults: bool = False,
+		key: Optional[Callable[['_AnyOpT'], bool]] = None,
+	) -> 'List[_AnyOpT]':
+		...
+
+	# TODO: should this be generic?
+	def copy(
+		self, o: '_AnyOpT', name: Optional[str] = None, includeDocked=True
+	) -> OP:
+		...
+
+	def create(
+		self,
+		OPtype: Union[str, Type['_AnyOpT']],
+		name: Optional[str] = None,
+		initialize=True
+	) -> '_AnyOpT':
+		...
+
+	def collapseSelected(self):
+		...
+
+	def copyOPs(self, listOfOPs: List['_AnyOpT']) -> List['_AnyOpT']:
+		...
+
+	def initializeExtensions(self, index: Optional[int] = None) -> Any:
+		...
+
+	def loadTox(
+		self,
+		filepath: str,
+		unwired=False,
+		pattern: Optional[str] = None,
+		password: Optional[str] = None
+	) -> 'COMP':
+		...
+
+	def resetNetworkView(self, recurse: bool = False):
+		...
+
+	def save(
+		self,
+		filepath: str,
+		createFolders: bool = False,
+		password: Optional[str] = None
+	) -> 'str':
+		...
+
+	def saveExternalTox(
+		self, recruse: bool = False, password: Optional[str] = None
+	) -> int:
+		...
+
+	def accessPrivateContents(self, key: str) -> bool:
+		...
+
+	@overload
+	def addPrivacy(self, key: str, developerName: Optional[str] = None):
+		...
+
+	@overload
+	def addPrivacy(
+		self,
+		firmCode: int,
+		productCode: int,
+		developerName: Optional[str] = None,
+		developerEmail: Optional[str] = None
+	):
+		...
+
+	def addPrivacy(self, *args, **kwargs):
+		...
+
+	def blockPrivateContents(self, key: str):
+		...
+
+	def removePrivacy(self, key: str) -> bool:
+		...
+
+	def setVar(self, name: str, value):
+		...
+
+	def unsetVar(self, name: str):
+		...
+
+	def vars(self, *patterns: str) -> list:
+		...
+
 
 class annotateCOMP(COMP):
-	enclosedOPs: _T.List['_AnyOpT']
+	enclosedOPs: List['_AnyOpT']
 	height: float
 	utility: bool
 	width: float
 	x: float
 	y: float
+
 
 class textCOMP(COMP):
 	editText: str
@@ -1185,16 +2003,25 @@ class textCOMP(COMP):
 	textHeight: float
 	textWidth: float
 
-	def evalTextSize(self) -> _T.Tuple[float, float]: pass
-	def formatText(self, text: str, editing=False) -> str: pass
-	def setCursorPosUV(self, u: float, v: float): pass
-	def setKeyboardFocus(self, selectAll=False): pass
+	def evalTextSize(self) -> Tuple[float, float]:
+		...
 
-class PanelValue(_T.SupportsFloat, _T.SupportsInt, _ABC):
+	def formatText(self, text: str, editing=False) -> str:
+		...
+
+	def setCursorPosUV(self, u: float, v: float):
+		...
+
+	def setKeyboardFocus(self, selectAll=False):
+		...
+
+
+class PanelValue(SupportsFloat, SupportsInt, _ABC):
 	name: str
 	owner: OP
-	val: _T.Union[float, int, str]
+	val: Union[float, int, str]
 	valid: bool
+
 
 class Panel:
 	owner: OP
@@ -1278,10 +2105,11 @@ class Panel:
 	celldragid: PanelValue
 	celldropid: PanelValue
 
+
 class PanelCOMP(COMP):
 	panel: Panel
 	panelRoot: '_AnyOpT'
-	panelChildren: _T.List['_AnyCompT']
+	panelChildren: List['_AnyCompT']
 	x: int
 	y: int
 	width: int
@@ -1291,42 +2119,117 @@ class PanelCOMP(COMP):
 	marginWidth: int
 	marginHeight: int
 
-	def panelParent(self, n: int = 1) -> _T.Optional['PanelCOMP']: pass
+	def panelParent(self, n: int = 1) -> Optional['PanelCOMP']:
+		...
+
 	def interactMouse(
-			self,
-			u, v,
-			leftClick: int = 0, middleClick: int = 0, rightClick: int = 0,
-			left=False, middle=False, right=False,
-			wheel: float = 0, pixels=False, screen=False, quiet=True
+		self,
+		u,
+		v,
+		leftClick: int = 0,
+		middleClick: int = 0,
+		rightClick: int = 0,
+		left=False,
+		middle=False,
+		right=False,
+		wheel: float = 0,
+		pixels=False,
+		screen=False,
+		quiet=True
 	) -> 'PanelCOMP':
-		pass
+		...
 
 	def interactTouch(
-			self,
-			u, v,
-			hover='id', start='id', move='id', end='id',
-			pixels=False, screen=False, quiet=True, aux='data') -> 'PanelCOMP':
-		pass
-	def interactClear(self): pass
-	def interactStatus(self) -> _T.List[list]: pass
-	def locateMouse(self) -> _T.Tuple[float, float]: pass
-	def locateMouseUV(self) -> _T.Tuple[float, float]: pass
-	def setFocus(self, moveMouse=False): pass
+		self,
+		u,
+		v,
+		hover='id',
+		start='id',
+		move='id',
+		end='id',
+		pixels=False,
+		screen=False,
+		quiet=True,
+		aux='data'
+	) -> 'PanelCOMP':
+		...
+
+	def interactClear(self):
+		...
+
+	def interactStatus(self) -> List[list]:
+		...
+
+	def locateMouse(self) -> Tuple[float, float]:
+		...
+
+	def locateMouseUV(self) -> Tuple[float, float]:
+		...
+
+	def setFocus(self, moveMouse=False):
+		...
+
 
 class fieldCOMP(PanelCOMP):
-	def setKeyboardFocus(self, selectAll=False): pass
+
+	def setKeyboardFocus(self, selectAll=False):
+		...
+
 
 class buttonCOMP(PanelCOMP):
-	def click(self, val, clickCount=1, force=False, left=False, middle=False, right=False): pass
+
+	def click(
+		self, val, clickCount=1, force=False, left=False, middle=False, right=False
+	):
+		...
+
 
 class sliderCOMP(PanelCOMP):
-	def click(self, uOrV, v, clickCount=1, force=False, left=False, middle=False, right=False, vOnly=False): pass
+
+	def click(
+		self,
+		uOrV,
+		v,
+		clickCount=1,
+		force=False,
+		left=False,
+		middle=False,
+		right=False,
+		vOnly=False
+	):
+		...
+
 
 class containerCOMP(PanelCOMP):
-	def click(self, u, v, clickCount=1, force=False, left=False, middle=False, right=False, group=None): pass
-	def clickChild(self, childIndex, clickCount=1, force=False, left=False, middle=False, right=False, group=None): pass
+
+	def click(
+		self,
+		u,
+		v,
+		clickCount=1,
+		force=False,
+		left=False,
+		middle=False,
+		right=False,
+		group=None
+	):
+		...
+
+	def clickChild(
+		self,
+		childIndex,
+		clickCount=1,
+		force=False,
+		left=False,
+		middle=False,
+		right=False,
+		group=None
+	):
+		...
+
 
 widgetCOMP = containerCOMP
+
 
 class listCOMP(PanelCOMP):
 	attribs: 'ListAttributes'
@@ -1343,35 +2246,70 @@ class listCOMP(PanelCOMP):
 	selectRow: int
 	selectionBorderColor: _Color
 	selectionColor: _Color
-	selections: _T.List[_T.Tuple[int, int, int, int]]  # [(startrow, startcol, endrow, endcol), ...]
+	selections: List[Tuple[int, int, int,
+																								int]]  # [(startrow, startcol, endrow, endcol), ...]
 
-	def scroll(self, row, col): pass
-	def setKeyboardFocus(self, row, col, selectAll=False): pass
+	def scroll(self, row, col):
+		...
+
+	def setKeyboardFocus(self, row, col, selectAll=False):
+		...
+
 
 # used for listCOMP callbacks
-class XYUVTuple(_T.NamedTuple):
+class XYUVTuple(NamedTuple):
 	x: float
 	y: float
 	u: float
 	v: float
 
+
 class opviewerCOMP(PanelCOMP):
-	def isViewable(self, path: str) -> bool: pass
+
+	def isViewable(self, path: str) -> bool:
+		...
+
 
 class parameterCOMP(PanelCOMP):
 	minWidth: int
 
+
 class selectCOMP(PanelCOMP):
-	pass
+	...
+
 
 # noinspection PyShadowingBuiltins
 class tableCOMP(PanelCOMP):
-	def getRowFromID(self, id) -> int: pass
-	def getColFromID(self, id) -> int: pass
-	def click(self, row, col, clickCount=1, force=False, left=False, middle=False, right=False): pass
-	def clickID(self, id, clickCount=1, force=False, left=False, middle=False, right=False): pass
-	def getCellID(self, row, col) -> int: pass
-	def setKeyboardFocus(self, row, col, selectAll=False): pass
+
+	def getRowFromID(self, id) -> int:
+		...
+
+	def getColFromID(self, id) -> int:
+		...
+
+	def click(
+		self,
+		row,
+		col,
+		clickCount=1,
+		force=False,
+		left=False,
+		middle=False,
+		right=False
+	):
+		...
+
+	def clickID(
+		self, id, clickCount=1, force=False, left=False, middle=False, right=False
+	):
+		...
+
+	def getCellID(self, row, col) -> int:
+		...
+
+	def setKeyboardFocus(self, row, col, selectAll=False):
+		...
+
 
 class ListAttributes:
 	bgColor: _Color
@@ -1410,12 +2348,18 @@ class ListAttributes:
 	topBorderOutColor: _Color
 	wordWrap: bool
 
-class _ListAttributesList(_T.Sized, _ABC):
-	def __getitem__(self, item: int) -> _T.Optional[ListAttributes]:
-		pass
-class _ListAttributesGrid(_T.Sized, _ABC):
-	def __getitem__(self, rowCol: _T.Tuple[int, int]) -> _T.Optional[ListAttributes]:
-		pass
+
+class _ListAttributesList(Sized, _ABC):
+
+	def __getitem__(self, item: int) -> Optional[ListAttributes]:
+		...
+
+
+class _ListAttributesGrid(Sized, _ABC):
+
+	def __getitem__(self, rowCol: Tuple[int, int]) -> Optional[ListAttributes]:
+		...
+
 
 class windowCOMP(COMP):
 	scalingMonitorIndex: int
@@ -1431,7 +2375,9 @@ class windowCOMP(COMP):
 	contentWidth: int
 	contentHeight: int
 
-	def setForeground(self) -> bool: pass
+	def setForeground(self) -> bool:
+		...
+
 
 class timeCOMP(COMP):
 	frame: float
@@ -1449,11 +2395,13 @@ class timeCOMP(COMP):
 	signature1: int
 	signature2: int
 
-_AnyPanelCompT = _T.Union[
-	PanelCOMP, fieldCOMP, buttonCOMP, sliderCOMP, containerCOMP, widgetCOMP, listCOMP,
-	opviewerCOMP, parameterCOMP, selectCOMP, tableCOMP]
 
-_AnyCompT = _T.Union[COMP, _AnyPanelCompT, windowCOMP, timeCOMP]
+_AnyPanelCompT = Union[PanelCOMP, fieldCOMP, buttonCOMP, sliderCOMP,
+																							containerCOMP, widgetCOMP, listCOMP, opviewerCOMP,
+																							parameterCOMP, selectCOMP, tableCOMP]
+
+_AnyCompT = Union[COMP, _AnyPanelCompT, windowCOMP, timeCOMP]
+
 
 class VFSFile:
 	name: str
@@ -1464,17 +2412,31 @@ class VFSFile:
 	owner: OP
 	byteArray: bytearray
 
-	def destroy(self): pass
-	def export(self, folder: str) -> str: pass
+	def destroy(self):
+		...
+
+	def export(self, folder: str) -> str:
+		...
+
 
 class VFS:
 	owner: OP
 
-	def __getitem__(self, item: str) -> VFSFile: pass
-	def addByteArray(self, byteArray: bytearray, name: str) -> VFSFile: pass
-	def addFile(self, filePath: str, overrideName=None) -> VFSFile: pass
-	def export(self, folder: str, pattern='*', overwrite=False) -> _T.List[str]: pass
-	def find(self, pattern='*') -> _T.List[VFSFile]: pass
+	def __getitem__(self, item: str) -> VFSFile:
+		...
+
+	def addByteArray(self, byteArray: bytearray, name: str) -> VFSFile:
+		...
+
+	def addFile(self, filePath: str, overrideName=None) -> VFSFile:
+		...
+
+	def export(self, folder: str, pattern='*', overwrite=False) -> List[str]:
+		...
+
+	def find(self, pattern='*') -> List[VFSFile]:
+		...
+
 
 class Connector:
 	index: int
@@ -1483,24 +2445,28 @@ class Connector:
 	inOP: '_AnyOpT'
 	outOP: '_AnyOpT'
 	owner: '_AnyOpT'
-	connections: _T.List['Connector']
+	connections: List['Connector']
 
-	def connect(self, target: _T.Union['_AnyOpT', 'Connector']): pass
-	def disconnect(self): pass
+	def connect(self, target: Union['_AnyOpT', 'Connector']):
+		...
 
-_AttributeDataElementT = _T.Union[float, int, str]
-_AttributeDataTupleT = _T.Union[
-	_T.Tuple[_AttributeDataElementT],
-	_T.Tuple[_AttributeDataElementT, _AttributeDataElementT],
-	_T.Tuple[_AttributeDataElementT, _AttributeDataElementT, _AttributeDataElementT],
-	_T.Tuple[_AttributeDataElementT, _AttributeDataElementT, _AttributeDataElementT, _AttributeDataElementT],
-]
-_AttributeDataT = _T.Union[
-	_AttributeDataElementT,
-	_AttributeDataTupleT,
-	_Vector,
-	_Position
-]
+	def disconnect(self):
+		...
+
+
+_AttributeDataElementT = Union[float, int, str]
+_AttributeDataTupleT = Union[(
+	Tuple[_AttributeDataElementT],
+	Tuple[_AttributeDataElementT, _AttributeDataElementT],
+	Tuple[_AttributeDataElementT, _AttributeDataElementT, _AttributeDataElementT],
+	Tuple[(
+		_AttributeDataElementT, _AttributeDataElementT, _AttributeDataElementT,
+		_AttributeDataElementT
+	)],
+)]
+_AttributeDataT = Union[_AttributeDataElementT, _AttributeDataTupleT, _Vector,
+																								_Position]
+
 
 class Attribute:
 	owner: 'SOP'
@@ -1509,16 +2475,21 @@ class Attribute:
 	type: type
 	default: _AttributeDataT
 
-	def destroy(self): pass
+	def destroy(self):
+		...
 
-class Attributes(_T.Collection[Attribute], _ABC):
+
+class Attributes(Collection[Attribute], _ABC):
 	owner: 'SOP'
 
-	def create(self, name: str, default: _AttributeDataT = None) -> Attribute: pass
+	def create(self, name: str, default: _AttributeDataT = None) -> Attribute:
+		...
+
 
 class AttributeData(_AttributeDataTupleT):
 	owner: 'SOP'
 	val: _AttributeDataT
+
 
 class Point:
 	index: int
@@ -1528,20 +2499,28 @@ class Point:
 	y: float
 	z: float
 
-	def __getattr__(self, item) -> _T.Any: pass
-	def __setattr__(self, key, value): pass
-	def destroy(self): pass
+	def __getattr__(self, item) -> Any:
+		...
 
-class Points(_T.Sequence[Point], _ABC):
+	def __setattr__(self, key, value):
+		...
+
+	def destroy(self):
+		...
+
+
+class Points(_Sequence[Point], _ABC):
 	owner: 'SOP'
 
-class Vertex(_T.Any):
+
+class Vertex():
 	index: int
 	owner: 'SOP'
 	point: Point
 	prim: 'Prim'
 
-class Prim(_T.Sized, _T.Sequence[Vertex], _T.Any, _ABC):
+
+class Prim(Sized, _Sequence[Vertex], _ABC):
 	center: _Position
 	index: int
 	normal: _Vector
@@ -1552,29 +2531,58 @@ class Prim(_T.Sized, _T.Sequence[Vertex], _T.Any, _ABC):
 	max: _Position
 	size: _Position
 
-	def destroy(self, destroyPoints=True): pass
-	def eval(self, u: float, v: float) -> _Position: pass
+	def destroy(self, destroyPoints=True):
+		...
 
-	def __getitem__(self, item: _T.Union[int, _T.Tuple[int, int]]) -> Vertex: pass
+	def eval(self, u: float, v: float) -> _Position:
+		...
+
+	def __getitem__(self, item: Union[int, Tuple[int, int]]) -> Vertex:
+		...
+
 
 class Poly(Prim, _ABC):
-	pass
+	...
+
 
 class Bezier(Prim, _ABC):
-	anchors: _T.List[Vertex]
-	basis: _T.List[float]
+	anchors: List[Vertex]
+	basis: List[float]
 	closed: bool
 	order: float
-	segments: _T.List[_T.List[Vertex]]
-	tangents: _T.List[_T.Tuple[Vertex, Vertex]]
+	segments: List[List[Vertex]]
+	tangents: List[Tuple[Vertex, Vertex]]
 
-	def insertAnchor(self, u: float) -> Vertex: pass
-	def updateAnchor(self, anchorIndex: int, targetPosition: _Position, tangents=True) -> _Position: pass
-	def appendAnchor(self, targetPosition: _Position, preserveShape=True) -> Vertex: pass
+	def insertAnchor(self, u: float) -> Vertex:
+		...
+
+	def updateAnchor(
+		self,
+		anchorIndex: int,
+		targetPosition: _Position,
+		tangents=True
+	) -> _Position:
+		...
+
+	def appendAnchor(
+		self, targetPosition: _Position, preserveShape=True
+	) -> Vertex:
+		...
+
 	def updateTangent(
-			self, tangentIndex: int, targetPosition: _Position,
-			rotate=True, scale=True, rotateLock=True, scaleLock=True) -> _Position: pass
-	def deleteAnchor(self, anchorIndex: int): pass
+		self,
+		tangentIndex: int,
+		targetPosition: _Position,
+		rotate=True,
+		scale=True,
+		rotateLock=True,
+		scaleLock=True
+	) -> _Position:
+		...
+
+	def deleteAnchor(self, anchorIndex: int):
+		...
+
 
 class Mesh(Prim, _ABC):
 	closedU: bool
@@ -1582,19 +2590,35 @@ class Mesh(Prim, _ABC):
 	numRows: int
 	numCols: int
 
-_AnyPrimT = _T.Union[Prim, Poly, Bezier, Mesh]
 
-class Prims(_T.Sequence[_AnyPrimT], _ABC):
+_AnyPrimT = Union[Prim, Poly, Bezier, Mesh]
+
+
+class Prims(_Sequence[_AnyPrimT], _ABC):
 	owner: 'SOP'
 
-class Group(_T.Union[_T.Iterable[Point], _T.Iterable[_AnyPrimT]]):
-	# default - tuple "the default values associated with this group" ?
+
+_GroupType = TypeVar('_GroupType', Point, _AnyPrimT)
+
+
+class Group(Iterable[_GroupType]):
+	default: Tuple[_GroupType]
+	'''
+	"the default values associated with this group"
+	'''
+
 	name: str
 	owner: OP
 
-	def add(self, item: _T.Union[Point, Prim]): pass
-	def discard(self, item: _T.Union[Point, Prim]): pass
-	def destroy(self): pass
+	def add(self, item: Union[Point, Prim]):
+		...
+
+	def discard(self, item: Union[Point, Prim]):
+		...
+
+	def destroy(self):
+		...
+
 
 class SOP(OP):
 	compare: bool
@@ -1607,26 +2631,56 @@ class SOP(OP):
 	pointAttribs: Attributes
 	primAttribs: Attributes
 	vertexAttribs: Attributes
-	pointGroups: _T.Dict[str, Group]
-	primGroups: _T.Dict[str, Group]
+	pointGroups: Dict[str, Group]
+	primGroups: Dict[str, Group]
 	center: _Position
 	min: _Position
 	max: _Position
 	size: _Position
 
-	def save(self, filepath: str, createFolders=False) -> str: pass
+	def save(self, filepath: str, createFolders=False) -> str:
+		...
+
 
 class scriptSOP(SOP):
-	def destroyCustomPars(self): pass
-	def sortCustomPages(self, *pages): pass
-	def appendCustomPage(self, name: str) -> 'Page': pass
-	def clear(self): pass
+
+	def destroyCustomPars(self):
+		...
+
+	def sortCustomPages(self, *pages):
+		...
+
+	def appendCustomPage(self, name: str) -> 'Page':
+		...
+
+	def clear(self):
+		...
+
 	# noinspection PyMethodOverriding
-	def copy(self, chop: CHOP): pass
-	def appendPoint(self) -> Point: pass
-	def appendPoly(self, numVertices: int, closed=True, addPoints=True) -> Poly: pass
-	def appendBezier(self, numVertices: int, closed=True, order=4, addPoints=True) -> Bezier: pass
-	def appendMesh(self, numROws: int, numCols: int, closedU=False, closedV=False, addPoints=True) -> Mesh: pass
+	def copy(self, chop: CHOP):
+		...
+
+	def appendPoint(self) -> Point:
+		...
+
+	def appendPoly(self, numVertices: int, closed=True, addPoints=True) -> Poly:
+		...
+
+	def appendBezier(
+		self, numVertices: int, closed=True, order=4, addPoints=True
+	) -> Bezier:
+		...
+
+	def appendMesh(
+		self,
+		numROws: int,
+		numCols: int,
+		closedU=False,
+		closedV=False,
+		addPoints=True
+	) -> Mesh:
+		...
+
 
 class TOP(OP):
 	width: int
@@ -1638,38 +2692,70 @@ class TOP(OP):
 	gpuMemory: int
 	curPass: int
 
-	def sample(self, x: int = None, y: int = None, u: float = None, v: float = None) -> _Color: pass
-	def numpyArray(self, delayed=False, writable=False, neverNone=False) -> 'numpy.array': pass
-	def save(self, filepath, asynchronous=False, createFolders=False) -> 'str': pass
-	def saveByteArray(self, filetype) -> bytearray: pass
-	def cudaMemory(self) -> 'CUDAMemory': pass
+	def sample(
+		self,
+		x: Optional[int] = None,
+		y: Optional[int] = None,
+		u: Optional[float] = None,
+		v: Optional[float] = None
+	) -> _Color:
+		...
+
+	def numpyArray(
+		self, delayed=False, writable=False, neverNone=False
+	) -> 'numpy.recarray':
+		...
+
+	def save(self, filepath, asynchronous=False, createFolders=False) -> 'str':
+		...
+
+	def saveByteArray(self, filetype) -> bytearray:
+		...
+
+	def cudaMemory(self) -> 'CUDAMemory':
+		...
+
 
 class CUDAMemory:
-	ptr: _T.Any
+	ptr: Any
 	size: int
 	shape: 'CUDAMemoryShape'
+
 
 class CUDAMemoryShape:
 	width: int
 	height: int
 	numComps: int
-	dataType: _T.Any  # numpy data type e.g. numpy.uint8, numpy.float32
+	dataType: Any  # numpy data type e.g. numpy.uint8, numpy.float32
+
 
 class glslTOP(TOP):
 	compileResult: str
 
+
 glslmultiTOP = glslTOP
 
+
 class webrenderTOP(TOP):
-	def sendKey(self, char: _T.Union[str, int], shift=False, alt=False, ctrl=False, cmd=False): pass
+
+	def sendKey(
+		self, char: Union[str, int], shift=False, alt=False, ctrl=False, cmd=False
+	):
+		...
+
 	def interactMouse(
-			self,
-			u: float, v: float,
-			leftClick=0, middleClick=0, rightClick=0,
-			left=False, middle=False, right=False,
-			wheel=0,
-			pixels=False,
-			aux=None,
+		self,
+		u: float,
+		v: float,
+		leftClick=0,
+		middleClick=0,
+		rightClick=0,
+		left=False,
+		middle=False,
+		right=False,
+		wheel=0,
+		pixels=False,
+		aux=None,
 	):
 		"""
 		:param u: pos
@@ -1685,9 +2771,13 @@ class webrenderTOP(TOP):
 		:param aux: auxilliary data
 		:return:
 		"""
-		pass
-	def executeJavaScript(self, script: str): pass
-	def sendString(self, char: str): pass
+
+	def executeJavaScript(self, script: str):
+		...
+
+	def sendString(self, char: str):
+		...
+
 
 class textTOP(TOP):
 	curText: str
@@ -1703,17 +2793,38 @@ class textTOP(TOP):
 	xHeight: float
 	lineGap: float
 
-	def fontSupportsCharts(self, s: str) -> bool: pass
-	def evalTextSize(self, s: str) -> _T.Tuple[float, float]: pass
-	def lines(self) -> _T.List['TextLine']: pass
+	def fontSupportsCharts(self, s: str) -> bool:
+		...
+
+	def evalTextSize(self, s: str) -> Tuple[float, float]:
+		...
+
+	def lines(self) -> List['TextLine']:
+		...
+
 
 class scriptTOP(TOP):
-	def copyNumpyArray(self, arr: numpy.array) -> None: pass
-	def copyCUDAMemory(self, address, size, shape: CUDAMemoryShape) -> None: pass
-	def loadByteArray(self, fileType: str, byteArray: _T.Union[bytes, bytearray]) -> bool: pass
-	def destroyCustomPars(self): pass
-	def sortCustomPages(self, *pages): pass
-	def appendCustomPage(self, name: str) -> 'Page': pass
+
+	def copyNumpyArray(self, arr: numpy.recarray) -> None:
+		...
+
+	def copyCUDAMemory(self, address, size, shape: CUDAMemoryShape) -> None:
+		...
+
+	def loadByteArray(
+		self, fileType: str, byteArray: Union[bytes, bytearray]
+	) -> bool:
+		...
+
+	def destroyCustomPars(self):
+		...
+
+	def sortCustomPages(self, *pages):
+		...
+
+	def appendCustomPage(self, name: str) -> 'Page':
+		...
+
 
 class textSOP(SOP):
 	numLines: int
@@ -1724,18 +2835,24 @@ class textSOP(SOP):
 	lineGap: float
 	numGlyphs: int
 
-	def fontSupportsCharts(self, s: str) -> bool: pass
-	def lines(self) -> _T.List['TextLine']: pass
+	def fontSupportsCharts(self, s: str) -> bool:
+		...
+
+	def lines(self) -> List['TextLine']:
+		...
+
 
 class TextLine:
 	text: str
 	origin: 'tdu.Position'
 	lineWidth: float
 
-class MAT(OP):
-	pass
 
-_AnyOpT = _T.Union[OP, DAT, COMP, CHOP, SOP, TOP, MAT, '_AnyCompT', '_AnyDatT']
+class MAT(OP):
+	...
+
+
+_AnyOpT = Union[OP, DAT, COMP, CHOP, SOP, TOP, MAT, '_AnyCompT', '_AnyDatT']
 
 baseCOMP = COMP
 panelCOMP = PanelCOMP
@@ -1745,40 +2862,114 @@ parameterCHOP = nullCHOP = selectCHOP = inCHOP = outCHOP = CHOP
 inTOP = outTOP = nullTOP = TOP
 importselectSOP = SOP
 
+
 class animationCOMP(COMP):
-	def setKeyframe(self, position: float, channel='*', value=None, function: str = None): pass
-	def deleteKeyframe(self, position: float, channel='*', value=None, function: str = None): pass
+
+	def setKeyframe(
+		self,
+		position: float,
+		channel='*',
+		value=None,
+		function: Optional[str] = None
+	):
+		...
+
+	def deleteKeyframe(
+		self,
+		position: float,
+		channel='*',
+		value=None,
+		function: Optional[str] = None
+	):
+		...
+
 
 class objectCOMP(COMP):
 	localTransform: _Matrix
 	worldTransform: _Matrix
-	def transform(self) -> _Matrix: pass
-	def setTransform(self, matrix: _Matrix): pass
-	def preTransform(self) -> _Matrix: pass
-	def setPreTransform(self, matrix: _Matrix): pass
-	def relativeTransform(self, target: COMP) -> _Matrix: pass
-	def importABC(self, filepath, lights=True, cameras=True, mergeGeometry=True, gpuDeform=True, rate=None, textureFolder=None, geometryFolder=None, animationFolder=None): pass
-	def importFBX(self, filepath, lights=True, cameras=True, mergeGeometry=True, gpuDeform=True, rate=None, textureFolder=None, geometryFolder=None, animationFolder=None): pass
+
+	def transform(self) -> _Matrix:
+		...
+
+	def setTransform(self, matrix: _Matrix):
+		...
+
+	def preTransform(self) -> _Matrix:
+		...
+
+	def setPreTransform(self, matrix: _Matrix):
+		...
+
+	def relativeTransform(self, target: COMP) -> _Matrix:
+		...
+
+	def importABC(
+		self,
+		filepath,
+		lights=True,
+		cameras=True,
+		mergeGeometry=True,
+		gpuDeform=True,
+		rate=None,
+		textureFolder=None,
+		geometryFolder=None,
+		animationFolder=None
+	):
+		...
+
+	def importFBX(
+		self,
+		filepath,
+		lights=True,
+		cameras=True,
+		mergeGeometry=True,
+		gpuDeform=True,
+		rate=None,
+		textureFolder=None,
+		geometryFolder=None,
+		animationFolder=None
+	):
+		...
+
 
 class cameraCOMP(objectCOMP):
-	def projectionInverse(self, x, y) -> _Matrix: pass
-	def projection(self, x, y) -> _Matrix: pass
+
+	def projectionInverse(self, x, y) -> _Matrix:
+		...
+
+	def projection(self, x, y) -> _Matrix:
+		...
+
 
 geotextCOMP = objectCOMP
 
+
 class scriptCHOP(CHOP):
-	def destroyCustomPars(self): pass
-	def sortCustomPages(self, *pages): pass
-	def clear(self): pass
-	def appendCustomPage(self, name: str) -> 'Page': pass
+
+	def destroyCustomPars(self):
+		...
+
+	def sortCustomPages(self, *pages):
+		...
+
+	def clear(self):
+		...
+
+	def appendCustomPage(self, name: str) -> 'Page':
+		...
+
 	# noinspection PyMethodOverriding
-	def copy(self, chop: CHOP): pass
-	def appendChan(self, name: str) -> 'Channel': pass
+	def copy(self, chop: CHOP):
+		...
+
+	def appendChan(self, name: str) -> 'Channel':
+		...
+
 
 class timerCHOP(CHOP):
-	beginFrame: _T.List[_T.Any]
-	beginSample: _T.List[_T.Any]
-	beginSeconds: _T.List[_T.Any]
+	beginFrame: List[Any]
+	beginSample: List[Any]
+	beginSeconds: List[Any]
 	cycle: float
 	fraction: float
 	runningFraction: float
@@ -1792,16 +2983,30 @@ class timerCHOP(CHOP):
 	runningTimecode: str  # format 00:00:00.00
 	segment: float
 
-	def goToNextSegment(self): pass
-	def goToCycleEnd(self): pass
+	def goToNextSegment(self):
+		...
+
+	def goToCycleEnd(self):
+		...
+
 	def goTo(
-			self,
-			segment: float = None,
-			cycle: float = None, endOfCycle=True,
-			seconds: float = None, frame: float = None, sample: float = None, fraction: float = None):
-		pass
-	def goToPrevSegment(self): pass
-	def lastCycle(self): pass
+		self,
+		segment: Optional[float] = None,
+		cycle: Optional[float] = None,
+		endOfCycle=True,
+		seconds: Optional[float] = None,
+		frame: Optional[float] = None,
+		sample: Optional[float] = None,
+		fraction: Optional[float] = None
+	):
+		...
+
+	def goToPrevSegment(self):
+		...
+
+	def lastCycle(self):
+		...
+
 
 class Peer:
 	owner: OP
@@ -1809,31 +3014,66 @@ class Peer:
 	address: str
 	hostname: str
 
-	def close(self) -> bool: pass
-	def sendBytes(self, *messages) -> int: pass
+	def close(self) -> bool:
+		...
+
+	def sendBytes(self, *messages) -> int:
+		...
+
 	def sendOSC(
-			self, address: str, *values, asBundle=False, useNonStandardTypes=True, use64BitPrecision=False) -> int: pass
-	def send(self, *messages: str, terminator='') -> int: pass
+		self,
+		address: str,
+		*values,
+		asBundle=False,
+		useNonStandardTypes=True,
+		use64BitPrecision=False
+	) -> int:
+		...
+
+	def send(self, *messages: str, terminator='') -> int:
+		...
+
 
 class udpinDAT(DAT):
-	def sendBytes(self, *messages) -> int: pass
+
+	def sendBytes(self, *messages) -> int:
+		...
+
 	def sendOSC(
-			self, address: str, *values, asBundle=False, useNonStandardTypes=True, use64BitPrecision=False) -> int: pass
-	def send(self, *messages: str, terminator='') -> int: pass
+		self,
+		address: str,
+		*values,
+		asBundle=False,
+		useNonStandardTypes=True,
+		use64BitPrecision=False
+	) -> int:
+		...
+
+	def send(self, *messages: str, terminator='') -> int:
+		...
+
 
 udtinDAT = udpinDAT
 
-class tcpipDAT(DAT):
-	def sendBytes(self, *messages) -> int: pass
-	def send(self, *messages: str, terminator='') -> int: pass
 
-_AnyDatT = _T.Union[DAT, tcpipDAT, udpinDAT, oscoutDAT, oscinDAT, evaluateDAT, webclientDAT]
+class tcpipDAT(DAT):
+
+	def sendBytes(self, *messages) -> int:
+		...
+
+	def send(self, *messages: str, terminator='') -> int:
+		...
+
+
+_AnyDatT = Union[DAT, tcpipDAT, udpinDAT, oscoutDAT, oscinDAT, evaluateDAT,
+																	webclientDAT]
+
 
 class App:
 	architecture: str
 	binFolder: str
 	build: str
-	compileDate: _T.Tuple[int, int, int]  # year, month, day
+	compileDate: Tuple[int, int, int]  # year, month, day
 	configFolder: str
 	desktopFolder: str
 	enableOptimizedExprs: bool
@@ -1845,18 +3085,29 @@ class App:
 	power: bool
 	preferencesFolder: str
 	product: str
-	recentFiles: _T.List[str]
+	recentFiles: List[str]
 	samplesFolder: str
 	userPaletteFolder: str
 	version: str
 	windowColorBits: int
 
-	def addNonCommercialLimit(self, password: _T.Optional[str] = None) -> None: pass
-	def removeNonCommercialLimit(self, password: _T.Optional[str] = None) -> bool: pass
-	def addResolutionLimit(self, x: int, y: int, password: _T.Optional[str] = None) -> None: pass
-	def removeResolutionLimit(self, password: _T.Optional[str] = None) -> bool: pass
+	def addNonCommercialLimit(self, password: Optional[str] = None) -> None:
+		...
+
+	def removeNonCommercialLimit(self, password: Optional[str] = None) -> bool:
+		...
+
+	def addResolutionLimit(
+		self, x: int, y: int, password: Optional[str] = None
+	) -> None:
+		...
+
+	def removeResolutionLimit(self, password: Optional[str] = None) -> bool:
+		...
+
 
 app: App
+
 
 class RenderPickEvent(tuple):
 	u: float
@@ -1867,51 +3118,69 @@ class RenderPickEvent(tuple):
 	pickOp: OP
 	pos: _Position
 	texture: _Position
-	color: _T.Tuple[float, float, float, float]
+	color: Tuple[float, float, float, float]
 	normal: _Vector
 	depth: float
 	instanceId: int
 
+
 class Dongle:
 	serialNumber: int
 
-	def applyUpdate(self, update: str) -> None: pass
-	def createUpdateContext(self) -> str: pass
+	def applyUpdate(self, update: str) -> None:
+		...
 
-class DongleList(_T.List[Dongle]):
-	def refreshDongles(self) -> None: pass
-	def encrypt(self, firmCode, productCode, data: _T.Union[str, bytearray]) -> bytearray: pass
-	def productCodeInstalled(self) -> bool: pass
+	def createUpdateContext(self) -> str:
+		...
+
+
+class DongleList(List[Dongle]):
+
+	def refreshDongles(self) -> None:
+		...
+
+	def encrypt(
+		self, firmCode, productCode, data: Union[str, bytearray]
+	) -> bytearray:
+		...
+
+	def productCodeInstalled(self) -> bool:
+		...
+
 
 class License:
 	index: int
 	isEnabled: bool
 	isRemotelyDisabled: bool
 	key: str
-	remoteDisableDate: _T.Tuple[int, int, int]  # year, month, day
+	remoteDisableDate: Tuple[int, int, int]  # year, month, day
 	status: int
 	statusMessage: str
 	systemCode: str
 	type: str
-	updateExpiryDate: _T.Tuple[int, int, int]  # year, month, day
+	updateExpiryDate: Tuple[int, int, int]  # year, month, day
 	version: int
 
-class Licenses(_T.List[License]):
+
+class Licenses(List[License]):
 	disablePro: bool
 	dongles: DongleList
 	machine: str
 	systemCode: str
 	type: str
 
-	def install(self, key: str) -> bool: pass
+	def install(self, key: str) -> bool:
+		...
 
-class Bounds(_T.NamedTuple):
-	min: _T.Any
-	max: _T.Any
-	center: _T.Any
-	size: _T.Any
 
-class ArtNetDevice(_T.NamedTuple):
+class Bounds(NamedTuple):
+	min: Any
+	max: Any
+	center: Any
+	size: Any
+
+
+class ArtNetDevice(NamedTuple):
 	ip: bytes
 	port: int
 	version: int
@@ -1939,34 +3208,37 @@ class ArtNetDevice(_T.NamedTuple):
 	bindindex: int
 	status2: int
 
-class EtherDreamDevice(_T.NamedTuple):
-	ip: _T.Any
-	port: _T.Any
-	mac_address: _T.Any
-	hw_revision: _T.Any
-	sw_revision: _T.Any
-	buffer_capacity: _T.Any
-	max_point_rate: _T.Any
-	protocol: _T.Any
-	light_engine_state: _T.Any
-	playback_state: _T.Any
-	source: _T.Any
-	light_engine_flags: _T.Any
-	playback_flags: _T.Any
-	source_flags: _T.Any
-	buffer_fullness: _T.Any
-	point_rate: _T.Any
-	point_count: _T.Any
 
-class NDISource(_T.NamedTuple):
-	sourceName: _T.Any
-	url: _T.Any
-	streaming: _T.Any
-	width: _T.Any
-	height: _T.Any
-	fps: _T.Any
-	audioSampleRate: _T.Any
-	numAudioChannels: _T.Any
+class EtherDreamDevice(NamedTuple):
+	ip: Any
+	port: Any
+	mac_address: Any
+	hw_revision: Any
+	sw_revision: Any
+	buffer_capacity: Any
+	max_point_rate: Any
+	protocol: Any
+	light_engine_state: Any
+	playback_state: Any
+	source: Any
+	light_engine_flags: Any
+	playback_flags: Any
+	source_flags: Any
+	buffer_fullness: Any
+	point_rate: Any
+	point_count: Any
+
+
+class NDISource(NamedTuple):
+	sourceName: Any
+	url: Any
+	streaming: Any
+	width: Any
+	height: Any
+	fps: Any
+	audioSampleRate: Any
+	numAudioChannels: Any
+
 
 class Body:
 	index: int
@@ -1976,32 +3248,56 @@ class Body:
 	angularVelocity: _Vector
 	linearVelocity: _Vector
 
-	def applyImpulseForce(self, force, relPos: _T.Union[_Position, _Vector, _T.Tuple[float, float, float]] = None): pass
-	def applyTorque(self, torque): pass
-	def applyImpulseTorque(self, torque): pass
-	def applyForce(self, force, relPos: _T.Union[_Position, _Vector, _T.Tuple[float, float, float]] = None): pass
+	def applyImpulseForce(
+		self,
+		force,
+		relPos: Optional[Union[_Position, _Vector, Tuple[float, float,
+																																																			float]]] = None
+	):
+		...
 
-class Bodies(_T.List[Body]):
-	pass
+	def applyTorque(self, torque):
+		...
+
+	def applyImpulseTorque(self, torque):
+		...
+
+	def applyForce(
+		self,
+		force,
+		relPos: Optional[Union[_Position, _Vector, Tuple[float, float,
+																																																			float]]] = None
+	):
+		...
+
+
+class Bodies(List[Body]):
+	...
+
 
 class actorCOMP(COMP):
 	bodies: Bodies
 
-class Actors(_T.List[actorCOMP]):
-	pass
+
+class Actors(List[actorCOMP]):
+	...
+
 
 class bulletsolverCOMP(COMP):
 	actors: Actors
 
+
 # noinspection PyUnusedLocal
 def debug(*args):
-	pass
+	...
+
 
 class AbsTime:
 	frame: float
 	seconds: float
 	step: float
 	stepSeconds: float
+
 
 root = baseCOMP()
 absTime = AbsTime()

@@ -4,6 +4,7 @@ from tda import BaseExt
 
 
 class Paths(BaseExt):  # pylint: disable=too-few-public-methods
+
 	def __init__(self, ownerComp, logger):
 		super().__init__(ownerComp, logger)
 		self.configuredPaths = ownerComp.op('null_configuredPaths')

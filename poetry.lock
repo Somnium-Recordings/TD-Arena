@@ -221,7 +221,7 @@ setuptools = "*"
 name = "numpy"
 version = "1.20.3"
 description = "NumPy is the fundamental package for array computing with Python."
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -355,6 +355,25 @@ files = [
 
 [package.dependencies]
 pylint = ">=2.8.0"
+
+[[package]]
+name = "pyright"
+version = "1.1.302"
+description = "Command line wrapper for pyright"
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "pyright-1.1.302-py3-none-any.whl", hash = "sha256:1929e3126b664b5281dba66a789e8e04358afca48c10994ee0243b8c2a14acdf"},
+    {file = "pyright-1.1.302.tar.gz", hash = "sha256:e74a7dfbbb1d754941d015cccea8a6d29b395d8e4cb0e45dcfcaf3b6c6cfd540"},
+]
+
+[package.dependencies]
+nodeenv = ">=1.6.0"
+
+[package.extras]
+all = ["twine (>=3.4.1)"]
+dev = ["twine (>=3.4.1)"]
 
 [[package]]
 name = "pytest"
@@ -682,4 +701,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "3.9.5"
-content-hash = "7715a68136a9bf8d06ab218774c781af62afbb98798d95466ce9d79afdf7d913"
+content-hash = "f828a0e3611849d6ad4b474e3d8db4cc9f13b2377be2cdbfbf9b1ac80a1bd941"

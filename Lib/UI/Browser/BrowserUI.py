@@ -1,21 +1,18 @@
-class BrowserUI:  # pylint: disable=too-few-public-methods
+# pylint: disable=too-few-public-methods
+class BrowserUI:
+
 	def __init__(self, ownerComponent):
 		self.ownerComponent = ownerComponent
 		self.fileList = ownerComponent.op('./fileList')
 
 	def GetPath(self, compName):
 		comp = self.fileList.op(compName)
-		assert comp is not None, 'requested path for unknown file: "{}"'.format(
-			compName
-		)
-
+		assert comp is not None, f'requested path for unknown file: "{compName}"'
 		data = comp.op('./select_file')
 		return (
 			data[1, 'basename'].val,
 			tdu.expandPath(
 				# eg: movie://some-move-name.mov
-				'{}://{}'.format(
-					self.ownerComponent.par.Resourcetype, data[1, 'relpath'].val
-				)
+				f'{self.ownerComponent.par.Resourcetype}://{data[1, "relpath"].val}'
 			),
 		)

@@ -26,6 +26,7 @@ def formatLog(comp, message):
 
 
 class Logger:
+
 	@property
 	def logName(self):
 		return self.ownerComp.par.Logname.eval()

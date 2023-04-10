@@ -1,3 +1,5 @@
+from typing import Optional
+
 from tda import LoadableExt
 from tdaUtils import (addSectionParameters, clearChildren, getLayerID,
                       intIfSet, layoutComps)
@@ -137,14 +139,14 @@ class LayerCtrl(LoadableExt):
 	def SelectLayer(self, address):
 		layerID = getLayerID(address)
 		self.composition.par.Previstarget = f'composition/layers/layer{layerID}/video/null_previs'
-		previousSelectedLayer = self.composition.par.Selectedlayer.eval()
+		# previousSelectedLayer = self.composition.par.Selectedlayer.eval()
 		self.composition.par.Selectedlayer = layerID
 
 	def createLayer(
 		self,
-		layerName: str = None,
-		layerID: int = None,
-		nextLayerID: int = None,
+		layerName: Optional[str] = None,
+		layerID: Optional[int] = None,
+		nextLayerID: Optional[int] = None,
 	):
 		if layerID is None:
 			layerID = self.nextLayerID
@@ -152,8 +154,8 @@ class LayerCtrl(LoadableExt):
 		elif layerID >= self.nextLayerID:
 			self.nextLayerID = layerID + 1
 
-		opName = 'layer{}'.format(layerID)
-		self.logDebug('creating layer: {}'.format(opName))
+		opName = f'layer{layerID}'
+		self.logDebug(f'creating layer: {opName}')
 
 		newLayer = self.layerContainer.copy(self.layerTemplate, name=opName)
 		newLayer.par.Layername = layerName or f'Layer {layerID}'

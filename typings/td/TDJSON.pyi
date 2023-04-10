@@ -171,7 +171,7 @@ def parameterToJSONPar(p, extraAttrs=None, forceAttrLists=False):
 						types.MethodType, types.BuiltinMethodType)):
 					extraAttrs.append(m)
 			except:
-				pass		
+				pass
 	numAttrs = NUMATTRS
 
 	# set up special par types
@@ -301,7 +301,7 @@ def addParameterFromJSONDict(comp, jsonDict, replace=True, setValues=True,
 	If setValues is True, values will be set to provided default
 	If ignoreAttrErrors is True, no exceptions for bad attrs in json
 	If fixParNames is True, names will be automatically capitalized
-	If setBuiltIns is True, if par name matches a builtin par, change par's 
+	If setBuiltIns is True, if par name matches a builtin par, change par's
 		settings to match instead of creating a new par
 
 	returns a list of newly created parameters
@@ -332,7 +332,7 @@ def addParameterFromJSONDict(comp, jsonDict, replace=True, setValues=True,
 					checkPar = checkPars[0]
 					if checkPar.tupletName == checkName and \
 							checkPar.style == pStyle \
-							and (len(checkPar.tuplet) == size 
+							and (len(checkPar.tuplet) == size
 									or checkPar.style not in ('Int', 'Float')):
 						retPars = checkPar.tuplet
 			elif hasattr(comp.par, checkName) and \
@@ -361,7 +361,7 @@ def addParameterFromJSONDict(comp, jsonDict, replace=True, setValues=True,
 		try:
 			appendFunc = getattr(page, 'append' + pStyle )
 		except:
-			raise ValueError("Invalid parameter type in JSON dict", pStyle)			
+			raise ValueError("Invalid parameter type in JSON dict", pStyle)
 	# create parameter and stash newly created parameter(s) if necessary
 	if newPars is None:
 		if pStyle in ['Int', 'Float'] and size != 1:
@@ -463,8 +463,8 @@ def addParametersFromJSONList(comp, jsonList, replace=True, setValues=True,
 		should generally be False if you are using 'order' attribute in JSON
 	If ignoreAttrErrors is True, no exceptions for bad attrs in json
 	If fixParNames is True, names will be automatically capitalized
-	If setBuiltIns is True, if par name matches a builtin par, change par's 
-		settings to match instead of creating a new par	
+	If setBuiltIns is True, if par name matches a builtin par, change par's
+		settings to match instead of creating a new par
 	"""
 	parNames = []
 	pageNames = set()
@@ -493,15 +493,15 @@ def addParametersFromJSONDict(comp, jsonDict, replace=True, setValues=True,
 		should generally be False if you are using 'order' attribute in JSON
 	If ignoreAttrErrors is True, no exceptions for bad attrs in json
 	If fixParNames is True, names will be automatically capitalized
-	If setBuiltIns is True, if par name matches a builtin par, change par's 
-		settings to match instead of creating a new par. 
+	If setBuiltIns is True, if par name matches a builtin par, change par's
+		settings to match instead of creating a new par.
 	"""
 	parNames = []
 	pageNames = set()
 	for jsonPar in jsonDict.values():
 		newPars = addParameterFromJSONDict(comp, jsonPar, replace, setValues,
 										   ignoreAttrErrors, fixParNames,
-										   setBuiltIns)	
+										   setBuiltIns)
 		if newPars is not None:
 			parNames += [p.name for p in newPars]
 			pageNames.add(newPars[0].page.name)
@@ -524,8 +524,8 @@ def addParametersFromJSONOp(comp, jsonOp, replace=True, setValues=True,
 		should generally be False if you are using 'order' attribute in JSON
 	If ignoreAttrErrors is True, no exceptions for bad attrs in json
 	If fixParNames is True, names will be automatically capitalized
-	If setBuiltIns is True, if par name matches a builtin par, change par's 
-		settings to match instead of creating a new par	
+	If setBuiltIns is True, if par name matches a builtin par, change par's
+		settings to match instead of creating a new par
 	"""
 	parNames = []
 	pageNames = set()

@@ -7,6 +7,7 @@ from tdaUtils import clearChildren, getCellValues, layoutComps
 
 
 class CompositionCtrl(LoadableExt):
+
 	def __init__(self, ownerComponent, logger):
 		super().__init__(ownerComponent, logger)
 		self.compositionContainer = ownerComponent.op('../composition')

@@ -17,6 +17,7 @@
   "python.defaultInterpreterPath": "\\.venv\\Scripts\\python.exe",
   "python.envFile": "${workspaceFolder}\\.env",
   "python.analysis.extraPaths": ["Lib"],
+  "python.analysis.typeCheckingMode": "basic",
   "[python]": {
     "editor.defaultFormatter": "ms-python.python",
     "editor.codeActionsOnSave": {

@@ -1,16 +1,17 @@
-from tda import BaseExt, Par
+from tda import BaseExt
 from win32 import (findWindowByName, isMaximizedWindow, minimizeWindow,
                    toggleMaximizeWindow)
 
 
 class AppBar(BaseExt):
+
 	def __init__(self, ownerComponent, logger, uiWindow):
 		super().__init__(ownerComponent, logger)
 
 		self.uiWindow = uiWindow
 
 		self.Maximized: bool
-		self._Maximized: Par[bool]
+		self._Maximized: Par
 
 		TDF = op.TDModules.mod.TDFunctions
 		TDF.createProperty(self, 'Maximized', value=False)

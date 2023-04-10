@@ -38,7 +38,7 @@ class PopDialogExt:
 
 		TDF.createProperty(self, 'EnteredText', value='')
 		TDF.createProperty(self, 'TextHeight', value=0)
-		run("args[0].UpdateTextHeight()", self, delayFrames=1, 
+		run("args[0].UpdateTextHeight()", self, delayFrames=1,
 					delayRef=op.TDResources)
 
 	def OpenDefault(self, text='', title='', buttons=('OK',), callback=None,
@@ -161,7 +161,7 @@ class PopDialogExt:
 			ext.CallbacksExt.DoCallback('onSelect', infoDict)
 		finally:
 			self.Close()
-		
+
 	def OnKeyPressed(self, key):
 		"""
 		Callback for esc or enterpressed.

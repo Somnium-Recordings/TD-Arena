@@ -2,6 +2,7 @@ from tda import BaseExt, DroppedItem
 
 
 class ClipUI(BaseExt):
+
 	@property
 	def ClipDeckAddress(self):
 		return self.ownerComponent.par.Clipdeckaddress.eval()

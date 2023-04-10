@@ -1,3 +1,5 @@
+from typing import Optional
+
 from tda import LoadableExt
 from tdaUtils import (addSectionParameters, clearChildren, getCellValues,
                       layoutComps)
@@ -18,6 +20,7 @@ DEFAULT_STATE = []
 
 
 class ClipCtrl(LoadableExt):
+
 	def __init__(self, ownerComponent, logger, effectCtrl):
 		super().__init__(ownerComponent, logger)
 
@@ -67,7 +70,7 @@ class ClipCtrl(LoadableExt):
 
 			self.CreateClip(sourceType, clipName, path, clipID)
 
-		self.logInfo('loaded {} clips in composition'.format(self.clipList.numRows))
+		self.logInfo(f'loaded {self.clipList.numRows} clips in composition')
 		self.setLoaded()
 
 	def GetSaveState(self):
@@ -82,7 +85,7 @@ class ClipCtrl(LoadableExt):
 		prop = self.clipState[str(clipID), propName]
 		return prop.val if prop is not None else None
 
-	def CreateClip(self, sourceType, name, path, clipID: int = None):
+	def CreateClip(self, sourceType, name, path, clipID: Optional[int] = None):
 		clip = self.createNextClip(clipID)
 		self.loadSource(sourceType, name, path, clip)
 
@@ -90,10 +93,7 @@ class ClipCtrl(LoadableExt):
 
 	def ReplaceSource(self, sourceType, name, path, clipID: int):
 		clip = self.clipComps[clipID]
-		assert clip, 'could not replace {} clip of unknown clip id {}'.format(
-			sourceType, clipID
-		)
-
+		assert clip, f'could not replace {sourceType} clip of unknown clip id {clipID}'
 		self.loadSource(sourceType, name, path, clip)
 
 		return clip
@@ -111,7 +111,7 @@ class ClipCtrl(LoadableExt):
 
 	def DeactivateClip(self, clipID: int):
 		clip = self.clipComps[clipID]
-		assert clip, 'could not deactivate unknown clip id {}'.format(clipID)
+		assert clip, f'could not deactivate unknown clip id {clipID}'
 
 		clip.par.Active = 0
 
@@ -132,7 +132,7 @@ class ClipCtrl(LoadableExt):
 
 	def loadSource(self, sourceType, name, path, clip):
 		sourceMap = self.sourceMap.get(sourceType, None)
-		assert sourceMap, 'unmapped source type "{}" requested'.format(sourceType)
+		assert sourceMap, f'unmapped source type "{sourceType}" requested'
 		sourceTemplate = sourceMap['template']
 		initSourceFn = sourceMap['init']
 
@@ -149,7 +149,7 @@ class ClipCtrl(LoadableExt):
 
 		return newSource
 
-	def createNextClip(self, clipID: int = None):
+	def createNextClip(self, clipID: Optional[int] = None):
 		assert self.clipContainer, 'could not create clip, composition not loaded'
 
 		if clipID is None:
@@ -158,9 +158,7 @@ class ClipCtrl(LoadableExt):
 		elif clipID >= self.nextClipID:
 			self.nextClipID = clipID + 1
 
-		clip = self.clipContainer.copy(
-			self.clipTemplate, name='clip{}'.format(clipID)
-		)
+		clip = self.clipContainer.copy(self.clipTemplate, name=f'clip{clipID}')
 		videoContainer = clip.op('video')
 		addSectionParameters(videoContainer, order=-1, name='Video')
 

@@ -47,10 +47,10 @@ NONCELL = (-1, None) # values that indicate a non-cell value from callback
 SYNCABLEDATAMODES = ['int', 'float', 'string', 'version', 'blank', 'color']
 LOOKATTRS = {'bgColor', 'textColor', 'rowHeight', 'textOffsetX',
 					'textOffsetY', 'fontSizeX', 'fontFace', 'fontFile',
-					'fontBold',	'fontItalic', 'leftBorderInColor', 
-					'rightBorderInColor', 'topBorderInColor', 
-					'bottomBorderInColor', 'leftBorderOutColor', 
-					'rightBorderOutColor', 'topBorderOutColor', 
+					'fontBold',	'fontItalic', 'leftBorderInColor',
+					'rightBorderInColor', 'topBorderInColor',
+					'bottomBorderInColor', 'leftBorderOutColor',
+					'rightBorderOutColor', 'topBorderOutColor',
 					'bottomBorderOutColor', 'sizeInPoints'}
 LOOKPARS = { #convert textTOP pars to textCOMP for look conversion
 	'fontsizex': 'fontsize',
@@ -140,7 +140,7 @@ class ListerExt(CallbacksExt):
 			self.ownerComp.par.Sortreverse = False
 		if not self.ownerComp.par.Savefilter:
 			self.ownerComp.par.Filtercols = ''
-		
+
 		# mouse-down trackers
 		self.lastCellSelect = None # last cell rolled over with mouse done
 		self.holdCell = None # cell to test for mouse hold
@@ -178,7 +178,7 @@ class ListerExt(CallbacksExt):
 		except:
 			self.ownerComp.addScriptError(traceback.format_exc() + \
 					"Error setting up auto column define. See textport.")
-			print(traceback.format_exc())			
+			print(traceback.format_exc())
 		try:
 			self.Refresh()
 		except:
@@ -214,7 +214,7 @@ class ListerExt(CallbacksExt):
 
 	def FrameRefresh(self):
 		"""
-		Re-init table at end of frame, refreshing all Data and formatting all 
+		Re-init table at end of frame, refreshing all Data and formatting all
 		cells. Using this function will only cause one refresh per frame. To
 		immediately refresh, use Refresh()
 		"""
@@ -306,7 +306,7 @@ class ListerExt(CallbacksExt):
 		for i, d in enumerate(self.workingData):
 			formattedData = self.WorkingDataToDataRow(d, d[-2])
 			self.Data.append(formattedData)
-		
+
 		self.nCols = self.colDefine.numCols - 1
 		if self.nCols < 1:
 			self.nRows = 0
@@ -409,7 +409,7 @@ class ListerExt(CallbacksExt):
 							'Delete Rows - ' + self.ownerComp.path)
 			ui.undo.addCallback(self.undoDeleteRows,
 					[(r, self.Data[r]) for r in rows])
-			ui.undo.endBlock()		
+			ui.undo.endBlock()
 		if len(set(rows)) != len(rows):
 			raise Exception(self.ownerComp.path + ' - DeleteRows: rows argument'
 												  ' cannot contain duplicates')
@@ -549,7 +549,7 @@ class ListerExt(CallbacksExt):
 		Run the listCOMP reset once per frame only
 		"""
 		if self.resetRun is None:
-			self.resetRun = run('args[0]()', self.ownerComp.reset, 
+			self.resetRun = run('args[0]()', self.ownerComp.reset,
 								endFrame=True, delayRef=op.TDResources)
 
 	def onEdit(self, row, col, val, addUndo=True):
@@ -618,12 +618,12 @@ class ListerExt(CallbacksExt):
 
 	def RowObjectToDataRow(self, rowObject, sourceIndex=None):
 		"""
-		Convert a rowObject into a dict in the proper format for the 
+		Convert a rowObject into a dict in the proper format for the
 		lister's Data dictionary.
 
 		Args:
-			rowObject: any valid row object (list, dict, or Python object), 
-			sourceIndex: used to reference back to original data order. 
+			rowObject: any valid row object (list, dict, or Python object),
+			sourceIndex: used to reference back to original data order.
 				Probably unnecessary if rows are being added manually.
 		"""
 		workingDataRow = self.rowObjectToWorkingData( rowObject)
@@ -634,14 +634,14 @@ class ListerExt(CallbacksExt):
 		Convert a list of data to a dict keyed by column names from
 		colDefine. The final item will be the rowObject.
 
-		If you don't need to alter the data in the columns, use 
+		If you don't need to alter the data in the columns, use
 		RowObjectToDataRow instead.
 
 		Args:
-			workingData: a list of data corresponding to each column of the 
+			workingData: a list of data corresponding to each column of the
 				lister, followed by the original row object.
-			sourceIndex: used to reference back to original data order. 
-				Default is to add to the end.				
+			sourceIndex: used to reference back to original data order.
+				Default is to add to the end.
 		"""
 		stringData = workingData[:-1]
 		if sourceIndex is None:
@@ -730,7 +730,7 @@ class ListerExt(CallbacksExt):
 	def stringListToDictList(self, stringList):
 		"""
 		Convert a list of lists of strings into a list of dictionaries.
-		Used to convert tableDATs with headers into dicts. Does not output 
+		Used to convert tableDATs with headers into dicts. Does not output
 		header row!
 
 		Args:
@@ -984,7 +984,7 @@ class ListerExt(CallbacksExt):
 		self.fixBadSorts()
 		indexType = int if type(dataRows[0]) == list else str
 		if indexType == str:
-			dataRows.sort(key=lambda x:x['sourceIndex'], 
+			dataRows.sort(key=lambda x:x['sourceIndex'],
 							reverse=self.SortReverse)
 		for col in self.SortCols:
 			if indexType == str:
@@ -1039,7 +1039,7 @@ class ListerExt(CallbacksExt):
 							rowName = row[0].val
 							try:
 								colDefine[rowName, 0].val
-							except: 
+							except:
 								colDefine.insertRow([rowName] +
 										[defaultOp[rowName, 1]]
 												* (colDefine.numCols - 1), i)
@@ -1335,7 +1335,7 @@ class ListerExt(CallbacksExt):
 			else:
 				self.FrameRefresh()
 				return
-		self.resetRun = None				
+		self.resetRun = None
 		if self.autoColDefine \
 					and self.ownerComp.par.cols != self.colDefine.numCols - 1:
 			self.RecreateAutoColumns()
@@ -1477,7 +1477,7 @@ class ListerExt(CallbacksExt):
 							f'Documentation: See "format" in'
 							    f' https://docs.derivative.ca/'
 								f'Experimental:Palette:lister#colDefine_table',)
-						raise		
+						raise
 		# actual displayed text
 		attribs.text = newText
 		# Data
@@ -1518,7 +1518,7 @@ class ListerExt(CallbacksExt):
 			self.outLinked.cook(force=True)
 		if self.outLinkedCon.connections:
 			if self.outLinkRun is None:
-				self.outLinkRun = run('args[0]()', doCookOutLinked, 
+				self.outLinkRun = run('args[0]()', doCookOutLinked,
 						endFrame=True, delayRef=op.TDResources)
 
 	def ProcessColorModeText(self, text):
@@ -1702,9 +1702,9 @@ class ListerExt(CallbacksExt):
 		elif 'Filter' in clickable:
 			cols = filterCols
 		elif 'Sort' in clickable:
-			cols = sortCols		
+			cols = sortCols
 		else:
-			cols = None	
+			cols = None
 		if cols:
 			self.selectedCol = cols.pop()
 		else:
@@ -1719,7 +1719,7 @@ class ListerExt(CallbacksExt):
 		# debug('Select Column', col)
 		oldSelected = self.selectedCol
 		if asClick:
-			setFilter = 'Filter' in self.ownerComp.par.Clickableheader.eval()	
+			setFilter = 'Filter' in self.ownerComp.par.Clickableheader.eval()
 			setSort = 'Sort' in self.ownerComp.par.Clickableheader.eval()
 			if setSort:
 				if col == oldSelected:
@@ -1746,7 +1746,7 @@ class ListerExt(CallbacksExt):
 					self.SortCols = [col]
 		self.selectedCol = col
 		if oldSelected != col and oldSelected is not None:
-			self.SetCellLook(0, oldSelected, None)					
+			self.SetCellLook(0, oldSelected, None)
 		if col is not None:
 			self.SetCellLook(0, col, 'headerSelect', True, COLOVERLAYER)
 		self.Refresh()
@@ -1871,7 +1871,7 @@ class ListerExt(CallbacksExt):
 			if list(self.Data[0].values())[col]:
 				if self.ownerComp.panel.ctrl.val:
 					selectCol = None
-			# select none if click on selected and already reversed			
+			# select none if click on selected and already reversed
 			self.SelectColumn(selectCol, asClick=True)
 			self.RollCell(0, col)
 		self.DoCellCallback('onClickHeader', 0, col)
@@ -2897,14 +2897,14 @@ class ListerExt(CallbacksExt):
 	# region parameters
 
 	def OnParValueChange(self, par, val, prev):
-		if par.name in ['Header', 'Inputtablehasheaders', 
+		if par.name in ['Header', 'Inputtablehasheaders',
 						'Usesortindicatorchars', 'Sortchar', 'Sortreversechar']:
 			self.SelectColumn(None)
 			if self.ownerComp.par.Autodefinecols:
 				self.SelectedRows = []
 				self.setupAutoColDefine(clear=True)
 			self.FrameRefresh()
-		elif par.name in ['Rowstriping', 'Autodefinecols', 
+		elif par.name in ['Rowstriping', 'Autodefinecols',
 						'Linkedtable', 'Filtercols', 'Filterstring', 'Rawdata',
 						'Advancedcallbacks', 'Sourceindexinoutput']:
 			if par.name == 'Filtercols':
@@ -2914,7 +2914,7 @@ class ListerExt(CallbacksExt):
 			self.setupSelectedCol()
 			self.Sort()
 			# else:
-			# 	self.FrameRefresh() 
+			# 	self.FrameRefresh()
 		elif par.name in ['Selectedrows']:
 			self.onParSelectrowsChange(val, prev)
 		elif par.name == 'Clickableheader':
