@@ -1,6 +1,6 @@
 # TD Areana
 
-![TD Arena Tests](https://github.com/llwt/TD-Arena/workflows/TD%20Arena%20Tests/badge.svg)
+![TD Arena Tests](https://github.com/somnium-recordings/TD-Arena/workflows/TD%20Arena%20Tests/badge.svg)
 
 This project is heavily inspired by [Resolume Arena](https://resolume.com/). I wanted something that allowed me to perform like you might with arena, but allowing for sources other than just video (`tox`, `notch`, etc.) and custom effects built in TD.
 
@@ -18,48 +18,52 @@ I'm currently developing this using [VS Code](https://code.visualstudio.com/) on
 
 **Note:** I don't use python much in my day job, or windows for that matter. If there are better ways to manage any of this I'd love to hear how it can be improved!
 
-### Python
 
-Install the [version of python TouchDesigner is using](https://docs.derivative.ca/Release_Notes#New_Python), currently `3.9.5`.
+## Development Setup
 
-_My personal preference is through [pyenv](https://github.com/pyenv/pyenv) running in [wsl](https://docs.microsoft.com/en-us/windows/wsl/install-win10)._
+1. Install Python version currently shipped with TouchDesigner
 
-```
-pyenv install 3.7.2
-pyenv rehash
-pip install --upgrade pip
-```
+   _This version can be found by opening a a textport from the menu `Dialogs -> Textports and DATs`. It will be output in the console or can be found by entering `sys.version`._
 
-#### Telling TouchDesigner to use VSCode in WSL
+   I use [`pyenv-win`](https://github.com/pyenv-win/pyenv-win) to manage my python versions, but that's by no means a requirement.
 
-In order to have TouchDesigner use VScode within your WSL environment when using the edit shortcut, you have to use a little bit of scripting.
+   ```ps1
+   Invoke-WebRequest -UseBasicParsing -Uri "https://raw.githubusercontent.com/pyenv-win/pyenv-win/master/pyenv-win/install-pyenv-win.ps1" -OutFile "./install-pyenv-win.ps1"; &"./install-pyenv-win.ps1"
 
-Create a powershell script somewhere on your computer with the following content:
+   # reload terminal
+   pyenv install 3.9.5
 
-_For example `C:\Users\Steven\Bin\util\wslcode.ps1`_
+   # Optionally set this to your global version of python
+   pyenv global 3.9.5
+   ```
 
-```ps1
-& wsl code "`$(wslpath `"$args`")"
-```
+1. Install Poetry
 
-Then in the TouchDesigner preferences set `DATs -> Text Editor` to the following, replacing the path with your path:
+   I use [`pipx`](https://pypa.github.io/pipx/) to manage [poetry](https://python-poetry.org/), but similar to `pyenv-win` this is not a requirement. Install it however you see fit.
 
-```ps1
-powershell.exe C:/Users/Steven/Bin/util/wslcode.ps1
-```
+   ```ps1
+   # If not already installed, upgrade pip and install pipx
+   pip install --upgrade pip
+   pip install --user pipx
+   pipx ensure path
 
-### Pipenv
+   # Install Poetry
+   pipx install poetry
+   ```
 
-Project dependencies are currently managed through [pipenv](https://pipenv.pypa.io/en/latest/install/#installing-pipenv). At the moment this is just linting and formatting configuration with pre-commits to run them automatically.
+   Once installed, the virtual env for the project can be entered using `poetry shell`, however this is typically done auto-magically by vscode when opening a new powershell terminal.
 
-**Note:** An empty `.venv` directory is committed so the vscode config can use a relative path to python for dev tools like `pytest`.
+1. Install project dependencies
 
-```sh
-pip install pipenv
-pipenv install --dev
-pipenv shell
-pre-commit install
-```
+   _From the poetry shell:_
+
+   ```ps1
+   poetry install
+   ```
+
+1. Local site-packages
+
+   `TODO`
 
 ### A Note about code style
 

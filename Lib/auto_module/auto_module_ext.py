@@ -3,7 +3,7 @@ import typing as T
 from dataclasses import dataclass
 
 
-def getOrCreateTextDAT(targetOp: T.Any, datName: str) -> T.Any:
+def getOrCreateTextDAT(targetOp: OP, datName: str) -> T.Any:
 	if (dat := targetOp.op(datName)) is None:
 		dat = targetOp.create(textDAT, datName)
 		dat.par.language = 3

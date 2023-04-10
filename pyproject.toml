@@ -1,0 +1,73 @@
+[tool.poetry]
+name = "td-arena"
+version = "0.1.0"
+description = "Resolume Arena inspired (clone) TouchDesigner runtime for live shows."
+authors = ["Steven Nance <steven@somniumrecordings.com>"]
+license = "MIT"
+readme = "README.md"
+packages = []
+
+[tool.poetry.dependencies]
+python = "3.9.5"
+numpy = "=1.20.3"
+
+[tool.poetry.group.dev.dependencies]
+pylint = "^2.17.2"
+pylint-quotes = "^0.2.3"
+pre-commit = "^3.2.2"
+unify = "^0.5"
+isort = "^5.12.0"
+pytest = "^7.3.0"
+rope = "^1.7.0"
+yapf = "^0.32.0"
+toml = "^0.10.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.yapf]
+based_on_style = "pep8"
+use_tabs = true
+dedent_closing_brackets = true
+indent_width = 1
+continuation_indent_width = 1
+continuation_align_style = "valign-right"
+split_complex_comprehension = true
+
+[tool.pylint.'MASTER']
+init-hook="import sys; sys.path.append('Lib')"
+load-plugins="pylint_quotes"
+indent-string="\t"
+indent-after-paren=1
+disable=[
+	"attribute-defined-outside-init",
+	"duplicate-code",
+	"fixme",
+	"invalid-name",
+	"line-too-long",
+	"missing-class-docstring",
+	"missing-function-docstring",
+	"missing-module-docstring",
+	"too-many-instance-attributes",
+]
+
+[tool.pylint."VARIABLES"]
+additional-builtins=[
+	"absTime",
+	"baseCOMP",
+	"COMP",
+	"debug",
+	"op",
+	"OP",
+	"parent",
+	"PaneType",
+	"ParMode",
+	"project",
+	"run",
+	"tableDAT",
+	"textDAT",
+	"tdu",
+	"ui",
+	"WindowsError",
+]

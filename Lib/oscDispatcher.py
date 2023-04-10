@@ -1,18 +1,18 @@
-import typing as T
 from collections import OrderedDict
 from fnmatch import fnmatchcase
+from typing import Callable, TypedDict
 
 from tda import BaseExt
 
-# TODO: when we upgrade to python 3.10 switch to using Required specifiers
-# TODO: enable if touch updates to 3.8 wehre TypedDict is around
-#       (I don't want to install typing_extensions)
-# class OSCHandler(T.TypedDict, total=False):
-# 	handler: T.Callable
-# 	sendAddress: bool
-# 	mapAddress: T.Callable[[str], str]
 
-OSCMappings: T.OrderedDict[str, T.Dict]
+# TODO: when we upgrade to python 3.10 switch to using Required specifiers
+class OSCHandler(TypedDict, total=False):
+	handler: Callable
+	sendAddress: bool
+	mapAddress: Callable[[str], str]
+
+
+OSCMappings = OrderedDict[str, OSCHandler]
 
 
 class OSCDispatcher(BaseExt):
@@ -26,10 +26,10 @@ class OSCDispatcher(BaseExt):
 
 		self.logInfo('OSCDispatcher initialized')
 
-	def Map(self, address, handler):
+	def Map(self, address: str, handler: OSCHandler):
 		self.mappings[address] = handler
 
-	def MapMultiple(self, mappings):
+	def MapMultiple(self, mappings: OSCMappings):
 		for address, handler in mappings.items():
 			self.Map(address, handler)
 
@@ -41,17 +41,17 @@ class OSCDispatcher(BaseExt):
 			if fnmatchcase(address, mappedAddress):
 				return mapping
 
-		# We explicitily use defaultMapping instead of `*` so that uiState
-		# can define a default that doesn't take precidence over mappings
+		# We explicitly use defaultMapping instead of `*` so that uiState
+		# can define a default that doesn't take precedence over mappings
 		# added later. For example from the TdArena class.
 		return self.defaultMapping
 
 	def Dispatch(self, address, *args):
 		mapping = self.getMapping(address, args)
-		assert mapping, 'unmapped osc address {}'.format(address)
+		assert mapping, f'unmapped osc address {address}'
 
 		handler = mapping.get('handler', None)
-		assert handler, 'expected handler to be defined for {}'.format(address)
+		assert handler, f'expected handler to be defined for {address}'
 
 		self.logDebug(f'dispatching {address} with {args}')
 
