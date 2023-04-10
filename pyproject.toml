@@ -9,6 +9,9 @@ packages = []
 
 [tool.poetry.dependencies]
 python = "3.9.5"
+
+# Dependencies from touchdesigner
+[tool.poetry.group.td.dependencies]
 numpy = "=1.20.3"
 
 [tool.poetry.group.dev.dependencies]
@@ -21,6 +24,7 @@ pytest = "^7.3.0"
 rope = "^1.7.0"
 yapf = "^0.32.0"
 toml = "^0.10.2"
+pyright = "^1.1.302"
 
 [build-system]
 requires = ["poetry-core"]
@@ -56,13 +60,16 @@ disable=[
 additional-builtins=[
 	"absTime",
 	"baseCOMP",
+	"Cell",
 	"COMP",
+	"DAT",
 	"debug",
 	"op",
 	"OP",
 	"parent",
 	"PaneType",
 	"ParMode",
+	"Par",
 	"project",
 	"run",
 	"tableDAT",
@@ -70,4 +77,9 @@ additional-builtins=[
 	"tdu",
 	"ui",
 	"WindowsError",
+]
+
+[tool.pyright]
+include = [
+	"Lib"
 ]

@@ -776,7 +776,7 @@ class TreeListerExt(ListerExt):
 								self.treeListerComp.par.Clickcornertorefresh:
 			self.setupRefreshIcon()
 
-	def InitRow(self, row):	
+	def InitRow(self, row):
 		ListerExt.InitRow(self, row)
 		if self.header and row == 0:
 			return

@@ -1,4 +1,4 @@
-import typing as T
+from typing import Optional, Union
 
 from tda import LoadableExt
 from tdaUtils import (DeckLocation, clearChildren, getCellValues, getClipID,
@@ -18,6 +18,7 @@ def clipPrevisTarget(clipID: int) -> str:
 
 
 class DeckCtrl(LoadableExt):
+
 	@property
 	def selectedDeckState(self):
 		# TODO: make this dynamic
@@ -62,7 +63,7 @@ class DeckCtrl(LoadableExt):
 			(deckID, deckName, deckState) = deck
 			self.createDeck(deckID, deckName, deckState)
 
-		self.logInfo('loaded {} decks in composition'.format(len(self.decks)))
+		self.logInfo(f'loaded {len(self.decks)} decks in composition')
 		self.setLoaded()
 
 	def GetSaveState(self):
@@ -93,9 +94,7 @@ class DeckCtrl(LoadableExt):
 		clipID = self.getClipID(clipLocation)
 
 		self.logInfo(
-			'connecting clip #{} at {} to layer {}'.format(
-				clipID, clipLocation, layerNumber
-			)
+			f'connecting clip #{clipID} at {clipLocation} to layer {layerNumber}'
 		)
 
 		# NOTE: we offset by one because decks are 0 indexed and layer 0 is the composition
@@ -126,8 +125,8 @@ class DeckCtrl(LoadableExt):
 			f'/composition/clips/{clipID}/video/effects', effectPath
 		)
 
-	def ClearClip(self, clipLocation: DeckLocation, deckID: int = None):
-		self.logInfo('clearing clip at {}'.format(clipLocation))
+	def ClearClip(self, clipLocation: DeckLocation, deckID: Optional[int] = None):
+		self.logInfo(f'clearing clip at {clipLocation}')
 		clipID = self.getClipID(clipLocation, deckID)
 
 		if clipID is not None:
@@ -150,7 +149,7 @@ class DeckCtrl(LoadableExt):
 	def SelectDeck(self, address):
 		self.composition.par.Selecteddeck = getDeckID(address)
 
-	def SelectClip(self, address: T.Union[str, int]):
+	def SelectClip(self, address: Union[str, int]):
 		clipID = getClipID(address) if isinstance(address, str) else address
 		self.clipCtrl.ActivateClip(clipID, fromSelect=True)
 		self.composition.par.Previstarget = clipPrevisTarget(clipID)
@@ -194,8 +193,8 @@ class DeckCtrl(LoadableExt):
 		self.selectedDeckState[layerNumber, clipNumber] = cellValue
 
 	def createDeck(self, deckID, deckName, deckState):
-		opName = 'deck{}'.format(deckID)
-		self.logDebug('creating deck: {}'.format(opName))
+		opName = f'deck{deckID}'
+		self.logDebug(f'creating deck: {opName}')
 
 		newDeck = self.deckContainer.copy(self.deckTemplate, name=opName)
 		# TODO: be smarter about this, direct map?

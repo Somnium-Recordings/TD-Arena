@@ -53,7 +53,7 @@ class UngroupedLogCollector:
 
 
 def matchesSearchQuery(message: str, searchQuery: List[str]) -> bool:
-	return all([part in message for part in searchQuery])
+	return all(part in message for part in searchQuery)
 
 
 def formatLog(message: str, sources: List[LogSource]) -> str:

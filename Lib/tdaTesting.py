@@ -3,6 +3,7 @@ from unittest.mock import MagicMock
 
 
 class MockCell:
+
 	def __init__(self, val: str, row: int, col: int):
 		self.val = val
 		self.row = row
@@ -19,6 +20,7 @@ def createMockRow(rowNumber, rowData):
 
 
 class MockTable:
+
 	def __init__(self, rows):
 		self._rowData = [createMockRow(i, r) for i, r in enumerate(rows)]
 
@@ -96,6 +98,7 @@ class MockTable:
 
 
 class MockOP(MagicMock):
+
 	def __init__(self) -> None:
 		super().__init__()
 		self.paths = {}
@@ -114,6 +117,7 @@ class MockOP(MagicMock):
 
 
 class MockParameter:
+
 	def __init__(self, val) -> None:
 		self._val = val
 
@@ -122,6 +126,7 @@ class MockParameter:
 
 
 class MockParameterBag:
+
 	def __init__(self, pars):
 		self._parameters = pars
 

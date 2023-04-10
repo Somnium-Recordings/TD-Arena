@@ -1,8 +1,7 @@
 import math
 from collections import namedtuple
-from typing import List, Optional, Union
+from typing import List, Optional, Tuple, Union
 
-from tda import Cell
 from tdaUtils import getCellValues
 
 # NOTE: message needs to stay first for search/matching to work correctly
@@ -15,7 +14,7 @@ LogRecord = namedtuple(
 LOG_STORAGE_COLS = LogRecord._fields
 
 
-def getLogVal(row: List[Cell], col: str) -> str:
+def getLogVal(row: Union[List[Cell], Tuple[Cell, ...]], col: str) -> str:
 	return row[LOG_STORAGE_COLS.index(col)].val
 
 
@@ -48,13 +47,13 @@ class LogCollectorExt:
 		return self.ownerComp.par.Groupsimilarlogs.eval()
 
 	@lastCollectedFrame.setter
-	def lastCollectedFrame(self, val: Union[int, float]) -> int:
+	def lastCollectedFrame(self, val: Union[int, float]):
 		self.ownerComp.par.Lastcollectedframe = 0 if math.isinf(val) else int(val)
 
 	# TODO: clear logs on first load
 	def __init__(self, ownerComp) -> None:
 		self.ownerComp = ownerComp
-		self.logStorage = ownerComp.op('table_logStorage')
+		self.logStorage: DAT = ownerComp.op('table_logStorage')
 		self.unprocessedLogs = ownerComp.op('null_unprocessedLogs')
 		self.onLogChangeHandler = ownerComp.op('datexec_onLogChange')
 
@@ -71,12 +70,10 @@ class LogCollectorExt:
 		# getting turned off previously
 		self.onLogChangeHandler.par.active = 1
 
-	def ProcessLogChange(self, dat) -> None:
+	def ProcessLogChange(self, dat: DAT) -> None:
 		if dat.numRows == 0:
 			return
 
-		headerRow: Cell
-		logRows: List[Cell]
 		headerRow, *logRows = dat.rows()
 		logColumns = getCellValues(headerRow)
 
@@ -126,13 +123,13 @@ class LogCollectorExt:
 		if log is None:
 			self.logStorage.appendRow(logRecord)
 		else:
-			logCount = int(getLogVal(log, 'count') or '1')
-			setLogVal(log, 'count', logCount + 1)
+			logCount = int(getLogVal(log, 'count') or '1', 10)
+			setLogVal(log, 'count', str(logCount + 1))
 			setLogVal(log, 'timestamp', logRecord.timestamp)
 			setLogVal(log, 'absframe', logRecord.absframe)
 			setLogVal(log, 'frame', logRecord.frame)
 
-	def findMatchingLog(self, logRecord: LogRecord) -> Optional[int]:
+	def findMatchingLog(self, logRecord: LogRecord) -> Optional[List[Cell]]:
 		return next(
 			(
 				log for log in self.logStorage.rows(logRecord.message)

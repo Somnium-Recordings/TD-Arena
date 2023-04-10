@@ -1,12 +1,11 @@
-# pylint: disable=no-self-use
 from unittest.mock import MagicMock
 
 import pytest
-
 from oscDispatcher import OSCDispatcher
 
 
 class TestDispatcher():
+
 	@pytest.fixture
 	def ownerComponent(self):
 		return MagicMock()

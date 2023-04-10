@@ -2,6 +2,7 @@ from tda import BaseExt
 
 
 class Thumbnails(BaseExt):
+
 	def __init__(self, ownerComponent, logger):
 		super().__init__(ownerComponent, logger)
 		self.thumbnailClips = ownerComponent.op('null_thumbnailClips')

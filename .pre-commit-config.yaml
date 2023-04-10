@@ -15,27 +15,35 @@ repos:
         entry: python .pre-commit-hooks/check-large-files.py
         args: ["--maxkb=225"]
         language: system
+
       - id: unify
         name: unify
-        entry: poetry run unify --in-place
+        entry: unify --in-place
         language: system
         types: [python]
+
       - id: yapf-isort
         name: Run yapf + isort
         description: Let yapf format your python code but isort sort your imports.
-        entry: .pre-commit-hooks/yapf-isort.sh
-        language: script
+        entry: .pre-commit-hooks/yapf-isort.ps1
+        language: system
         files: \.py$
+
       - id: pylint
         name: pylint
-        entry: poetry run pylint
+        entry: pylint
         language: system
         types: [python]
+
       - id: pytest
         name: Run Tests
-        entry: poetry run pytest
+        entry: pytest
         language: system
         pass_filenames: false
         always_run: true
 
-exclude: .*.excalidraw$
+exclude: |
+    (?x)^(
+        .*.excalidraw|
+        .pre-commit-hooks/yapf-isort.sh
+    )$

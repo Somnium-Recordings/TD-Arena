@@ -7,6 +7,7 @@ SETTINGS_FILE = path.join('.td-arena', 'settings.json')
 
 
 class UserSettings(LoadableExt):
+
 	@property
 	def settingsFilePath(self):
 		return tdu.expandPath(SETTINGS_FILE)
@@ -23,7 +24,7 @@ class UserSettings(LoadableExt):
 	def loadSettingsFile(self):
 		self.logDebug('loading settings file')
 		try:
-			with open(self.settingsFilePath) as saveFile:
+			with open(self.settingsFilePath, encoding='utf8') as saveFile:
 				settings = json.load(saveFile)
 		except (json.JSONDecodeError, FileNotFoundError):
 			self.logDebug(f'no settings file found at {self.settingsFilePath}')
@@ -58,5 +59,5 @@ class UserSettings(LoadableExt):
 				userSettings[par.name] = par.eval()
 
 		if applyUserSettings is None:
-			with open(self.settingsFilePath, 'w') as saveFile:
+			with open(self.settingsFilePath, 'w', encoding='utf8') as saveFile:
 				json.dump(userSettings, saveFile, indent='\t')

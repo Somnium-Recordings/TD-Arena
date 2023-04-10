@@ -7,15 +7,13 @@ from tda import BaseExt
 OSCValue = Union[str, int, float, bool]
 
 
-class CtrlState(TypedDict, total=False):
+class CtrlState(TypedDict):
 	# key is sourceName
 	handlers: Dict[str, Callable]
 	currentValue: Union[OSCValue, None]
 
 
 class UIStateExt(BaseExt):
-
-	oscControlState: Dict[str, CtrlState]
 
 	def __init__(self, ownerComponent, logger):
 		super().__init__(ownerComponent, logger)
@@ -35,7 +33,7 @@ class UIStateExt(BaseExt):
 		"""
 		TODO: call this on composition [re]load
 		"""
-		self.oscControlState = {}
+		self.oscControlState: Dict[str, CtrlState] = {}
 
 	def SendMessage(self, address, *args):
 		if address:
@@ -66,12 +64,9 @@ class UIStateExt(BaseExt):
 		self.logDebug(f'registering control {sourceName} handler @ {address}')
 
 		if (ctrlState := self.oscControlState.get(address, None)) is None:
-			ctrlState = {
-				'currentValue': None,
-				'handlers': {
-					sourceName: setCtrlValueHandler
-				}
-			}
+			ctrlState = CtrlState(
+				handlers={sourceName: setCtrlValueHandler}, currentValue=None
+			)
 			self.oscControlState[address] = ctrlState
 		else:
 			if sourceName in ctrlState['handlers']:

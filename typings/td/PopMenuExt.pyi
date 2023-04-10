@@ -76,7 +76,7 @@ class PopMenuExt:
 		TDFunctions.createProperty(self, 'ShortcutWidth', 23, dependable=True,
 								   readOnly=True)
 		# if True, show scrollbar
-		TDFunctions.createProperty(self, 'ShowScrollbar', False, 
+		TDFunctions.createProperty(self, 'ShowScrollbar', False,
 								   dependable=True, readOnly=True)
 		# checked items list or dict
 		TDFunctions.createProperty(self, 'CheckedItems', [], dependable=True,
@@ -128,7 +128,7 @@ class PopMenuExt:
 			Callback DAT will be searched
 		allowStickySubMenus: if True, clicking on subMenu items will lock their
 			submenus open
-		title: automatically add this string as a disabled title item at top of 
+		title: automatically add this string as a disabled title item at top of
 			menu
 		scale: scales the popup menu created
 		"""
@@ -253,7 +253,7 @@ class PopMenuExt:
 		self._subMenuArgs = (items, callback, callbackDetails, highlightedItems,
 							 disabledItems, dividersAfterItems, checkedItems,
 							 subMenuItems, autoClose, shortcuts,
-							 rolloverCallback, allowStickySubMenus, title, 
+							 rolloverCallback, allowStickySubMenus, title,
 							 scale)
 		self.SubMenu.Close()
 		self.Scaler.setFocus()
@@ -368,7 +368,7 @@ class PopMenuExt:
 						or self.SubMenu.par.Autoclose.menuIndex == 1 \
 						or not self.ownerComp.par.Allowstickysubmenus.eval():
 					# new submenu cell
-					run('args[0].checkMenuRoll(args[1])', self, cell, 
+					run('args[0].checkMenuRoll(args[1])', self, cell,
 							delayMilliSeconds=300)
 					# self.OnSelect(cell, doautoClose=False, menuRoll=True)
 			else:
@@ -528,7 +528,7 @@ class PopMenuExt:
 			items = eval(parVal.strip())
 		else:
 			items = []
-		return items			
+		return items
 
 	@property
 	def CheckedItems(self):
@@ -614,7 +614,7 @@ class PopMenuExt:
 
 		self._OptimalWidth.val = max(16, width)
 		rowHeight = self.configComp.op('master').height
-		optimalHeight = rowHeight * (self.layoutTable.numRows 
+		optimalHeight = rowHeight * (self.layoutTable.numRows
 						+ (1 if self.Title else 0))
 
 		if self.ownerComp.par.Maxheightmode == 'Pixels':
@@ -634,7 +634,7 @@ class PopMenuExt:
 			return 0 # just fake it
 		baseLocation = cell * self.configComp.op('master').height \
 						* self.ownerComp.par.Scale
-		return baseLocation 
+		return baseLocation
 
 	def LostFocus(self):
 		if self.Scaler.panel.rollover:
@@ -793,7 +793,7 @@ class PopMenuExt:
 				self.refresh()
 		elif par.name == 'Buttoncomp':
 			self.setAttachPars()
-			
+
 	def onParPulse(self, par):
 		if par.name == 'Open':
 			self.Open()
@@ -807,7 +807,3 @@ class PopMenuExt:
 						'title=Palette:popMenu')
 		elif par.name == 'Refreshlookconfig':
 			self.Lister.par.Refresh.pulse()
-
-
-
-

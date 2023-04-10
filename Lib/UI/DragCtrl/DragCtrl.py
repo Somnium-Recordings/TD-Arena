@@ -1,4 +1,4 @@
-from tda import BaseExt, DroppedItem, Par
+from tda import BaseExt, DroppedItem
 
 DROP_SCRIPT_MAP = [
 	'DISABLED_ACTION_STATE',
@@ -11,16 +11,17 @@ DROP_SCRIPT_MAP = [
 
 
 class DragCtrl(BaseExt):
+
 	def __init__(self, ownerComponent, logger) -> None:
 		super().__init__(ownerComponent, logger)
 		TDF = op.TDModules.mod.TDFunctions
 
 		self.IsDragging: bool
-		self._IsDragging: Par[bool]
+		self._IsDragging: Par
 		TDF.createProperty(self, 'IsDragging', value=False, readOnly=True)
 
 		self.DraggedPath: str
-		self._DraggedPath: Par[str]
+		self._DraggedPath: Par
 		TDF.createProperty(self, 'DraggedPath', value='', readOnly=True)
 
 	# dropName: dropped node name or filename
@@ -68,7 +69,7 @@ class DragCtrl(BaseExt):
 	#       arg3 total dragged
 	#       arg4 operator                     (or file extension)
 	#       arg5 dragged node parent network  (or parent directory)
-	def OnDrag(self, dragName, index, num, dragExt, baseName):  # pylint: disable=too-many-arguments,unused-argument,no-self-use
+	def OnDrag(self, dragName, index, num, dragExt, baseName):  # pylint: disable=too-many-arguments,unused-argument
 		self._IsDragging.val = True
 		self._DraggedPath.val = f'{baseName}/{dragName}.{dragExt}'
 		self.logDebug(f'started dragging {self.DraggedPath}')

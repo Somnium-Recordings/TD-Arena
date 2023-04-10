@@ -1,34 +1,7 @@
 from collections import namedtuple
-from typing import Generic, TypeVar
-
-T = TypeVar('T')
 
 
-class Par(Generic[T]):
-	"""
-	Minimal type info for the touch designer Parameter class
-	"""
-
-	@property
-	def val(self) -> T:
-		pass
-
-	@val.setter
-	def val(self, newVal: T) -> None:
-		pass
-
-	def eval(self) -> T:
-		pass
-
-
-# pylint: disable=too-few-public-methods
-class Cell():
-
-	@property
-	def val(self) -> str:
-		pass
-
-
+# TODO: Move to td stubs
 class TDFileInfo(str):
 	"""
 	Created using tdu.FileInfo

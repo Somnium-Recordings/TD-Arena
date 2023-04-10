@@ -8,6 +8,7 @@ MAX_WAIT_CYCLES = 20
 # TODO: use ABC and create a base "Source" class?
 # TODO: Move ToxSource and MovieSource out of cloned base
 class ToxSource(BaseExt):
+
 	@property
 	def tox(self):
 		return self.ownerComponent.op('./tox')
@@ -29,8 +30,7 @@ class ToxSource(BaseExt):
 		if waitCount > MAX_WAIT_CYCLES:
 			self.setLoaded(wasSuccessful=False)
 			self.logError(
-				'preloading tox took more than {} cycles, aborting. Does the tox contain null_final?'
-				.format(MAX_WAIT_CYCLES)
+				f'preloading tox took more than {MAX_WAIT_CYCLES} cycles, aborting. Does the tox contain null_final?'
 			)
 			return
 

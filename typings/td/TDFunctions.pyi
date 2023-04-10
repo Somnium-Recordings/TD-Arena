@@ -69,9 +69,9 @@ def getShortcutPath(fromOp, toOp, toParName=None):
 			op('/')
 			op('./<path>')  -  Direct child
 			op('<toOp.name>')  -  Direct sibling
-			op.<opshortcut>		
+			op.<opshortcut>
 			parent.<parentshortcut>
-			parent(#)				
+			parent(#)
 			parent.<parentshortcut>.op('<path>')
 			op.<opshortcut>.op('<path>')
 			parent(#).op('<path>')
@@ -149,7 +149,7 @@ def getShortcutPath(fromOp, toOp, toParName=None):
 						rootExpr = 'parent.' + shortcut + '.'
 					else:
 						rootExpr = ''
-					return parCheck(rootChild(searchOp, rootExpr))		
+					return parCheck(rootChild(searchOp, rootExpr))
 		opShortcut = searchOp.par.opshortcut.eval().strip()
 		if opShortcut:
 			rootExpr = 'op.' + opShortcut + '.'
@@ -167,7 +167,7 @@ def getShortcutPath(fromOp, toOp, toParName=None):
 		searchOp = searchOp.parent()
 
 	# parent(#).op('<path>')
-	# search for common parents		
+	# search for common parents
 	sanity = 100
 	searchOp = toOp
 	while searchOp != op('/'):
@@ -860,7 +860,7 @@ def multiMatch(patterns, inputList, caseSensitive=True, useMinus=True):
 	"""
 	Return a subset of inputList that match patterns, similar to what you would
 	put in a pattern matching parameter.
-	
+
 	Args:
 		patterns: space separate list of pattern-match strings to check
 		inputList: list of strings to check
@@ -888,7 +888,7 @@ def multiMatch(patterns, inputList, caseSensitive=True, useMinus=True):
 				break
 		yesSet -= noSet
 	return [item for item in inputList if item in yesSet]
-		
+
 def formatString(format, dataDict=None):
 	"""
 	format a string using f-string formatting.
@@ -896,12 +896,12 @@ def formatString(format, dataDict=None):
 	Uses an f-string style format string and a dictionary of data to return a
 	formatted string. For more info, search "Python f-strings".
 
-	Example usage: formatString('{num} red balloons', {'num': 99}) 
+	Example usage: formatString('{num} red balloons', {'num': 99})
 						returns '99 red balloons'
 
 	Args:
 		format (string): the f-string to use for formatting
-		dataDict (dict, optional): dictionary of values available to the format 
+		dataDict (dict, optional): dictionary of values available to the format
 			string. Defaults to {}}.
 
 	Returns:

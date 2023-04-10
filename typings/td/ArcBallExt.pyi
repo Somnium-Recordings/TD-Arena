@@ -1,7 +1,7 @@
 class ArcBallExt():
 	"""
 	The ArcBallExt Class helps with interactively controlling a Camera COMP
-	given a Container COMP with the Mouse UV Buttons Parameters for left, 
+	given a Container COMP with the Mouse UV Buttons Parameters for left,
 	middle and right enabled.
 
 	Attributes
@@ -64,7 +64,7 @@ class ArcBallExt():
 			self.arcInst.beginDolly(u,v)
 
 		return
-		
+
 	def Transform(self, btn : str = None, u : float = 0, v : float = 0, scaler : float = 1) -> None:
 		"""
 
@@ -92,7 +92,7 @@ class ArcBallExt():
 
 		self.fillMat()
 		return
-		
+
 	def Reset(self) -> None:
 		op('autoRotate/hold1').par.pulse.pulse()
 		op('autoRotate/hold2').par.pulse.pulse()
@@ -100,7 +100,7 @@ class ArcBallExt():
 		self.arcInst.identity()
 		self.fillMat()
 		return
-	
+
 	def LoadTransform(self, dat : tableDAT = None, matrix : tdu.Matrix = None) -> None:
 		"""
 		Parameters
@@ -126,7 +126,7 @@ class ArcBallExt():
 		Parameters
 		----------
 			dat : tableDAT
-				A tableDAT operator reference to the tableDAT where to write the current transform matrix into. 
+				A tableDAT operator reference to the tableDAT where to write the current transform matrix into.
 		"""
 
 		if dat.OPType == 'tableDAT':

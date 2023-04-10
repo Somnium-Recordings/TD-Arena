@@ -1,16 +1,17 @@
-# pylint: disable=no-self-use,too-few-public-methods,too-many-arguments
+# pylint: disable=too-few-public-methods,too-many-arguments
 import pytest
-
 from tdaTesting import MockCell, MockTable
 
 
 class TestMockCell:
+
 	def test_toString(self):
 		testCell = MockCell('foo', 0, 1)
 		assert str(testCell) == 'foo'
 
 
 class TestMockTable:
+
 	@pytest.fixture
 	def testTable(self):
 		return MockTable([

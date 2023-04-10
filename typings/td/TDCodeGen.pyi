@@ -17,7 +17,7 @@
 
 """TDCodeGen
 
-Helpers for automatically generated Python code. Heavily based on the ast 
+Helpers for automatically generated Python code. Heavily based on the ast
 Python library
 """
 
@@ -36,8 +36,8 @@ def datFunctionInfo(dat):
 	"""
 	ast = datAst(dat)
 	functions = nodeFunctions(ast)
-	return {functionName: 
-					{'docString': nodeDocString(node), 
+	return {functionName:
+					{'docString': nodeDocString(node),
 					'lines': nodeLines(node)}
 				for functionName, node in functions.items()}
 
@@ -65,11 +65,11 @@ def datRemoveFunction(dat, functionName):
 
 def datInsertText(dat, text, insertLine=None):
 	"""
-	Insert text into a dat. 
+	Insert text into a dat.
 
 	Args:
 		dat: the DAT
-		text: the text to be inserted. 
+		text: the text to be inserted.
 		insertLine: the line at which to insert text. If None (default), insert
 			text after last non-pblank line in file.
 	"""
@@ -128,7 +128,7 @@ def nodeDocString(node):
 			return item.value.s
 	except:
 		return None
-		
+
 def nodeLines(node):
 	"""
 	Get the line number range of a node
@@ -139,7 +139,7 @@ def nodeLines(node):
 	Returns:
 		(start line #, end line # + 1)
 	"""
-	
+
 	min_lineno = node.lineno
 	max_lineno = node.lineno
 	for node in ast.walk(node):

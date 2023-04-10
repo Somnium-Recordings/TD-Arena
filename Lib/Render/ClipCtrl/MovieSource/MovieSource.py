@@ -5,6 +5,7 @@ MAX_WAIT_CYCLES = 20
 
 
 class MovieSource(BaseExt):
+
 	def __init__(self, ownerComponent, logger):
 		super().__init__(ownerComponent, logger)
 		self.movie = ownerComponent.op('./moviefilein1')
@@ -21,8 +22,7 @@ class MovieSource(BaseExt):
 		if waitCount > MAX_WAIT_CYCLES:
 			self.setLoaded(wasSuccessful=False)
 			self.logError(
-				'preloading video took more than {} cycles, aborting'.
-				format(MAX_WAIT_CYCLES)
+				f'preloading video took more than {MAX_WAIT_CYCLES} cycles, aborting'
 			)
 			return
 

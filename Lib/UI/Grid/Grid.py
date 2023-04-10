@@ -48,7 +48,6 @@ def setDividerReferences(element, layoutSpec):
 
 
 # yapf: disable
-# pylint: disable=bad-whitespace
 DEFAULT_LAYOUT = {
 	'cells': [
 		{'id': 0, 'l': None, 'r': 2,    'b': None, 't': 0   },
@@ -111,6 +110,7 @@ def layoutExists(layoutName):
 
 
 class Grid(LoadableExt):
+
 	@property
 	def layoutUserSetting(self):
 		return self.userSettings.par.Gridlayout.eval()
@@ -161,7 +161,7 @@ class Grid(LoadableExt):
 			return DEFAULT_LAYOUT
 
 		try:
-			with open(layoutFilePath(layoutName)) as saveFile:
+			with open(layoutFilePath(layoutName), encoding='utf8') as saveFile:
 				self.logDebug(f'loading layout file {layoutFilePath(layoutName)}')
 				return json.load(saveFile)
 		except (json.JSONDecodeError, FileNotFoundError):
@@ -194,7 +194,6 @@ class Grid(LoadableExt):
 		self.panelMapTable.setSize(len(panelMap), len(panelMap[0]))
 		self.setLoaded()
 
-	# pylint: disable=no-self-use
 	def GetAvailableLayouts(self):
 		layouts = ['Default']
 
@@ -221,7 +220,7 @@ class Grid(LoadableExt):
 		}
 
 		saveFilePath = layoutFilePath('User')
-		with open(saveFilePath, 'w') as saveFile:
+		with open(saveFilePath, 'w', encoding='utf8') as saveFile:
 			json.dump(saveState, saveFile, indent='\t')
 
 		self.logDebug(f'layout saved to {saveFilePath }')
@@ -464,9 +463,13 @@ class Grid(LoadableExt):
 
 		pos = 'x' if direction in ('l', 'r') else 'y'
 		if direction in ('l', 'b'):
-			isCloser = lambda d1, d2: getattr(d1, pos) > getattr(d2, pos)
+
+			def isCloser(d1, d2):
+				return getattr(d1, pos) > getattr(d2, pos)
 		else:
-			isCloser = lambda d1, d2: getattr(d1, pos) < getattr(d2, pos)
+
+			def isCloser(d1, d2):
+				return getattr(d1, pos) < getattr(d2, pos)
 
 		return reduce(lambda d1, d2: d1 if isCloser(d1, d2) else d2, adjacent)
 

@@ -6,6 +6,7 @@ DEFAULT_STATE = {}
 
 
 class EffectCtrl(LoadableExt):
+
 	def Init(self, _renderState):
 		self.setUnloaded()
 
@@ -105,6 +106,7 @@ def getSourceID(effectOp):
 
 
 class EffectsContainer(LoadableExt):
+
 	@property
 	def headEffectID(self):
 		return intIfSet(self.ownerComponent.par.Headeffectid.eval())

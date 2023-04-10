@@ -47,7 +47,7 @@ class CallbacksExt:
 	(non-promoted!) members callbackDat and printCallbacks can be set.
 
 	If you want to set up a chain of callback targets, use PassCallbacksTo to
-	set the next target. This target can be a dat or a function. 
+	set the next target. This target can be a dat or a function.
 	Unfound callbacks will then be sent to the appropriate callback in the dat
 	or to the function. Also, from within a callback, you can call
 		info['ownerComp'].PassOnCallback(info)

@@ -353,7 +353,7 @@ class DependDict(DependMixin, MutableMapping):
 		self.myItems[key].modified()
 		del self.myItems[key]
 		self.myMainDep.modified()
-		
+
 
 
 class DependList(DependMixin, MutableSequence):
@@ -428,7 +428,7 @@ class DependList(DependMixin, MutableSequence):
 		self.myMainDep.val  # dummy for dependency
 		return iter([i.val for i in self.myItems])
 
-	def clear(self):		
+	def clear(self):
 		self.myItems.clear()
 		self.myMainDep.modified()
 
