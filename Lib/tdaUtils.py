@@ -3,7 +3,7 @@ import re
 from collections import namedtuple
 from fnmatch import fnmatchcase
 from pathlib import PureWindowsPath
-from typing import List, NamedTuple
+from typing import List, NamedTuple, Optional
 
 SELECTED_DECK_LOCATION_RE = re.compile(
 	r'/selecteddeck/layers/(\d+)/clips/(\d+)/?.*'
@@ -159,7 +159,9 @@ def exportToAddress(exportName):
 	return f'{address}/{prop}'
 
 
-def addSectionParameters(op, order: int, name: str, opacity: float = None):
+def addSectionParameters(
+	op, order: int, name: str, opacity: Optional[float] = None
+):
 	page = op.appendCustomPage('Section')
 
 	# TODO(#41): can we use this for the "Video" section's opacity parameter?

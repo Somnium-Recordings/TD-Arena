@@ -63,13 +63,13 @@ class LoadableExt(BaseExt):
 	def __init__(self, ownerComponent, logger):
 		super().__init__(ownerComponent, logger)
 		self.Loaded: bool
-		self._Loaded: Par[bool]
+		self._Loaded: Par
 
 		TDF = op.TDModules.mod.TDFunctions
 		TDF.createProperty(self, 'Loaded', value=False, readOnly=True)
 
 		self.Loading: bool
-		self._Loading: Par[bool]
+		self._Loading: Par
 		TDF.createProperty(self, 'Loading', value=False, readOnly=True)
 
 	def setUnloaded(self):

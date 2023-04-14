@@ -35,6 +35,12 @@ repos:
         language: system
         types: [python]
 
+      - id: pyright
+        name: pyright
+        entry: pyright
+        language: system
+        types: [python]
+
       - id: pytest
         name: Run Tests
         entry: pytest
