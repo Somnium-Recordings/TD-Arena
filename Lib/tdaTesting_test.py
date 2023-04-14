@@ -20,8 +20,8 @@ class TestMockTable:
 		])
 
 	def test_row(self, testTable: MockTable):
-		assert str(testTable.row(0)[0]) == '0-0'
-		assert str(testTable.row('1-0')[1]) == '1-1'
+		assert str(testTable.row(0)[0]) == '0-0'  # type: ignore
+		assert str(testTable.row('1-0')[1]) == '1-1'  # type: ignore
 
 	def test_appendRow(self, testTable: MockTable):
 		assert testTable.numRows == 2
@@ -31,12 +31,12 @@ class TestMockTable:
 
 		testTable.appendRows([['3-0', '3-1'], ['4-0', '4-1']])
 		assert testTable.numRows == 5
-		assert testTable.row(4)[0].val == '4-0'
+		assert testTable.row(4)[0].val == '4-0'  # type: ignore
 
 	def test_deleteRow(self, testTable: MockTable):
 		testTable.deleteRow(0)
-		assert testTable.row(0)[0].val == '1-0'
-		assert testTable.row(0)[0].row == 0
+		assert testTable.row(0)[0].val == '1-0'  # type: ignore
+		assert testTable.row(0)[0].row == 0  # type: ignore
 
 		testTable.deleteRow('1-0')
 		assert testTable.numRows == 0
@@ -49,9 +49,9 @@ class TestMockTable:
 		assert testTable.numRows == 0
 
 	def test_getItem(self, testTable: MockTable):
-		assert testTable[1, 0].val == '1-0'
-		assert testTable['1-0', 1].val == '1-1'
-		assert testTable['1-0', '0-1'].val == '1-1'
+		assert testTable[1, 0].val == '1-0'  # type: ignore
+		assert testTable['1-0', 1].val == '1-1'  # type: ignore
+		assert testTable['1-0', '0-1'].val == '1-1'  # type: ignore
 		assert testTable['1-0', 'invalid'] is None
 		assert testTable['invalid', 'invalid'] is None
 		assert testTable[99, '0-1'] is None

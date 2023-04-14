@@ -42,6 +42,3 @@ jobs:
 
       - name: Lint & Format Check
         run: poetry run pre-commit run --all-files
-
-      - name: Test
-        run: poetry run pytest

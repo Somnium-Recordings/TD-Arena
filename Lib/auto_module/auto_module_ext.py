@@ -1,18 +1,18 @@
 import math
-import typing as T
 from dataclasses import dataclass
+from typing import Any, Dict, Optional, Union, cast
 
 
-def getOrCreateTextDAT(targetOp: OP, datName: str) -> T.Any:
+def getOrCreateTextDAT(targetOp: COMP, datName: str) -> textDAT:
 	if (dat := targetOp.op(datName)) is None:
 		dat = targetOp.create(textDAT, datName)
 		dat.par.language = 3
-		dat.viewer = 1
+		dat.viewer = True
 
-	return dat
+	return cast(textDAT, dat)
 
 
-def layoutChildren(op, columns=4, xBase=0):
+def layoutChildren(op: COMP, columns=4, xBase=0):
 	children = op.findChildren(depth=1)
 	for i, comp in enumerate(children):
 		comp.nodeX = xBase + (i % columns) * 200
@@ -22,12 +22,12 @@ def layoutChildren(op, columns=4, xBase=0):
 @dataclass
 class Node:
 	name: str
-	parent: T.Optional['Directory']
 
 
 @dataclass
 class File(Node):
 	path: str
+	parent: Union['Directory', 'RootDirectory']
 
 	@property
 	def shouldHaveTdModule(self) -> bool:
@@ -37,6 +37,7 @@ class File(Node):
 		if not self.shouldHaveTdModule:
 			return
 
+		assert self.parent, f'could not process file {self.name}, missing parent'
 		assert self.parent.containerOp, f'could not process file {self.name}, parent missing containerOp'
 
 		dat = getOrCreateTextDAT(self.parent.containerOp, self.name)
@@ -46,9 +47,9 @@ class File(Node):
 
 
 @dataclass
-class Directory(Node):
-	children: T.Dict[str, T.Union[File, 'Directory']]
-	containerOp: T.Optional[T.Any] = None
+class RootDirectory(Node):
+	children: Dict[str, Union[File, 'Directory']]
+	containerOp: Optional[COMP]
 
 	@property
 	def containerOpName(self) -> str:
@@ -62,40 +63,7 @@ class Directory(Node):
 	def containerOpNameToDirName(opName: str) -> str:
 		return opName[1:]  # remove the _
 
-	@property
-	def shouldHaveTdModule(self) -> bool:
-		return '__init__' in self.children
-
-	def __post_init__(self):
-		if self.parent and self.parent.containerOp:
-			self.containerOp = self.parent.containerOp.op(self.containerOpName)
-
-	def initializeContainerOp(self):
-		assert self.parent, (
-			f'could not create container op for {self.name}, missing parent reference'
-		)
-		assert self.parent.containerOp, (
-			f'could not create container op for {self.name}, parent missing containerOp'
-		)
-		self.containerOp = self.parent.containerOp.create(
-			baseCOMP, self.containerOpName
-		)
-
-	def createAggregateModuleInParent(self):
-		assert self.parent.containerOp, (
-			f'could not create aggregate module for {self.name}, parent missing containerOp'
-		)
-		moduleText = '\n'.join(
-			[
-				f'{child.name}=mod(\'{self.containerOpName}/{child.name}\')'
-				for child in self.children.values()
-				if child.shouldHaveTdModule
-			]
-		)
-		moduleDAT = getOrCreateTextDAT(self.parent.containerOp, self.name)
-		moduleDAT.text = moduleText
-
-	def isActiveModuleOp(self, moduleOp: T.Any) -> bool:
+	def isActiveModuleOp(self, moduleOp: Any) -> bool:
 		opName = moduleOp.name
 		childName = (
 			self.containerOpNameToDirName(opName)
@@ -117,13 +85,7 @@ class Directory(Node):
 			childOp.destroy()
 
 	def sync(self):
-		# Ignore directories that are not packages,
-		# except project root which doesn't have a parent and should always be processed
-		if self.parent and not self.shouldHaveTdModule:
-			return
-
-		if self.containerOp is None:
-			self.initializeContainerOp()
+		assert self.containerOp, f'cannot sync directory {self.name} due to missing containerOp'
 
 		for child in self.children.values():
 			child.sync()
@@ -131,6 +93,54 @@ class Directory(Node):
 		self.destroyInactiveModuleOps()
 
 		layoutChildren(self.containerOp)
+
+
+@dataclass
+class Directory(RootDirectory):
+	parent: Union['Directory', 'RootDirectory']
+
+	@property
+	def shouldHaveTdModule(self) -> bool:
+		return '__init__' in self.children
+
+	def __post_init__(self):
+		if self.parent and self.parent.containerOp:
+			self.containerOp = cast(
+				COMP, self.parent.containerOp.op(self.containerOpName)
+			)
+
+	def initializeContainerOp(self):
+		assert self.parent.containerOp, (
+			f'could not create container op for {self.name}, parent missing containerOp'
+		)
+		self.containerOp = cast(
+			baseCOMP, self.parent.containerOp.create(baseCOMP, self.containerOpName)
+		)
+
+	def createAggregateModuleInParent(self):
+		assert self.parent.containerOp, (
+			f'could not create aggregate module for {self.name}, parent missing containerOp'
+		)
+		moduleText = '\n'.join(
+			[
+				f'{child.name}=mod(\'{self.containerOpName}/{child.name}\')'
+				for child in self.children.values()
+				if child.shouldHaveTdModule
+			]
+		)
+		moduleDAT = getOrCreateTextDAT(self.parent.containerOp, self.name)
+		moduleDAT.text = moduleText
+
+	def sync(self):
+		# Ignore directories that are not packages,
+		# except project root which doesn't have a parent and should always be processed
+		if not self.shouldHaveTdModule:
+			return
+
+		if self.containerOp is None:
+			self.initializeContainerOp()
+
+		super().sync()
 
 		if self.parent:
 			self.createAggregateModuleInParent()
@@ -141,21 +151,17 @@ class AutoModuleExt:
 
 	def __init__(self, ownerComp) -> None:
 		self.ownerComp = ownerComp
-		self.fileList = self.ownerComp.op('null_fileList')
+		self.fileList: DAT = self.ownerComp.op('null_fileList')
 		debug('AutoModule Extension initialized')
 		# TODO: This causes infinite loop / crashes TD, why?
 		# self.Sync()
 
 	def Sync(self):
-		debug('synchronizing modules')
 		basePath = self.ownerComp.par.Moduledirectory.eval()
 		ignoredSuffixes = self.ownerComp.par.Ignoredsuffixes.eval().split(' ')
 
-		fileTree: Directory = Directory(
-			'root',
-			parent=None,
-			children={},
-			containerOp=self.ownerComp.par.Modulecomp.eval()
+		fileTree = RootDirectory(
+			'root', children={}, containerOp=self.ownerComp.par.Modulecomp.eval()
 		)
 
 		for row in range(1, self.fileList.numRows):
@@ -165,17 +171,27 @@ class AutoModuleExt:
 			if any(basename.endswith(suffix) for suffix in ignoredSuffixes):
 				continue
 
-			*directories, _ = relpath.split('/')
+			*directoryNames, _ = relpath.split('/')
 
-			root = fileTree
-			for d in directories:
+			root: Union[Directory, RootDirectory] = fileTree
+			for d in directoryNames:
+
 				if d not in root.children:
-					root.children[d] = Directory(d, parent=root, children={})
+					root.children[d] = Directory(
+						d, parent=root, children={}, containerOp=None
+					)
 
-				root = root.children[d]
+				child = root.children[d]
+
+				if isinstance(child, File):
+					raise TypeError(
+						f'unexpected file instance found at {d} where expecting Directory'
+					)
+
+				root = child
 
 			root.children[basename] = File(
-				basename, parent=root, path=f'{basePath }/{relpath}'
+				basename, parent=root, path=f'{basePath}/{relpath}'
 			)
 
 		fileTree.sync()

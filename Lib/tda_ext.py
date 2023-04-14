@@ -1,5 +1,5 @@
-import typing as T
 from os import path
+from typing import Callable, Optional, cast
 
 from tda import LoadableExt
 from ui_state import ui_state_ext
@@ -83,7 +83,7 @@ class TDAExt(LoadableExt):
 		uiGrid, logManager
 	):
 		super().__init__(ownerComponent, logger)
-		self.uiState = T.cast(ui_state_ext.UIStateExt, op.ui_state.ext.UIStateExt)
+		self.uiState = cast(ui_state_ext.UIStateExt, op.ui_state.ext.UIStateExt)
 		self.uiState.MapOSCHandlers(
 			{
 				'/render/initialized': {
@@ -106,7 +106,7 @@ class TDAExt(LoadableExt):
 		TDF = op.TDModules.mod.TDFunctions
 		TDF.createProperty(self, 'CompositionState', value=STATE_UNLOADED)
 
-		self.onRenderLoaded: T.Callable = None
+		self.onRenderLoaded: Optional[Callable] = None
 
 		self.logInfo('initialized')
 		self.StartRenderer()
