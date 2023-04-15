@@ -45,11 +45,17 @@ jobs:
           SKIP: pyright,pytest,pylint
         run: poetry run pre-commit run --all-files
 
-      - name: Lint
-        run: poetry run pylint
+      - uses: jordemort/action-pyright@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }} # You need this
+          reporter: github-pr-review # Change reporter.
+          lib: true
+          fail_on_error: true
+      # - name: Lint
+      #   run: poetry run pylint
 
-      - name: Typecheck
-        run: poetry run pyright
+      # - name: Typecheck
+      #   run: poetry run pyright
 
       - name: Test
         run: poetry run pytest
