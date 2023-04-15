@@ -188,7 +188,7 @@ def addSectionParameters(
 
 
 def resetCustomParameters(
-	operator,
+	operator,  # noqa: ANN001
 	checkDefaultExpr=False  # noqa: ANN001, FBT002
 ):
 	for p in operator.customPars:

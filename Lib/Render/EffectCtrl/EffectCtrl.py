@@ -200,11 +200,11 @@ class EffectsContainer(LoadableExt):
 		return {
 			'Headeffectid': self.headEffectID,
 			'effects': {
-				id: {
+				effectID: {
 					'Effectpath': effect.par.Effectpath.eval(),
 					'Sourceeffectid': getSourceID(effect)
 				}
-				for (id, effect) in self.effects.items()
+				for (effectID, effect) in self.effects.items()
 			}
 		}
 
