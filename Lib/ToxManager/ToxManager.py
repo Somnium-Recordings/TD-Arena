@@ -25,7 +25,7 @@ class ToxInfo(NamedTuple):
 
 
 def partition(pred, iterable):  # noqa: ANN001
-	'Use a predicate to partition entries into false entries and true entries'
+	"Use a predicate to partition entries into false entries and true entries"
 	# partition(is_odd, range(10)) --> 0 2 4 6 8   and  1 3 5 7 9
 	t1, t2 = tee(iterable)
 	return filterfalse(pred, t1), filter(pred, t2)

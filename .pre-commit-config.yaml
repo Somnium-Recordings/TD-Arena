@@ -16,12 +16,6 @@ repos:
         args: ["--maxkb=225"]
         language: system
 
-      - id: unify
-        name: unify
-        entry: unify --in-place
-        language: system
-        types: [python]
-
       - id: yapf-ruff
         name: Run yapf + ruff
         description: Let yapf format your python code but ruff sort imports.

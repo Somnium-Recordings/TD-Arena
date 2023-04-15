@@ -26,11 +26,11 @@ def matchGeneratorAddress(address: str):
 
 
 def getSectionCloseScript(address: str):
-	return f'op.ui_state.SendMessage(\'{address}/clear\')'
+	return f"op.ui_state.SendMessage('{address}/clear')"
 
 
 def getSectionEditScript(address: str):
-	return f'op.toxManager.EditCompositionAddress(\'{address}\')'
+	return f"op.toxManager.EditCompositionAddress('{address}')"
 
 
 def getSectionSaveScript():
@@ -272,7 +272,7 @@ class ParameterContainer(BaseExt):
 
 		valueAccessor = 'menuIndex' if style in ('StrMenu', 'Menu') else 'eval()'
 		parameter.par.Onvaluechangescript0 = (
-			f'op.ui_state.UpdateCtrlValue(\'{address}\', me.par.Value0.{valueAccessor}, \'{CTRL_SRC_NAME}\')'
+			f"op.ui_state.UpdateCtrlValue('{address}', me.par.Value0.{valueAccessor}, '{CTRL_SRC_NAME}')"
 		)
 
 		# The section parameters are hard-coded
