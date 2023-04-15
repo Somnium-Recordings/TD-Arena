@@ -160,8 +160,6 @@ class AutoModuleExt:
 		basePath = self.ownerComp.par.Moduledirectory.eval()
 		ignoredSuffixes = self.ownerComp.par.Ignoredsuffixes.eval().split(' ')
 
-		iAmString: str = 5
-
 		fileTree = RootDirectory(
 			'root', children={}, containerOp=self.ownerComp.par.Modulecomp.eval()
 		)
