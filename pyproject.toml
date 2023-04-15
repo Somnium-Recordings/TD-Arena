@@ -98,6 +98,7 @@ select = [
   "C90",
   "E",
   "F",
+  "FBT",
   "I", # "N", -- one day
   "PT",
   "RUF",

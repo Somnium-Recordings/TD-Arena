@@ -222,14 +222,14 @@ class ToxManager:
 		self.allToxesDat = ownerComp.op('null_allToxes')
 		self.toxLister = ownerComp.op('toxLister')
 
-	def Display(self, onlyIfDirty=False):  # noqa: ANN001
+	def Display(self, onlyIfDirty=False):  # noqa: ANN001, FBT002
 		if onlyIfDirty and not self.hasDirtyToxes():
 			return
 
 		self.RefreshToxList()
 		self.window.par.winopen.pulse()
 
-	def SaveSystemToxes(self, selected=True):  # noqa: ANN001
+	def SaveSystemToxes(self, selected=True):  # noqa: ANN001, FBT002
 		if self.tda.Loaded:
 			if confirmShouldUnload():
 				self.tda.Unload()
@@ -294,7 +294,7 @@ class ToxManager:
 
 	def getToxes(
 		self,
-		selected=True  # noqa: ANN001
+		selected=True  # noqa: ANN001, FBT002
 	) -> tuple[Iterable[ToxInfo], Iterable[ToxInfo]]: # yapf: disable
 		toxDat = self.selectedToxesDat if selected else self.allToxesDat
 
@@ -312,11 +312,11 @@ class ToxManager:
 
 		return partition(isCompositionTox, paths)
 
-	def getSystemToxes(self, selected=True):  # noqa: ANN001
+	def getSystemToxes(self, selected=True):  # noqa: ANN001, FBT002
 		systemToxes, _ = self.getToxes(selected)
 		return systemToxes
 
-	def getCompositionToxes(self, selected=True):  # noqa: ANN001
+	def getCompositionToxes(self, selected=True):  # noqa: ANN001, FBT002
 		_, compositionToxes = self.getToxes(selected)
 		return compositionToxes
 
@@ -327,7 +327,7 @@ class ToxManager:
 		return any(self.getSystemToxes(selected=True))
 
 	# TODO: remove if no longer is in use
-	def hasDirtyComposition(self, selected=False):  # noqa: ANN001
+	def hasDirtyComposition(self, selected=False):  # noqa: ANN001, FBT002
 		return hasDirty(self.getCompositionToxes(selected))
 
 	def hasDirtySystem(self):

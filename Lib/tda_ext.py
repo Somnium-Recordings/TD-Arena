@@ -199,7 +199,7 @@ class TDAExt(LoadableExt):
 	# TODO: How do we get the failure message/state back?
 	# 		since we're only keying off of layer state length
 	# 		right now which won't change on failure
-	def OpenComposition(self, promptIfConfigured=True):  # noqa: ANN001
+	def OpenComposition(self, promptIfConfigured=True):  # noqa: ANN001, FBT002
 		saveFile = self.getSaveFile(promptIfConfigured, load=True)
 		if not saveFile:
 			self.logInfo('no save file selected, aborting open')
@@ -210,7 +210,7 @@ class TDAExt(LoadableExt):
 		self.logInfo(f'opening composition: {saveFile}')
 		self.uiState.SendMessage('/composition/load', saveFile)
 
-	def SaveComposition(self, saveAs=False):  # noqa: ANN001
+	def SaveComposition(self, saveAs=False):  # noqa: ANN001, FBT002
 		saveFile = self.getSaveFile(promptIfConfigured=saveAs, load=True)
 		if not saveFile:
 			self.logInfo('no save file selected, aborting save')
@@ -257,7 +257,7 @@ class TDAExt(LoadableExt):
 		self.setUnloaded()
 		self.CompositionState = STATE_UNLOADED
 
-	def getSaveFile(self, promptIfConfigured: bool, load: bool):
+	def getSaveFile(self, promptIfConfigured: bool, load: bool):  # noqa: FBT001
 		saveFile = self.userSettings.par.Composition.eval()
 
 		if saveFile and not isValidSaveFile(saveFile):

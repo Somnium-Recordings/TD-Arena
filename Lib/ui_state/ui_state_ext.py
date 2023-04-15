@@ -59,7 +59,7 @@ class UIStateExt(BaseExt):
 		address: str,
 		sourceName: str,
 		setCtrlValueHandler: Callable[[str, OSCValue], None],
-		alwaysRequestValue=False  # noqa: ANN001
+		alwaysRequestValue=False  # noqa: ANN001, FBT002
 	) -> Union[None, OSCValue]:
 		self.logDebug(f'registering control {sourceName} handler @ {address}')
 

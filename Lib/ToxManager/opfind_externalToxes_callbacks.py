@@ -23,7 +23,7 @@ def isCloneAndNotOfSelf(c, parentsToCheck=1):  # noqa: ANN001
 
 	return next(
 		filter(None, [isClone(o) and not isCloneOfSelf(o) for o in opsToCheck]),
-		False
+		False  # noqa: FBT003
 	)
 
 

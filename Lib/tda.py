@@ -80,7 +80,7 @@ class LoadableExt(BaseExt):
 		self._Loaded.val = False
 		self._Loading.val = True
 
-	def setLoaded(self, wasSuccessful=True):  # noqa: ANN001
+	def setLoaded(self, wasSuccessful=True):  # noqa: ANN001, FBT002
 		self._Loaded.val = wasSuccessful
 		self._Loading.val = False
 

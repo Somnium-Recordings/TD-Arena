@@ -103,7 +103,7 @@ class ClipCtrl(LoadableExt):
 
 		return clip
 
-	def ActivateClip(self, clipID: int, fromSelect=False):  # noqa: ANN001
+	def ActivateClip(self, clipID: int, *, fromSelect=False):  # noqa: ANN001
 		clip = self.clipComps[clipID]
 		assert clip, f'could not activate unknown clip id {clipID}'
 		source = clip.op('./video/source')
