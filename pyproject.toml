@@ -112,6 +112,7 @@ select = [
   "I", # "N", -- one day
   "ISC",
   "ICN",
+  "NPY",
   "PGH",
   "PIE",
   "PL",
