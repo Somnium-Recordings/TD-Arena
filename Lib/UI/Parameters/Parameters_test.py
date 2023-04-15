@@ -21,7 +21,7 @@ def test_getSectionCloseScript():
 
 class TestParameters():
 
-	@pytest.fixture
+	@pytest.fixture()
 	def parameterList(self):
 		return MockTable(
 			[ # yapf: disable
@@ -33,7 +33,7 @@ class TestParameters():
 			]
 		)
 
-	@pytest.fixture
+	@pytest.fixture()
 	def containerList(self):
 		return MockTable(
 			[ # yapf: disable
@@ -43,15 +43,15 @@ class TestParameters():
 			]
 		)
 
-	@pytest.fixture
+	@pytest.fixture()
 	def mockContainerOP1(self):
 		return MagicMock()
 
-	@pytest.fixture
+	@pytest.fixture()
 	def mockContainerOP3(self):
 		return MagicMock()
 
-	@pytest.fixture
+	@pytest.fixture()
 	def parameters(
 		self, ownerComponent, op: MockOP, logger, parameterList, containerList,
 		mockContainerOP1, mockContainerOP3

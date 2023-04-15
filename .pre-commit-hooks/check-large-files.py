@@ -9,7 +9,8 @@ import math
 import os
 import subprocess
 import sys
-from typing import Any, Optional, Sequence, Set
+from collections.abc import Sequence
+from typing import Any, Optional
 
 
 class CalledProcessError(RuntimeError):
@@ -29,7 +30,7 @@ def cmd_output(*cmd: str, retcode: Optional[int] = 0, **kwargs: Any) -> str:
 	return stdout
 
 
-def staged_files() -> Set[str]:
+def staged_files() -> set[str]:
 	cmd = ('git', 'diff', '--staged', '--name-only')
 	return set(cmd_output(*cmd).splitlines())
 
@@ -41,7 +42,7 @@ def find_large_files(filenames: Sequence[str], maxkb: int) -> int:
 	for filename in staged_files() & set(filenames):
 		kb = int(math.ceil(os.stat(filename).st_size / 1024))
 		if kb > maxkb:
-			print(f'{filename} ({kb} KB) exceeds {maxkb} KB.')
+			print(f'{filename} ({kb} KB) exceeds {maxkb} KB.')  # noqa: T201
 			retv = 1
 
 	return retv

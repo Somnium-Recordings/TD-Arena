@@ -1,6 +1,6 @@
 import math
 from dataclasses import dataclass
-from typing import Any, Dict, Optional, Union, cast
+from typing import Any, Optional, Union, cast
 
 
 def getOrCreateTextDAT(targetOp: COMP, datName: str) -> textDAT:
@@ -48,7 +48,7 @@ class File(Node):
 
 @dataclass
 class RootDirectory(Node):
-	children: Dict[str, Union[File, 'Directory']]
+	children: dict[str, Union[File, 'Directory']]
 	containerOp: Optional[COMP]
 
 	@property

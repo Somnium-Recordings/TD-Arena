@@ -32,7 +32,15 @@ class DragCtrl(BaseExt):
 	# baseName: dragged node parent network or parent directory of dragged file
 	# destPath: dropped network
 	def OnDrop(
-		self, dropName, xPos, yPos, index, totalDragged, dropExt, baseName, destPath
+		self,
+		dropName,
+		xPos,  # noqa: ARG002
+		yPos,  # noqa: ARG002
+		index,  # noqa: ARG002
+		totalDragged,  # noqa: ARG002
+		dropExt,
+		baseName,
+		destPath
 	):  # pylint: disable=too-many-arguments,unused-argument
 		dropControls = op(destPath)
 		lastAction = dropControls.op('./null_lastAction')
@@ -69,7 +77,7 @@ class DragCtrl(BaseExt):
 	#       arg3 total dragged
 	#       arg4 operator                     (or file extension)
 	#       arg5 dragged node parent network  (or parent directory)
-	def OnDrag(self, dragName, index, num, dragExt, baseName):  # pylint: disable=too-many-arguments,unused-argument
+	def OnDrag(self, dragName, index, num, dragExt, baseName):  # pylint: disable=too-many-arguments,unused-argument  # noqa: ARG002
 		self._IsDragging.val = True
 		self._DraggedPath.val = f'{baseName}/{dragName}.{dragExt}'
 		self.logDebug(f'started dragging {self.DraggedPath}')

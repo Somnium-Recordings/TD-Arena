@@ -6,16 +6,15 @@
 import re
 from codecs import decode
 from shlex import split
-from typing import List
 
 TIME_RE = re.compile(r'\d\d:\d\d:\d\d(,\d\d\d)?')
 
 SEVERITY_REMAP = {'ABORT': 'ERROR'}
 
-LogSource = List[str]
+LogSource = list[str]
 
 
-def justifyColumns(rows: List[LogSource]) -> List[str]:
+def justifyColumns(rows: list[LogSource]) -> list[str]:
 	justifiedColumns = []
 
 	for column in zip(*rows):
@@ -52,11 +51,11 @@ class UngroupedLogCollector:
 		return self.storage
 
 
-def matchesSearchQuery(message: str, searchQuery: List[str]) -> bool:
+def matchesSearchQuery(message: str, searchQuery: list[str]) -> bool:
 	return all(part in message for part in searchQuery)
 
 
-def formatLog(message: str, sources: List[LogSource]) -> str:
+def formatLog(message: str, sources: list[LogSource]) -> str:
 	return '\n'.join([*justifyColumns(sources), message])
 
 

@@ -1,6 +1,6 @@
 import math
 from collections import namedtuple
-from typing import List, Optional, Tuple, Union
+from typing import Optional, Union
 
 from tdaUtils import getCellValues
 
@@ -14,15 +14,15 @@ LogRecord = namedtuple(
 LOG_STORAGE_COLS = LogRecord._fields
 
 
-def getLogVal(row: Union[List[Cell], Tuple[Cell, ...]], col: str) -> str:
+def getLogVal(row: Union[list[Cell], tuple[Cell, ...]], col: str) -> str:
 	return row[LOG_STORAGE_COLS.index(col)].val
 
 
-def setLogVal(row: List[Cell], col: str, val: str) -> None:
+def setLogVal(row: list[Cell], col: str, val: str) -> None:
 	row[LOG_STORAGE_COLS.index(col)].val = val
 
 
-def rowToLogRecord(row: List[Cell], rowCols: List[str]) -> LogRecord:
+def rowToLogRecord(row: list[Cell], rowCols: list[str]) -> LogRecord:
 	return LogRecord._make(
 		[
 			# TODO: if this is slow, maybe cache the column map
@@ -129,7 +129,7 @@ class LogCollectorExt:
 			setLogVal(log, 'absframe', logRecord.absframe)
 			setLogVal(log, 'frame', logRecord.frame)
 
-	def findMatchingLog(self, logRecord: LogRecord) -> Optional[List[Cell]]:
+	def findMatchingLog(self, logRecord: LogRecord) -> Optional[list[Cell]]:
 		return next(
 			(
 				log for log in self.logStorage.rows(logRecord.message)
