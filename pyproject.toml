@@ -90,41 +90,20 @@ ignore = [
   "ANN101",
   "ANN201",
   "ANN204",
+  "COM", # Covered by yapf
+  "D", # Extensive docs not really needed
+  "ERA", # Too many false positives
   "E501",
+  "EM", # Inline error messages are fine for me
+  "INP", # Using __init__.py to track migration to new pattern
+  "N", # one day
   "PGH003",
+  "S", # only running locally, not worried about securiy
   "TRY003",
   "W191",
 ]
 select = [
-  "A",
-  "ANN",
-  "ARG",
-  "B",
-  "BLE",
-  "C4",
-  "C90",
-  "E",
-  "F",
-  "FBT",
-  "I", # "N", -- one day
-  "ISC",
-  "ICN",
-  "NPY",
-  "PGH",
-  "PIE",
-  "PL",
-  "PT",
-  "PTH",
-  "Q",
-  "RET",
-  "RUF",
-  "SIM",
-  "TCH",
-  "TID",
-  "T20",
-  "TRY",
-  "UP",
-  "W",
+  "ALL",
 ]
 target-version = "py39"
 

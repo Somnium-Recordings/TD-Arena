@@ -552,9 +552,7 @@ def destroyOtherPagesAndParameters(comp, pageNames, parNames):
 		try:
 			if p.name not in parNames:
 				p.destroy()
-		except Exception as e:
-			# already destroyed
-			# debug(e)
+		except Exception:
 			continue
 	for page in comp.customPages:
 		if page.name not in pageNames:
