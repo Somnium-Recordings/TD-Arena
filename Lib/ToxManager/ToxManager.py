@@ -157,7 +157,7 @@ def moveToBackupDir(fileToMove: TDFileInfo, backupDir: str) -> None:
 def backupAndSave(
 	op,  # noqa: ANN001
 	savePath: TDFileInfo,
-	backupDir: Optional[str] = None  # noqa: ANN001, RUF100
+	backupDir: Optional[str] = None
 ) -> None:
 	if not backupDir:
 		backupDir = tdu.expandPath(f'{savePath.dir}/Backup')
@@ -249,7 +249,7 @@ class ToxManager:
 				executeParameterCallback(sysOp, SETTINGS_AFTER_SAVE_SCRIPT)
 
 			self.Close()
-		except Exception:  # pylint: disable=broad-except
+		except Exception:  # noqa: BLE001
 			ui.messageBox(
 				'!!!Warning!!!',
 				'Encountered an unexpected error while attempting to save system toxes: \n\n'

@@ -163,7 +163,7 @@ def addSectionParameters(
 	op,  # noqa: ANN001
 	order: int,
 	name: str,
-	opacity: Optional[float] = None  # noqa: ANN001, RUF100
+	opacity: Optional[float] = None
 ):
 	page = op.appendCustomPage('Section')
 

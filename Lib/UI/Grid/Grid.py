@@ -254,7 +254,7 @@ class Grid(LoadableExt):
 		self,
 		baseCell,  # noqa: ANN001
 		targetDirection: str,
-		droppedItem: DroppedItem = None  # noqa: ANN001, RUF100
+		droppedItem: DroppedItem = None
 	):
 		# TODO(#55): this is obnoxious to follow, just use 4 if/else statemetns
 		# TODO(#55): If new anchor is not within repositionxmin, reject new division
@@ -301,7 +301,7 @@ class Grid(LoadableExt):
 		self,
 		targetCell,  # noqa: ANN001
 		droppedItem: DroppedItem
-	):  # noqa: ANN001, RUF100
+	):
 		itemHeadingOp = op(droppedItem.itemPath)
 		sourceCellPanelsDat = itemHeadingOp.parent.cell.op('./null_cellPanels')
 		targetCellPanelsDat = targetCell.op('./null_cellPanels')
@@ -336,7 +336,7 @@ class Grid(LoadableExt):
 	# pylint: disable=too-many-branches,too-many-statements
 	def AddDivider(  # noqa: C901
 		self, targetDivider, oppositeDivider, direction  # noqa: ANN001
-	):  # noqa: ANN001, C901, RUF100
+	):
 		if direction == 'r':
 			newDivider = self.createNextVDivider()
 			targetX = 1

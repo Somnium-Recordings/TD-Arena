@@ -124,7 +124,7 @@ class DeckCtrl(LoadableExt):
 		sourceType,  # noqa: ANN001
 		name,  # noqa: ANN001
 		path  # noqa: ANN001
-	):  # noqa: ANN001, RUF100
+	):
 		clipID = self.getClipID(clipLocation)
 		self.logInfo(f'loading {sourceType} "{name}" into {clipLocation}')
 
