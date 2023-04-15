@@ -43,12 +43,17 @@ jobs:
       - name: Check Format
         env:
           SKIP: pyright,pytest,pylint
-        run: poetry run pre-commit run --all-files
+        uses: pre-commit/action@v3.0.0
+
+      # - name: Check Format
+      #   env:
+      #     SKIP: pyright,pytest,pylint
+      #   run: poetry run pre-commit run --all-files
 
       - uses: jordemort/action-pyright@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }} # You need this
-          reporter: github-pr-review # Change reporter.
+          reporter: github-check
           lib: true
           fail_on_error: true
       # - name: Lint
