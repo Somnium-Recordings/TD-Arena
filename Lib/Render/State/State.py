@@ -18,8 +18,15 @@ from tdaUtils import (
 class StateCtrl(LoadableExt):
 
 	def __init__(
-		self, ownerComponent, logger, compositionCtrl, clipCtrl, deckCtrl, layerCtrl,
-		effectCtrl, parameterCtrl
+		self,
+		ownerComponent,  # noqa: ANN001
+		logger,  # noqa: ANN001
+		compositionCtrl,  # noqa: ANN001
+		clipCtrl,  # noqa: ANN001
+		deckCtrl,  # noqa: ANN001
+		layerCtrl,  # noqa: ANN001
+		effectCtrl,  # noqa: ANN001
+		parameterCtrl  # noqa: ANN001
 	):  # pylint: disable=too-many-arguments
 		super().__init__(ownerComponent, logger)
 
@@ -140,10 +147,10 @@ class StateCtrl(LoadableExt):
 
 		self.init()
 
-	def Dispatch(self, *args):
+	def Dispatch(self, *args):  # noqa: ANN002
 		self.dispatcher.Dispatch(*args)
 
-	def SendMessage(self, address, *args):
+	def SendMessage(self, address, *args):  # noqa: ANN001, ANN002
 		self.logDebug(f'Render -> UI -- {address}:{args}')
 		self.oscOut.sendOSC(address, args)
 
@@ -157,7 +164,7 @@ class StateCtrl(LoadableExt):
 	def acknowledgeInitialization(self):
 		self.initializedAcknowledged = True
 
-	def replyWithInitialized(self, attempts=0):
+	def replyWithInitialized(self, attempts=0):  # noqa: ANN001
 		"""
 		We do this over OSC rather than through something like a dat to ensure
 		the OSC messaging ports have had a chance to bind and attach
@@ -221,13 +228,13 @@ class StateCtrl(LoadableExt):
 		for ctrl in self.ctrls.values():
 			ctrl.Init(self)
 
-	def loadControllers(self, saveState):
+	def loadControllers(self, saveState):  # noqa: ANN001
 		self.logInfo('loading controllers')
 		for ctrlName, ctrl in self.ctrls.items():
 			if ctrlName in saveState:
 				ctrl.Load(saveState[ctrlName])
 
-	def writeSaveFile(self, saveState, filePath: str):
+	def writeSaveFile(self, saveState, filePath: str):  # noqa: ANN001
 		self.logInfo(f'saving state to {filePath}')
 
 		with open(filePath, 'w', encoding='utf-8') as saveFile:

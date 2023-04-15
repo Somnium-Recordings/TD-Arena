@@ -1,15 +1,15 @@
 from tdaUtils import parameterPathToAddress
 
 
-def onSetupParameters(_scriptOp):
+def onSetupParameters(_scriptOp):  # noqa: ANN001
 	pass
 
 
-def onPulse(_par):
+def onPulse(_par):  # noqa: ANN001
 	return
 
 
-def onCook(scriptOp):
+def onCook(scriptOp):  # noqa: ANN001
 	scriptOp.clear()
 	paramDat = scriptOp.inputs[0]
 

@@ -2,7 +2,7 @@ from tda import LoadableExt
 from tdaUtils import parameterPathToAddress
 
 
-def getParValue(parameter):
+def getParValue(parameter):  # noqa: ANN001
 	if parameter is None:
 		return None
 
@@ -20,7 +20,7 @@ DEFAULT_STATE = {}
 
 class ParameterCtrl(LoadableExt):
 
-	def __init__(self, ownerComponent, logger):
+	def __init__(self, ownerComponent, logger):  # noqa: ANN001
 		super().__init__(ownerComponent, logger)
 
 		self.parameterState = ownerComponent.op('null_internalParameterState')
@@ -28,7 +28,7 @@ class ParameterCtrl(LoadableExt):
 			'table_initializedParameters'
 		)
 
-	def Init(self, renderState):
+	def Init(self, renderState):  # noqa: ANN001
 		self.setUnloaded()
 
 		self.initializedParameterTable.clear()
@@ -37,7 +37,7 @@ class ParameterCtrl(LoadableExt):
 
 		self.logInfo('initialized')
 
-	def Load(self, saveState=None):
+	def Load(self, saveState=None):  # noqa: ANN001
 		self.setLoading()
 		self.logInfo('loading parameters')
 
@@ -56,7 +56,7 @@ class ParameterCtrl(LoadableExt):
 			for address in self.parameterState.col('address')[1:]
 		}
 
-	def ReplyWithCurrentValue(self, address, _):
+	def ReplyWithCurrentValue(self, address, _):  # noqa: ANN001
 		par = self.getParameter(address)
 		if par is None:
 			self.logError(f'could not find parameter value for {address}')
@@ -65,7 +65,7 @@ class ParameterCtrl(LoadableExt):
 		self.logDebug(f'replying with current value at {address}')
 		self.renderState.SendMessage(address, getParValue(par))
 
-	def OnParameterChanges(self, changes):
+	def OnParameterChanges(self, changes):  # noqa: ANN001
 		self.logDebug(f'change detected in {len(changes)} parameters, sending to UI')
 		for change in changes:
 			self.renderState.SendMessage(
@@ -73,7 +73,7 @@ class ParameterCtrl(LoadableExt):
 				change.par.eval()
 			)
 
-	def SetParameter(self, address: str, val) -> None:
+	def SetParameter(self, address: str, val) -> None:  # noqa: ANN001
 		self.logDebug(f'setting f{address} to {val}')
 		par = self.getParameter(address)
 

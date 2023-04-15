@@ -11,7 +11,7 @@ def uiThemeSectionTemplate():
 
 
 @pytest.fixture()
-def uiTheme(uiThemeSectionTemplate):
+def uiTheme(uiThemeSectionTemplate):  # noqa: ANN001
 	uiTheme = MagicMock()
 	uiTheme.op = MockOP()
 	uiTheme.op.addPath('sectionTemplate', uiThemeSectionTemplate)
@@ -20,7 +20,7 @@ def uiTheme(uiThemeSectionTemplate):
 
 
 @pytest.fixture()
-def op(uiTheme):
+def op(uiTheme):  # noqa: ANN001
 	op = MockOP()
 	op.uiTheme = uiTheme
 

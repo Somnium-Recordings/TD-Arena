@@ -7,12 +7,12 @@ from tdaUtils import filePathToName, filePathToStemSlug, getCellValues
 # scriptOp - the OP which is cooking
 #
 # press 'Setup Parameters' in the OP to call this function to re-create the parameters.
-def onSetupParameters(_scriptOp):
+def onSetupParameters(_scriptOp):  # noqa: ANN001
 	return
 
 
 # called whenever custom pulse parameter is pushed
-def onPulse(_par):
+def onPulse(_par):  # noqa: ANN001
 	return
 
 
@@ -43,7 +43,7 @@ STATIC_PATHS = [
 ] # yapf: disable
 
 
-def onCook(scriptOp):
+def onCook(scriptOp):  # noqa: ANN001
 	baseGeneratorPath = tdu.expandPath('generator://')
 	baseEffectPath = tdu.expandPath('effect://')
 

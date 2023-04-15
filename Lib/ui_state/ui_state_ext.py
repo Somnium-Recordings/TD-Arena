@@ -15,7 +15,7 @@ class CtrlState(TypedDict):
 
 class UIStateExt(BaseExt):
 
-	def __init__(self, ownerComponent, logger):
+	def __init__(self, ownerComponent, logger):  # noqa: ANN001
 		super().__init__(ownerComponent, logger)
 		self.oscIn = ownerComponent.op('oscin1')
 
@@ -35,20 +35,20 @@ class UIStateExt(BaseExt):
 		"""
 		self.oscControlState: dict[str, CtrlState] = {}
 
-	def SendMessage(self, address, *args):
+	def SendMessage(self, address, *args):  # noqa: ANN001, ANN002
 		if address:
 			self.logDebug(f'UI -> Render -- {address} with {args}')
 			self.oscIn.sendOSC(address, args)
 		else:
 			self.logWarning(f'attempted to send to invalid address {address}')
 
-	def Dispatch(self, *args):
+	def Dispatch(self, *args):  # noqa: ANN002
 		self.dispatcher.Dispatch(*args)
 
-	def MapOSCHandler(self, *args):
+	def MapOSCHandler(self, *args):  # noqa: ANN002
 		self.dispatcher.Map(*args)
 
-	def MapOSCHandlers(self, *args):
+	def MapOSCHandlers(self, *args):  # noqa: ANN002
 		self.dispatcher.MapMultiple(*args)
 
 	def DumpCtrlState(self):
@@ -59,7 +59,7 @@ class UIStateExt(BaseExt):
 		address: str,
 		sourceName: str,
 		setCtrlValueHandler: Callable[[str, OSCValue], None],
-		alwaysRequestValue=False
+		alwaysRequestValue=False  # noqa: ANN001
 	) -> Union[None, OSCValue]:
 		self.logDebug(f'registering control {sourceName} handler @ {address}')
 
@@ -90,7 +90,7 @@ class UIStateExt(BaseExt):
 			)
 			setCtrlValueHandler(address, ctrlState['currentValue'])
 
-	def DeregisterCtrl(self, address, sourceName):
+	def DeregisterCtrl(self, address, sourceName):  # noqa: ANN001
 		if (ctrlState := self.oscControlState.get(address, None)) is None:
 			self.logWarning(
 				f'attempted to deregister an unknown ctrl for {sourceName} @ {address}'
@@ -143,7 +143,7 @@ class UIStateExt(BaseExt):
 	def UnRegisterCtrl(self):
 		pass
 
-	def onOSCReply(self, address, *args):
+	def onOSCReply(self, address, *args):  # noqa: ANN001, ANN002
 		if (controlState := self.oscControlState.get(address, None)) is None:
 			self.logWarning(f'received OSC reply for unknown address {address}')
 			return

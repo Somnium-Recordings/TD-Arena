@@ -64,7 +64,7 @@ def formatLog(message: str, sources: list[LogSource]) -> str:
 ############################
 
 
-def onSetupParameters(_scriptOp):
+def onSetupParameters(_scriptOp):  # noqa: ANN001
 	# page = scriptOp.appendCustomPage('Custom')
 	# p = page.appendFloat('Valuea', label='Value A')
 	# p = page.appendFloat('Valueb', label='Value B')
@@ -72,11 +72,11 @@ def onSetupParameters(_scriptOp):
 
 
 # called whenever custom pulse parameter is pushed
-def onPulse(_par):
+def onPulse(_par):  # noqa: ANN001
 	pass
 
 
-def onCook(scriptOp):
+def onCook(scriptOp):  # noqa: ANN001
 	scriptOp.clear()
 
 	d = scriptOp.inputs[0]

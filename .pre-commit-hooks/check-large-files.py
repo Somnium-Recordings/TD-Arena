@@ -17,7 +17,11 @@ class CalledProcessError(RuntimeError):
 	pass
 
 
-def cmd_output(*cmd: str, retcode: Optional[int] = 0, **kwargs: Any) -> str:
+def cmd_output(
+	*cmd: str,
+	retcode: Optional[int] = 0,
+	**kwargs: Any  # noqa: ANN401
+) -> str:
 	kwargs.setdefault('stdout', subprocess.PIPE)
 	kwargs.setdefault('stderr', subprocess.PIPE)
 

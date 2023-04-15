@@ -43,7 +43,13 @@ class ParameterContainer(BaseExt):
 	def address(self):
 		return self.ownerComponent.par.Address.eval()
 
-	def __init__(self, ownerComponent, logger, state, effectBrowser):
+	def __init__(
+		self,
+		ownerComponent,  # noqa: ANN001
+		logger,  # noqa: ANN001
+		state,  # noqa: ANN001
+		effectBrowser  # noqa: ANN001
+	):  # noqa: ANN001, RUF100
 		super().__init__(ownerComponent, logger)
 		self.state = state
 		self.effectBrowser = effectBrowser
@@ -78,7 +84,7 @@ class ParameterContainer(BaseExt):
 
 		self.logInfo('initialized')
 
-	def SyncSection(self, address):
+	def SyncSection(self, address):  # noqa: ANN001
 		if address in self.sections:
 			return
 
@@ -131,7 +137,10 @@ class ParameterContainer(BaseExt):
 			self.state.DeregisterCtrl(address, CTRL_SRC_NAME)
 
 	def OnDrop(
-		self, droppedItem: DroppedItem, targetSection=None, direction: str = None
+		self,
+		droppedItem: DroppedItem,
+		targetSection=None,  # noqa: ANN001
+		direction: str = None  # noqa: ANN001, RUF100
 	):
 		# TODO: lookup targetSection & validate here once everything supports it
 
@@ -145,7 +154,10 @@ class ParameterContainer(BaseExt):
 			)
 
 	def onEffectDrop(
-		self, droppedItem: DroppedItem, targetSection=None, _direction: str = None
+		self,
+		droppedItem: DroppedItem,
+		targetSection=None,  # noqa: ANN001
+		_direction: str = None  # noqa: ANN001, RUF100
 	):
 		if targetSection is not None:
 			self.logDebug('dropping onto targets not implemented yet, adding to end')
@@ -154,7 +166,10 @@ class ParameterContainer(BaseExt):
 		self.state.SendMessage(f'{self.address}/video/effects/add', filePath)
 
 	def onSectionDrop(
-		self, droppedItem: DroppedItem, targetSection=None, direction: str = None
+		self,
+		droppedItem: DroppedItem,
+		targetSection=None,  # noqa: ANN001
+		direction: str = None  # noqa: ANN001, RUF100
 	):
 		if targetSection is None:
 			raise NotImplementedError(
@@ -195,7 +210,7 @@ class ParameterContainer(BaseExt):
 
 		return self.sections[sectionAddress]
 
-	def createSectionParameter(self, section, style, name):
+	def createSectionParameter(self, section, style, name):  # noqa: ANN001
 		# These are hard-coded into the section template comp
 		if name == 'Section Expanded':
 			return section.op('sectionHeading')
@@ -214,7 +229,7 @@ class ParameterContainer(BaseExt):
 
 		return parameter
 
-	def SetCtrlValue(self, address: str, newValue):
+	def SetCtrlValue(self, address: str, newValue):  # noqa: ANN001
 		if address not in self.parameters:
 			self.logWarning(f'received value change for unknown parameter: f{address}')
 
@@ -222,7 +237,14 @@ class ParameterContainer(BaseExt):
 		self.parameters[address].par.Value0 = newValue
 
 	def SyncParameter(
-		self, address, label, style, normMin, normMax, menuLabels, order
+		self,
+		address,  # noqa: ANN001
+		label,  # noqa: ANN001
+		style,  # noqa: ANN001
+		normMin,  # noqa: ANN001
+		normMax,  # noqa: ANN001
+		menuLabels,  # noqa: ANN001
+		order  # noqa: ANN001
 	):  # pylint: disable=too-many-arguments
 		sectionAddress, _ = address.rsplit(':', 1)  # The last value is the parameter
 		self.activeParameters.add(address)
@@ -278,7 +300,7 @@ class ParameterContainer(BaseExt):
 
 class Parameters(BaseExt):
 
-	def __init__(self, ownerComponent, logger):
+	def __init__(self, ownerComponent, logger):  # noqa: ANN001
 		super().__init__(ownerComponent, logger)
 		self.parameterList = ownerComponent.op('null_parameterList')
 		self.containerList = ownerComponent.op('null_containerList')

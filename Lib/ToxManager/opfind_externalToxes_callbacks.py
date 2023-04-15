@@ -1,24 +1,24 @@
 import time
 
 
-def formatTimestamp(timestamp):
+def formatTimestamp(timestamp):  # noqa: ANN001
 	winSecs = int(timestamp / 10000000)  ## divide by 10 000 000 to get seconds
 	epoch = max(winSecs - 11644473600, 0)
 	timeStr = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(epoch))
 	return timeStr
 
 
-def isCloneOfSelf(c):
+def isCloneOfSelf(c):  # noqa: ANN001
 	return op(c.par.clone).id == c.id
 
 
-def isClone(o):
+def isClone(o):  # noqa: ANN001
 	return o is not None and o.par.clone
 
 
 # Check the parents to to handle cases where we have an external
 # tox that is replicated inside of another component
-def isCloneAndNotOfSelf(c, parentsToCheck=1):
+def isCloneAndNotOfSelf(c, parentsToCheck=1):  # noqa: ANN001
 	opsToCheck = [c.parent(i) for i in range(parentsToCheck + 1)]
 
 	return next(
@@ -41,11 +41,11 @@ def isCloneAndNotOfSelf(c, parentsToCheck=1):
 # Uncomment following two functions to add custom columns
 
 
-def onInitGetColumnNames(_dat):
+def onInitGetColumnNames(_dat):  # noqa: ANN001
 	return ['networkPath', 'filePath', 'dirty', 'lastEditedTime']
 
 
-def onFindOPGetValues(_dat, curOp, _row):
+def onFindOPGetValues(_dat, curOp, _row):  # noqa: ANN001
 	return [
 		curOp.path,
 		tdu.expandPath(curOp.par.externaltox.eval()),
@@ -55,7 +55,7 @@ def onFindOPGetValues(_dat, curOp, _row):
 
 
 # Return True / False to include / exclude an operator in the table
-def onFindOPGetInclude(_dat, curOp, _row):
+def onFindOPGetInclude(_dat, curOp, _row):  # noqa: ANN001
 	# We check for a non-empty external tox, but if it's an expression
 	# it passes that check, even when empty. This covers that case
 	if not curOp.par.externaltox.eval():

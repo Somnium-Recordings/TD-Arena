@@ -6,7 +6,7 @@ MAX_WAIT_CYCLES = 20
 
 class MovieSource(BaseExt):
 
-	def __init__(self, ownerComponent, logger):
+	def __init__(self, ownerComponent, logger):  # noqa: ANN001
 		super().__init__(ownerComponent, logger)
 		self.movie = ownerComponent.op('./moviefilein1')
 		self.thumb = ownerComponent.op('./null_thumb')
@@ -18,7 +18,7 @@ class MovieSource(BaseExt):
 		self.movie.preload()
 		self.waitForPreload()
 
-	def waitForPreload(self, waitCount=0):
+	def waitForPreload(self, waitCount=0):  # noqa: ANN001
 		if waitCount > MAX_WAIT_CYCLES:
 			self.setLoaded(wasSuccessful=False)
 			self.logError(
@@ -57,11 +57,11 @@ class MovieSource(BaseExt):
 		self.state['Loaded', 1] = 0
 		self.setStatusText('Loading...')
 
-	def setLoaded(self, wasSuccessful=True):
+	def setLoaded(self, wasSuccessful=True):  # noqa: ANN001
 		if not wasSuccessful:
 			self.setStatusText('Error')
 
 		self.state['Loaded', 1] = int(wasSuccessful)
 
-	def setStatusText(self, text):
+	def setStatusText(self, text):  # noqa: ANN001
 		self.state['Status Text', 1] = text

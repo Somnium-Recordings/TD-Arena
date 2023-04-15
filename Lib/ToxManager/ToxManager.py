@@ -24,7 +24,7 @@ class ToxInfo(NamedTuple):
 	dirty: bool
 
 
-def partition(pred, iterable):
+def partition(pred, iterable):  # noqa: ANN001
 	'Use a predicate to partition entries into false entries and true entries'
 	# partition(is_odd, range(10)) --> 0 2 4 6 8   and  1 3 5 7 9
 	t1, t2 = tee(iterable)
@@ -57,11 +57,11 @@ def confirmShouldUnload():
 	) == 0
 
 
-def hasCustomParameter(comp, name):
+def hasCustomParameter(comp, name):  # noqa: ANN001
 	return any(par.name == name for par in comp.customPars)
 
 
-def ensureExternalToxSetup(comp):
+def ensureExternalToxSetup(comp):  # noqa: ANN001
 	comp.color = EXTERNAL_TOX_COLOR
 
 	saveSettingsPage = next(
@@ -81,7 +81,7 @@ def ensureExternalToxSetup(comp):
 		)
 
 
-def executeParameterCallback(comp, paramName):
+def executeParameterCallback(comp, paramName):  # noqa: ANN001
 	callbackParameter = getattr(comp.par, paramName, None)
 	if callbackParameter is None:
 		debug(f'expected callback parameter {paramName} to exist on {comp.path}')
@@ -155,7 +155,9 @@ def moveToBackupDir(fileToMove: TDFileInfo, backupDir: str) -> None:
 
 
 def backupAndSave(
-	op, savePath: TDFileInfo, backupDir: Optional[str] = None
+	op,  # noqa: ANN001
+	savePath: TDFileInfo,
+	backupDir: Optional[str] = None  # noqa: ANN001, RUF100
 ) -> None:
 	if not backupDir:
 		backupDir = tdu.expandPath(f'{savePath.dir}/Backup')
@@ -211,7 +213,7 @@ class ToxManager:
 	def CompositionRoot(self) -> str:
 		return self.ownerComp.par.Compositionroot.eval()
 
-	def __init__(self, ownerComp, tda):
+	def __init__(self, ownerComp, tda):  # noqa: ANN001
 		self.ownerComp = ownerComp
 		self.tda = tda
 		self.window = ownerComp.op('window1')
@@ -220,14 +222,14 @@ class ToxManager:
 		self.allToxesDat = ownerComp.op('null_allToxes')
 		self.toxLister = ownerComp.op('toxLister')
 
-	def Display(self, onlyIfDirty=False):
+	def Display(self, onlyIfDirty=False):  # noqa: ANN001
 		if onlyIfDirty and not self.hasDirtyToxes():
 			return
 
 		self.RefreshToxList()
 		self.window.par.winopen.pulse()
 
-	def SaveSystemToxes(self, selected=True):
+	def SaveSystemToxes(self, selected=True):  # noqa: ANN001
 		if self.tda.Loaded:
 			if confirmShouldUnload():
 				self.tda.Unload()
@@ -279,7 +281,7 @@ class ToxManager:
 		p = ui.panes.createFloating(type=PaneType.NETWORKEDITOR, name='Edit Tox')
 		p.owner = op(networkPath)
 
-	def EditCompositionAddress(self, address):
+	def EditCompositionAddress(self, address):  # noqa: ANN001
 		toxPath = addressToToxPath(address, self.CompositionRoot)
 		self.OpenNetworkAtPath(toxPath)
 
@@ -292,7 +294,7 @@ class ToxManager:
 
 	def getToxes(
 		self,
-		selected=True
+		selected=True  # noqa: ANN001
 	) -> tuple[Iterable[ToxInfo], Iterable[ToxInfo]]: # yapf: disable
 		toxDat = self.selectedToxesDat if selected else self.allToxesDat
 
@@ -310,11 +312,11 @@ class ToxManager:
 
 		return partition(isCompositionTox, paths)
 
-	def getSystemToxes(self, selected=True):
+	def getSystemToxes(self, selected=True):  # noqa: ANN001
 		systemToxes, _ = self.getToxes(selected)
 		return systemToxes
 
-	def getCompositionToxes(self, selected=True):
+	def getCompositionToxes(self, selected=True):  # noqa: ANN001
 		_, compositionToxes = self.getToxes(selected)
 		return compositionToxes
 
@@ -325,7 +327,7 @@ class ToxManager:
 		return any(self.getSystemToxes(selected=True))
 
 	# TODO: remove if no longer is in use
-	def hasDirtyComposition(self, selected=False):
+	def hasDirtyComposition(self, selected=False):  # noqa: ANN001
 		return hasDirty(self.getCompositionToxes(selected))
 
 	def hasDirtySystem(self):

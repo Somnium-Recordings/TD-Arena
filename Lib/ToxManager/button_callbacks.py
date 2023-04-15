@@ -1,4 +1,4 @@
-def onOffToOn(panelValue):
+def onOffToOn(panelValue):  # noqa: ANN001
 	toxLister = op('toxLister')
 	buttonName = panelValue.owner.name
 

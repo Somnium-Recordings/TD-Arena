@@ -12,7 +12,7 @@ DROP_SCRIPT_MAP = [
 
 class DragCtrl(BaseExt):
 
-	def __init__(self, ownerComponent, logger) -> None:
+	def __init__(self, ownerComponent, logger) -> None:  # noqa: ANN001
 		super().__init__(ownerComponent, logger)
 		TDF = op.TDModules.mod.TDFunctions
 
@@ -33,14 +33,14 @@ class DragCtrl(BaseExt):
 	# destPath: dropped network
 	def OnDrop(
 		self,
-		dropName,
-		xPos,  # noqa: ARG002
-		yPos,  # noqa: ARG002
-		index,  # noqa: ARG002
-		totalDragged,  # noqa: ARG002
-		dropExt,
-		baseName,
-		destPath
+		dropName,  # noqa: ANN001
+		xPos,  # noqa: ANN001, ARG002
+		yPos,  # noqa: ANN001, ARG002
+		index,  # noqa: ANN001, ARG002
+		totalDragged,  # noqa: ANN001, ARG002
+		dropExt,  # noqa: ANN001
+		baseName,  # noqa: ANN001
+		destPath  # noqa: ANN001
 	):  # pylint: disable=too-many-arguments,unused-argument
 		dropControls = op(destPath)
 		lastAction = dropControls.op('./null_lastAction')
@@ -77,7 +77,7 @@ class DragCtrl(BaseExt):
 	#       arg3 total dragged
 	#       arg4 operator                     (or file extension)
 	#       arg5 dragged node parent network  (or parent directory)
-	def OnDrag(self, dragName, index, num, dragExt, baseName):  # pylint: disable=too-many-arguments,unused-argument  # noqa: ARG002
+	def OnDrag(self, dragName, index, num, dragExt, baseName):  # pylint: disable=too-many-arguments,unused-argument  # noqa: ANN001, ARG002
 		self._IsDragging.val = True
 		self._DraggedPath.val = f'{baseName}/{dragName}.{dragExt}'
 		self.logDebug(f'started dragging {self.DraggedPath}')

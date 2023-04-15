@@ -13,7 +13,7 @@ class UserSettings(LoadableExt):
 		return tdu.expandPath(SETTINGS_FILE)
 
 	# pylint: disable=too-many-arguments
-	def __init__(self, ownerComponent, logger):
+	def __init__(self, ownerComponent, logger):  # noqa: ANN001
 		super().__init__(ownerComponent, logger)
 
 		self.loadSettingsFile()
@@ -32,7 +32,7 @@ class UserSettings(LoadableExt):
 
 		self.Sync(settings)
 
-	def Sync(self, applyUserSettings=None):
+	def Sync(self, applyUserSettings=None):  # noqa: ANN001
 		self.logDebug(
 			f'{"syncing" if applyUserSettings is None else "applying user"} settings'
 		)

@@ -32,7 +32,13 @@ class DeckCtrl(LoadableExt):
 		return self.decks[int(self.composition.par.Selecteddeck)]['state']
 
 	def __init__(
-		self, ownerComponent, logger, render, clipCtrl, layerCtrl, effectCtrl
+		self,
+		ownerComponent,  # noqa: ANN001
+		logger,  # noqa: ANN001
+		render,  # noqa: ANN001
+		clipCtrl,  # noqa: ANN001
+		layerCtrl,  # noqa: ANN001
+		effectCtrl  # noqa: ANN001
 	):  # pylint: disable=too-many-arguments
 		super().__init__(ownerComponent, logger)
 		self.render = render
@@ -45,7 +51,7 @@ class DeckCtrl(LoadableExt):
 		self.composition = ownerComponent.op('../composition')
 		assert self.composition, 'could not find composition component'
 
-	def Init(self, _renderState):
+	def Init(self, _renderState):  # noqa: ANN001
 		self.setUnloaded()
 
 		self.deckContainer = self.composition.op('decks')
@@ -61,7 +67,7 @@ class DeckCtrl(LoadableExt):
 
 		self.logInfo('initialized')
 
-	def Load(self, saveState=None):
+	def Load(self, saveState=None):  # noqa: ANN001
 		self.setLoading()
 		self.logInfo('loading composition')
 
@@ -112,7 +118,13 @@ class DeckCtrl(LoadableExt):
 		if clipID is not None:
 			self.SelectClip(clipID)
 
-	def LoadClip(self, clipLocation: DeckLocation, sourceType, name, path):
+	def LoadClip(
+		self,
+		clipLocation: DeckLocation,
+		sourceType,  # noqa: ANN001
+		name,  # noqa: ANN001
+		path  # noqa: ANN001
+	):  # noqa: ANN001, RUF100
 		clipID = self.getClipID(clipLocation)
 		self.logInfo(f'loading {sourceType} "{name}" into {clipLocation}')
 
@@ -122,7 +134,7 @@ class DeckCtrl(LoadableExt):
 			clip = self.clipCtrl.CreateClip(sourceType, name, path)
 			self.setClipID(clipLocation, clip.digits)
 
-	def AddEffect(self, clipLocation: DeckLocation, effectPath):
+	def AddEffect(self, clipLocation: DeckLocation, effectPath):  # noqa: ANN001
 		clipID = self.getClipID(clipLocation)
 		self.logInfo(f'adding effect to {clipLocation}')
 
@@ -155,7 +167,7 @@ class DeckCtrl(LoadableExt):
 		self.setClipID(targetLocation, self.getClipID(clipLocation))
 		self.setClipID(clipLocation, targetClipID)
 
-	def SelectDeck(self, address):
+	def SelectDeck(self, address):  # noqa: ANN001
 		self.composition.par.Selecteddeck = getDeckID(address)
 
 	def SelectClip(self, address: Union[str, int]):
@@ -196,12 +208,12 @@ class DeckCtrl(LoadableExt):
 
 		return intIfSet(deckState[layerNumber, clipNumber])
 
-	def setClipID(self, clipLocation: DeckLocation, clipID):
+	def setClipID(self, clipLocation: DeckLocation, clipID):  # noqa: ANN001
 		(layerNumber, clipNumber) = clipLocation
 		cellValue = clipID if clipID is not None else ''
 		self.selectedDeckState[layerNumber, clipNumber] = cellValue
 
-	def createDeck(self, deckID, deckName, deckState):
+	def createDeck(self, deckID, deckName, deckState):  # noqa: ANN001
 		opName = f'deck{deckID}'
 		self.logDebug(f'creating deck: {opName}')
 

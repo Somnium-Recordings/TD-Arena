@@ -19,11 +19,11 @@ TopMenu info keys:
 ###############################
 
 
-def tdArenaPreferences(_info):
+def tdArenaPreferences(_info):  # noqa: ANN001
 	op.userSettings.openParameters()
 
 
-def tdArenaQuit(_info):
+def tdArenaQuit(_info):  # noqa: ANN001
 	op.uiAppBar.CloseUI()
 
 
@@ -32,15 +32,15 @@ def tdArenaQuit(_info):
 ###############################
 
 
-def compositionNew(_info):
+def compositionNew(_info):  # noqa: ANN001
 	op.tda.NewComposition()
 
 
-def compositionOpen(_info):
+def compositionOpen(_info):  # noqa: ANN001
 	op.tda.OpenComposition(promptIfConfigured=True)
 
 
-def getCompositionRecentFiles(_info):
+def getCompositionRecentFiles(_info):  # noqa: ANN001
 	"""
 	A rowCallback used in the Top Menu DAT table to automatically generate rows.
 	These callbacks must return a dictionary or list of dictionaries that mimic
@@ -61,11 +61,11 @@ def getCompositionRecentFiles(_info):
 	]
 
 
-def compositionSave(_info):
+def compositionSave(_info):  # noqa: ANN001
 	op.tda.SaveComposition()
 
 
-def compositionSaveAs(_info):
+def compositionSaveAs(_info):  # noqa: ANN001
 	op.tda.SaveComposition(saveAs=True)
 
 
@@ -74,19 +74,19 @@ def compositionSaveAs(_info):
 ###############################
 
 
-def renderReinitComposition(_info):
+def renderReinitComposition(_info):  # noqa: ANN001
 	op.tda.ReinitComposition()
 
 
-def renderUseEngine(_info):
+def renderUseEngine(_info):  # noqa: ANN001
 	op.tda.ToggleEngine()
 
 
-def renderReloadEngine(_info):
+def renderReloadEngine(_info):  # noqa: ANN001
 	op.tda.ReloadEngine()
 
 
-def renderUnload(_info):
+def renderUnload(_info):  # noqa: ANN001
 	op.tda.Unload()
 
 
@@ -95,7 +95,7 @@ def renderUnload(_info):
 ###############################
 
 
-def getViewLayouts(_info):
+def getViewLayouts(_info):  # noqa: ANN001
 	# TODO: for some reason rowcallbacks don't fire every time
 	# selectedLayout = op.userSettings.par.Gridlayout.eval() or 'Default'
 	layouts = [
@@ -112,19 +112,19 @@ def getViewLayouts(_info):
 	return layouts + footer
 
 
-def viewLayoutsSelect(info):
+def viewLayoutsSelect(info):  # noqa: ANN001
 	op.uiGrid.SelectLayout(info['define']['name'])
 
 
-def viewLayoutsSave(_info):
+def viewLayoutsSave(_info):  # noqa: ANN001
 	op.uiGrid.SaveLayout()
 
 
-def viewToggleUiDpiScaling(_info):
+def viewToggleUiDpiScaling(_info):  # noqa: ANN001
 	op.userSettings.par.Uidpiscaling = not op.userSettings.par.Uidpiscaling.eval()
 
 
-def viewDebugWindow(_info):
+def viewDebugWindow(_info):  # noqa: ANN001
 	if op.debug_ui.IsOpen:
 		op.debug_ui.Close()
 	else:
@@ -136,51 +136,51 @@ def viewDebugWindow(_info):
 ###############################
 
 
-def onSelect(_info):
+def onSelect(_info):  # noqa: ANN001
 	"""
 	User selects a menu option
 	"""
 	# debug(info)
 
 
-def onRollover(_info):
+def onRollover(_info):  # noqa: ANN001
 	"""
 	Mouse rolled over an item
 	"""
 
 
-def onOpen(_info):
+def onOpen(_info):  # noqa: ANN001
 	"""
 	Menu opened
 	"""
 	# debug(_info)
 
 
-def onClose(_info):
+def onClose(_info):  # noqa: ANN001
 	"""
 	Menu closed
 	"""
 
 
-def onMouseDown(_info):
+def onMouseDown(_info):  # noqa: ANN001
 	"""
 	Item pressed
 	"""
 
 
-def onMouseUp(_info):
+def onMouseUp(_info):  # noqa: ANN001
 	"""
 	Item released
 	"""
 
 
-def onClick(_info):
+def onClick(_info):  # noqa: ANN001
 	"""
 	Item pressed and released
 	"""
 
 
-def onLostFocus(_info):
+def onLostFocus(_info):  # noqa: ANN001
 	"""
 	Menu lost focus
 	"""

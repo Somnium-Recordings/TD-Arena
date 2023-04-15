@@ -47,11 +47,11 @@ class LogCollectorExt:
 		return self.ownerComp.par.Groupsimilarlogs.eval()
 
 	@lastCollectedFrame.setter
-	def lastCollectedFrame(self, val: Union[int, float]):
+	def lastCollectedFrame(self, val: Union[int, float]):  # noqa: ANN202
 		self.ownerComp.par.Lastcollectedframe = 0 if math.isinf(val) else int(val)
 
 	# TODO: clear logs on first load
-	def __init__(self, ownerComp) -> None:
+	def __init__(self, ownerComp) -> None:  # noqa: ANN001
 		self.ownerComp = ownerComp
 		self.logStorage: DAT = ownerComp.op('table_logStorage')
 		self.unprocessedLogs = ownerComp.op('null_unprocessedLogs')
@@ -103,7 +103,10 @@ class LogCollectorExt:
 		# to access the table data for the remaining records
 		self.lastCollectedFrame = highestCollectedFrame
 
-	def OnSortedStorageLengthChange(self, sortedStorageDat) -> None:
+	def OnSortedStorageLengthChange(
+		self,
+		sortedStorageDat  # noqa: ANN001
+	) -> None:  # noqa: ANN001, RUF100
 		if sortedStorageDat.numRows <= self.maxLogStorage:
 			return
 

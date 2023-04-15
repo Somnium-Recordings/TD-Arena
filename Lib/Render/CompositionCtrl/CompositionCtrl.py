@@ -8,12 +8,12 @@ from tdaUtils import clearChildren, getCellValues, layoutComps
 
 class CompositionCtrl(LoadableExt):
 
-	def __init__(self, ownerComponent, logger):
+	def __init__(self, ownerComponent, logger):  # noqa: ANN001
 		super().__init__(ownerComponent, logger)
 		self.compositionContainer = ownerComponent.op('../composition')
 		self.compositionState = ownerComponent.op('./null_compositionState')
 
-	def Init(self, _renderState):
+	def Init(self, _renderState):  # noqa: ANN001
 		self.setUnloaded()
 		self.clearCompositionContents()
 		self.layoutCompositionContainer()
@@ -25,7 +25,7 @@ class CompositionCtrl(LoadableExt):
 		for parameter in self.compositionContainer.customPars:
 			parameter.val = parameter.default
 
-	def Load(self, state=None):  # pylint: disable=unused-argument
+	def Load(self, state=None):  # pylint: disable=unused-argument  # noqa: ANN001
 		self.setLoading()
 		self.logInfo('loading composition')
 

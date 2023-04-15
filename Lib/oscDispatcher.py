@@ -18,7 +18,11 @@ OSCMappings = OrderedDict[str, OSCHandler]
 class OSCDispatcher(BaseExt):
 
 	def __init__(
-		self, ownerComponent, logger, mappings=None, defaultMapping=None
+		self,
+		ownerComponent,  # noqa: ANN001
+		logger,  # noqa: ANN001
+		mappings=None,  # noqa: ANN001
+		defaultMapping=None  # noqa: ANN001
 	) -> None:
 		super().__init__(ownerComponent, logger)
 		self.mappings: OSCMappings = mappings if mappings else OrderedDict()
@@ -33,7 +37,7 @@ class OSCDispatcher(BaseExt):
 		for address, handler in mappings.items():
 			self.Map(address, handler)
 
-	def getMapping(self, address, args):
+	def getMapping(self, address, args):  # noqa: ANN001
 		if (len(args) == 1 and args[0] == '?'):
 			return self.getMapping('?', [])
 
@@ -46,7 +50,7 @@ class OSCDispatcher(BaseExt):
 		# added later. For example from the TdArena class.
 		return self.defaultMapping
 
-	def Dispatch(self, address, *args):
+	def Dispatch(self, address, *args):  # noqa: ANN001, ANN002
 		mapping = self.getMapping(address, args)
 		assert mapping, f'unmapped osc address {address}'
 
