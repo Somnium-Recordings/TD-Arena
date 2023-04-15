@@ -187,7 +187,10 @@ def addSectionParameters(
 	op.sortCustomPages(*pageOrder)
 
 
-def resetCustomParameters(operator, checkDefaultExpr=False):  # noqa: ANN001
+def resetCustomParameters(
+	operator,
+	checkDefaultExpr=False  # noqa: ANN001, FBT002
+):
 	for p in operator.customPars:
 		# There's some weird cases where the defaultExpr is string 'None'
 		# Ignore those when using the expr. Specifically, I noticed this
@@ -212,5 +215,6 @@ def filePathToStemSlug(path: str) -> str:
 
 def matchesGlob(globStr: str, path: str) -> bool:
 	return next(
-		(True for glob in globStr.split(',') if fnmatchcase(path, glob)), False
+		(True for glob in globStr.split(',') if fnmatchcase(path, glob)),
+		False  # noqa: FBT003
 	)

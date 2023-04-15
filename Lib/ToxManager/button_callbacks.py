@@ -7,7 +7,7 @@ def onOffToOn(panelValue):  # noqa: ANN001
 
 	elif buttonName == 'button_expandAll':
 		for pathCell in op('null_allToxes').col('path')[1:]:
-			toxLister.OpenToPath(pathCell.val, False)
+			toxLister.OpenToPath(pathCell.val, False)  # noqa: FBT003
 		toxLister.Refresh()
 
 	elif buttonName == 'button_collapseAll':

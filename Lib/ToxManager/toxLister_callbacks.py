@@ -55,7 +55,7 @@ def onReloadInput(info):  # noqa: ANN001
 
 		treeLister.CollapseAll()
 		for path in pathsToExpand:
-			treeLister.ToggleExpand(path, True)
+			treeLister.ToggleExpand(path, True)  # noqa: FBT003
 
 		treeLister.Refresh()
 

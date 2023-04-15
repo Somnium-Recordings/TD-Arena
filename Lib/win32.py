@@ -148,7 +148,7 @@ def DestroyWindow(hWnd: HANDLE) -> bool:
 
 def findWindowByName(
 	name: str,
-	retrying=False,  # noqa: ANN001, ARG001
+	retrying=False,  # noqa: ANN001, ARG001, FBT002
 ) -> typing.Optional[HANDLE]:
 	try:
 		w = FindWindowW(None, name)

@@ -28,7 +28,7 @@ class AppBar(BaseExt):
 	def uiWindowhandle(self):
 		return findWindowByName(self.uiWindow.par.title.eval())
 
-	def OnUIResize(self, retrying=False):  # noqa: ANN001
+	def OnUIResize(self, retrying=False):  # noqa: ANN001, FBT002
 		w = self.uiWindowhandle
 
 		if w:

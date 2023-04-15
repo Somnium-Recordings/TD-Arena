@@ -57,7 +57,7 @@ class MovieSource(BaseExt):
 		self.state['Loaded', 1] = 0
 		self.setStatusText('Loading...')
 
-	def setLoaded(self, wasSuccessful=True):  # noqa: ANN001
+	def setLoaded(self, wasSuccessful=True):  # noqa: ANN001, FBT002
 		if not wasSuccessful:
 			self.setStatusText('Error')
 
