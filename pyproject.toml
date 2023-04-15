@@ -43,6 +43,7 @@ use_tabs = true
 disable = [
   "attribute-defined-outside-init",
   "bare-except",
+  "broad-except", # Coverd by BLE
   "duplicate-code",
   "fixme",
   "invalid-name",
@@ -92,6 +93,7 @@ select = [
   "ANN",
   "ARG",
   "B",
+  "BLE",
   "C4",
   "C90",
   "E",

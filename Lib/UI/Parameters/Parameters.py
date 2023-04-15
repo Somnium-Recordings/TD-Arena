@@ -49,7 +49,7 @@ class ParameterContainer(BaseExt):
 		logger,  # noqa: ANN001
 		state,  # noqa: ANN001
 		effectBrowser  # noqa: ANN001
-	):  # noqa: ANN001, RUF100
+	):
 		super().__init__(ownerComponent, logger)
 		self.state = state
 		self.effectBrowser = effectBrowser
@@ -140,7 +140,7 @@ class ParameterContainer(BaseExt):
 		self,
 		droppedItem: DroppedItem,
 		targetSection=None,  # noqa: ANN001
-		direction: str = None  # noqa: ANN001, RUF100
+		direction: str = None
 	):
 		# TODO: lookup targetSection & validate here once everything supports it
 
@@ -157,7 +157,7 @@ class ParameterContainer(BaseExt):
 		self,
 		droppedItem: DroppedItem,
 		targetSection=None,  # noqa: ANN001
-		_direction: str = None  # noqa: ANN001, RUF100
+		_direction: str = None
 	):
 		if targetSection is not None:
 			self.logDebug('dropping onto targets not implemented yet, adding to end')
@@ -169,7 +169,7 @@ class ParameterContainer(BaseExt):
 		self,
 		droppedItem: DroppedItem,
 		targetSection=None,  # noqa: ANN001
-		direction: str = None  # noqa: ANN001, RUF100
+		direction: str = None
 	):
 		if targetSection is None:
 			raise NotImplementedError(

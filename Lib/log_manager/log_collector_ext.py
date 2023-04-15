@@ -106,7 +106,7 @@ class LogCollectorExt:
 	def OnSortedStorageLengthChange(
 		self,
 		sortedStorageDat  # noqa: ANN001
-	) -> None:  # noqa: ANN001, RUF100
+	) -> None:
 		if sortedStorageDat.numRows <= self.maxLogStorage:
 			return
 

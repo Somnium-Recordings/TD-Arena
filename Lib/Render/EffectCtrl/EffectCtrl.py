@@ -51,7 +51,7 @@ class EffectCtrl(LoadableExt):
 		self,
 		address: str,
 		containerComp  # noqa: ANN001
-	):  # noqa: ANN001, RUF100
+	):
 		self.logDebug(f'registering effects container at {address}')
 
 		if not hasattr(self, 'saveState') or self.saveState is None:
@@ -134,7 +134,7 @@ class EffectsContainer(LoadableExt):
 		ownerComponent,  # noqa: ANN001
 		logger,  # noqa: ANN001
 		effectCtrl: EffectCtrl
-	):  # noqa: ANN001, RUF100
+	):
 		super().__init__(ownerComponent, logger)
 		self.effectCtrl = effectCtrl
 		self.effectTemplate = effectCtrl.op('./effectTemplate')
@@ -257,7 +257,7 @@ class EffectsContainer(LoadableExt):
 		effect,  # noqa: ANN001
 		effectID,  # noqa: ANN001
 		targetEffectID=None  # noqa: ANN001
-	):  # noqa: ANN001, RUF100
+	):
 		if targetEffectID is None:
 			self.logDebug(f'inserting effect {effectID} at head')
 			effect.par.Sourceeffectid = self.headEffectID

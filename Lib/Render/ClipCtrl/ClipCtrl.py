@@ -90,7 +90,7 @@ class ClipCtrl(LoadableExt):
 		name,  # noqa: ANN001
 		path,  # noqa: ANN001
 		clipID: Optional[int] = None
-	):  # noqa: ANN001, RUF100
+	):
 		clip = self.createNextClip(clipID)
 		self.loadSource(sourceType, name, path, clip)
 
