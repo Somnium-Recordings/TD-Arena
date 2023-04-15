@@ -52,7 +52,7 @@ disable = [
   "missing-function-docstring",
   "missing-module-docstring",
   "too-many-instance-attributes",
-  "unused-import" # Covered by F
+  "unused-import", # Covered by F
 ]
 indent-after-paren = 1
 indent-string = "\t"
@@ -89,6 +89,7 @@ ignore = [
   "ANN201",
   "ANN204",
   "E501",
+  "PGH003",
   "W191",
 ]
 select = [
@@ -105,6 +106,7 @@ select = [
   "I", # "N", -- one day
   "ISC",
   "ICN",
+  "PGH",
   "PIE",
   "PT",
   "PTH",
