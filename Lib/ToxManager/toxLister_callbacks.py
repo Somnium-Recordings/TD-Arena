@@ -63,9 +63,9 @@ def onReloadInput(info):  # noqa: ANN001
 		treeLister.SelectObjects(objectsToSelect)
 
 	# For some reason the lister doesn't actually dump the error
-	except Exception as e:
+	except Exception:
 		print(traceback.format_exc())  # noqa: T201
-		raise e  # noqa: TRY201
+		raise
 
 
 def onClick(info):  # noqa: ANN001

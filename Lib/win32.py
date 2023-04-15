@@ -91,7 +91,7 @@ def RaiseIfZero(result, func=None, arguments=()):  # noqa: ANN001, ARG001
     In that case the C{WindowsError} exception is raised.
     """
 	if not result:
-		raise ctypes.WinError()
+		raise ctypes.WinError()  # noqa: RSE102
 	return result
 
 

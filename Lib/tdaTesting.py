@@ -132,7 +132,7 @@ class MockParameterBag:
 
 	def __getattr__(self, attr):  # noqa: ANN001
 		if attr not in self._parameters:
-			raise AttributeError()
+			raise AttributeError
 
 		return self._parameters[attr]
 
