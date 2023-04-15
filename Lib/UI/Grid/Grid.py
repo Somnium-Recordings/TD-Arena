@@ -1,6 +1,6 @@
 import json
 from functools import reduce
-from os import path
+from pathlib import Path
 
 from tda import DroppedItem, LoadableExt
 from tdaUtils import getCellValues, layoutComps
@@ -104,12 +104,12 @@ def getOpSaveState(op, posPar=None):  # noqa: ANN001
 	return state
 
 
-def layoutFilePath(layoutName):  # noqa: ANN001
-	return tdu.expandPath(path.join('.td-arena', f'layout.{layoutName}.json'))
+def layoutFilePath(layoutName: str):
+	return tdu.expandPath(Path('.td-arena') / f'layout.{layoutName}.json')
 
 
-def layoutExists(layoutName):  # noqa: ANN001
-	return path.isfile(layoutFilePath(layoutName))
+def layoutExists(layoutName: str):
+	return Path(layoutFilePath(layoutName)).is_file()
 
 
 class Grid(LoadableExt):
@@ -164,7 +164,7 @@ class Grid(LoadableExt):
 			return DEFAULT_LAYOUT
 
 		try:
-			with open(layoutFilePath(layoutName), encoding='utf8') as saveFile:
+			with Path(layoutFilePath(layoutName)).open(encoding='utf8') as saveFile:
 				self.logDebug(f'loading layout file {layoutFilePath(layoutName)}')
 				return json.load(saveFile)
 		except (json.JSONDecodeError, FileNotFoundError):
@@ -223,7 +223,7 @@ class Grid(LoadableExt):
 		}
 
 		saveFilePath = layoutFilePath('User')
-		with open(saveFilePath, 'w', encoding='utf8') as saveFile:
+		with Path(saveFilePath).open('w', encoding='utf8') as saveFile:
 			json.dump(saveState, saveFile, indent='\t')
 
 		self.logDebug(f'layout saved to {saveFilePath }')

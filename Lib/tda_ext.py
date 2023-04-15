@@ -1,4 +1,4 @@
-from os import path
+from pathlib import Path
 from typing import Callable, Optional, cast
 
 from tda import LoadableExt
@@ -57,7 +57,7 @@ COMPOSITION_EXTENSION = 'tdac'
 
 
 def isValidSaveFile(saveFile: str):
-	return saveFile.endswith(COMPOSITION_EXTENSION) and path.isfile(saveFile)
+	return saveFile.endswith(COMPOSITION_EXTENSION) and Path(saveFile).is_file()
 
 
 STATE_UNLOADED = 'unloaded'
