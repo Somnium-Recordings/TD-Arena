@@ -77,7 +77,7 @@ DEFAULT_LAYOUT = {
 		['/tdArena/ui/parametersUI/composition',           1,        0],
 		['/tdArena/ui/previs',                             3,        0],
 		['/tdArena/ui/clipLauncherUI',                     0,        0],
-		['/tdArena/ui/audioAnalysis',                      4,        0]
+		['/tdArena/ui/audio_analysis',                     4,        0]
 	]
 }
 # yapf: enable
@@ -308,10 +308,8 @@ class Grid(LoadableExt):
 		panelPath = sourceCellPanelsDat[itemHeadingOp.digits + 1, 'path'].val
 
 		self.logInfo(
-			(
-				f'moving panel {panelPath} into cellID {targetCell.digits}',
-				f' at index {droppedItem.selectedItemIndex}'
-			)
+			f'moving panel {panelPath} into cellID {targetCell.digits}'
+			f' at index {droppedItem.selectedItemIndex}'
 		)
 		self.panelMapTable[panelPath, 'cellID'] = targetCell.digits
 
