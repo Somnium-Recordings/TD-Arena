@@ -46,5 +46,11 @@ jobs:
           path: ~/.cache/pre-commit
           key: pre-commit-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('.pre-commit-config.yaml') }}
 
+      - name: Load Pyright Cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pyright-python
+          key: pre-commit-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('.pyproject.toml') }}
+
       - name: Test
         run: poetry run pre-commit run --show-diff-on-failure --all-files --color=always
