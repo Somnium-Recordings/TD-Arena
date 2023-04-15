@@ -342,21 +342,6 @@ spelling = ["pyenchant (>=3.2,<4.0)"]
 testutils = ["gitpython (>3)"]
 
 [[package]]
-name = "pylint-quotes"
-version = "0.2.3"
-description = "Quote consistency checker for PyLint.."
-category = "dev"
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "pylint-quotes-0.2.3.tar.gz", hash = "sha256:2d6bb3fa8a1a85af3af8a0ca875a719ac5bcdb735c45756284699d809c109c95"},
-    {file = "pylint_quotes-0.2.3-py2.py3-none-any.whl", hash = "sha256:89decd985d3c019314da630f5e3fe0e0df951c2310525fbd6e710bca329c810e"},
-]
-
-[package.dependencies]
-pylint = ">=2.8.0"
-
-[[package]]
 name = "pyright"
 version = "1.1.302"
 description = "Command line wrapper for pyright"
@@ -703,4 +688,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "3.9.5"
-content-hash = "49e5ead637e0df85da61511316f619216439089355c42aa6faaaa6c1f9fd5a48"
+content-hash = "b3074eac1958df197e20813388b9d3ab2f8b24ce9e4adc6032764ad936b1e611"
