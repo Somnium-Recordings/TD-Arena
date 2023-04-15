@@ -1,6 +1,6 @@
 import math
 from dataclasses import dataclass
-from typing import Any, Optional, Union, cast
+from typing import Optional, Union, cast
 
 
 def getOrCreateTextDAT(targetOp: COMP, datName: str) -> textDAT:
@@ -12,7 +12,7 @@ def getOrCreateTextDAT(targetOp: COMP, datName: str) -> textDAT:
 	return cast(textDAT, dat)
 
 
-def layoutChildren(op: COMP, columns=4, xBase=0):
+def layoutChildren(op: COMP, columns: int = 4, xBase: int = 0):
 	children = op.findChildren(depth=1)
 	for i, comp in enumerate(children):
 		comp.nodeX = xBase + (i % columns) * 200
@@ -49,7 +49,7 @@ class File(Node):
 @dataclass
 class RootDirectory(Node):
 	children: dict[str, Union[File, 'Directory']]
-	containerOp: Optional[COMP]
+	containerOp: Optional[baseCOMP]
 
 	@property
 	def containerOpName(self) -> str:
@@ -63,7 +63,7 @@ class RootDirectory(Node):
 	def containerOpNameToDirName(opName: str) -> str:
 		return opName[1:]  # remove the _
 
-	def isActiveModuleOp(self, moduleOp: Any) -> bool:
+	def isActiveModuleOp(self, moduleOp: OP) -> bool:
 		opName = moduleOp.name
 		childName = (
 			self.containerOpNameToDirName(opName)
@@ -78,7 +78,8 @@ class RootDirectory(Node):
 		assert self.containerOp, f'cannot destroy inactive modules for {self.name} due to missing containerOp'
 
 		inactiveOps = [
-			childOp for childOp in self.containerOp.findChildren(depth=1)
+			childOp
+			for childOp in cast(list[OP], self.containerOp.findChildren(depth=1))
 			if not self.isActiveModuleOp(childOp)
 		]
 		for childOp in inactiveOps:
@@ -149,19 +150,23 @@ class Directory(RootDirectory):
 # pylint: disable=too-few-public-methods
 class AutoModuleExt:
 
-	def __init__(self, ownerComp) -> None:
+	def __init__(self, ownerComp: baseCOMP) -> None:
 		self.ownerComp = ownerComp
-		self.fileList: DAT = self.ownerComp.op('null_fileList')
+		self.fileList = cast(DAT, self.ownerComp.op('null_fileList'))
 		debug('AutoModule Extension initialized')
 		# TODO: This causes infinite loop / crashes TD, why?
 		# self.Sync()
 
 	def Sync(self):
 		basePath = self.ownerComp.par.Moduledirectory.eval()
-		ignoredSuffixes = self.ownerComp.par.Ignoredsuffixes.eval().split(' ')
+		ignoredSuffixes = (
+			cast(str, self.ownerComp.par.Ignoredsuffixes.eval()).split(' ')
+		)
 
 		fileTree = RootDirectory(
-			'root', children={}, containerOp=self.ownerComp.par.Modulecomp.eval()
+			'root',
+			children={},
+			containerOp=cast(baseCOMP, self.ownerComp.par.Modulecomp.eval())
 		)
 
 		for row in range(1, self.fileList.numRows):
