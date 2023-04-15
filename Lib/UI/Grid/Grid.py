@@ -333,8 +333,7 @@ class Grid(LoadableExt):
 				self.logInfo(f'removing empty cellID {cell.digits}')
 				self.RemoveCell(cell)
 
-	# pylint: disable=too-many-branches,too-many-statements
-	def AddDivider(  # noqa: C901
+	def AddDivider(  # noqa: C901, PLR0915, PLR0912
 		self, targetDivider, oppositeDivider, direction  # noqa: ANN001
 	):
 		if direction == 'r':

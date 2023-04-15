@@ -88,7 +88,7 @@ def executeParameterCallback(comp, paramName):  # noqa: ANN001
 		return
 
 	callbackScript = callbackParameter.eval()
-	if callbackScript != '':
+	if callbackScript:
 		run(callbackScript, fromOP=comp)
 
 
@@ -307,7 +307,7 @@ class ToxManager:
 			)
 			for rowNumber in range(1, toxDat.numRows)
 			if toxDat[rowNumber, 'path'].val not in EXCLUDE_PATHS
-			and toxDat[rowNumber, 'filePath'].val != ''
+			and toxDat[rowNumber, 'filePath'].val
 		]
 
 		return partition(isCompositionTox, paths)

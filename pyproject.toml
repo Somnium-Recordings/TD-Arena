@@ -51,7 +51,12 @@ disable = [
   "missing-class-docstring",
   "missing-function-docstring",
   "missing-module-docstring",
+  "too-few-public-methods",
+  "too-many-arguments", # Covered by PLR0913
+  "too-many-branches", # Covered by PLR0912
+  "too-many-statements", # Covered by PLR0915
   "too-many-instance-attributes",
+  "unused-argument", # Covered by ARG0002
   "unused-import", # Covered by F
 ]
 indent-after-paren = 1
@@ -108,6 +113,7 @@ select = [
   "ICN",
   "PGH",
   "PIE",
+  "PL",
   "PT",
   "PTH",
   "Q",
@@ -170,6 +176,10 @@ ignore = [
 include = [
   "Lib",
 ]
+
+[tool.ruff.per-file-ignores]
+
+"*_test.py" = ["PLR2004"]
 
 [tool.ruff.flake8-quotes]
 inline-quotes = "single"

@@ -10,12 +10,13 @@ from tdaUtils import (
 )
 
 # NOTE: if you change the layer count, update default deck state as well .
+DEFAULT_LAYER_COUNT = 4
 DEFAULT_STATE = {
 	str(layerID): {
 		'Layername': 'Composition' if layerID == 0 else f'Layer {layerID}',
-		'Nextlayerid': layerID + 1 if layerID < 3 else None
+		'Nextlayerid': layerID + 1 if layerID < DEFAULT_LAYER_COUNT - 1 else None
 	}
-	for layerID in range(4)
+	for layerID in range(DEFAULT_LAYER_COUNT)
 }
 
 
@@ -84,7 +85,8 @@ class LayerCtrl(LoadableExt):
 		currentClipID = self.layers[layerID].par.Clipid
 		self.layers[layerID].par.Clipid = ''
 
-		if currentClipID != '':
+		# TODO: once we fix types here, verify clipID can't be the number 0
+		if currentClipID != '':  # noqa: PLC1901
 			self.clipCtrl.DeactivateClip(int(currentClipID))
 
 	def Insert(self, layerNumber: int, direction):  # noqa: ANN001
@@ -186,7 +188,11 @@ class LayerCtrl(LoadableExt):
 			layer.par.Layerorder = order
 			order += 1
 			nextLayerID = layer.par.Nextlayerid.eval()
-			layer = self.layers[int(nextLayerID)] if nextLayerID != '' else None
+			layer = (
+				self.layers[int(nextLayerID)]
+				# TODO: is layerID always a string?
+				if nextLayerID != '' else None  # noqa: PLC1901
+			)
 
 	def layoutLayerContainer(self):
 		layoutComps(self.layers.values(), columns=1)

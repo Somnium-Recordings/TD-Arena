@@ -49,9 +49,9 @@ def onReloadInput(info):  # noqa: ANN001
 		# i.e. /a/b/c -> /a/b/c, /a/b, /a
 		pathsToExpand = set()
 		for path in list(dirtyPaths):
-			while path != '':
+			while path:
 				pathsToExpand.add(path)
-				path, _, _ = path.rpartition('/')
+				path, _, _ = path.rpartition('/')  # noqa: PLW2901
 
 		treeLister.CollapseAll()
 		for path in pathsToExpand:
@@ -73,7 +73,7 @@ def onClick(info):  # noqa: ANN001
 		return
 
 	row = info['rowData']['rowObject']
-	if 'filePath' not in row or row['filePath'] == '':
+	if 'filePath' not in row or not row['filePath']:
 		return
 
 	lister = info['ownerComp']
