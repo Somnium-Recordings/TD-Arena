@@ -1,9 +1,18 @@
 import pytest
-from tdaUtils import (addressToToxPath, addressToValueLocation,
-                      exportToAddress, filePathToName, getClipID, getDeckID,
-                      getLayerID, intIfSet, mapAddressToDeckLocation,
-                      mapAddressToEffectContainer, mapAddressToEffectLocation,
-                      parameterPathToAddress)
+from tdaUtils import (
+	addressToToxPath,
+	addressToValueLocation,
+	exportToAddress,
+	filePathToName,
+	getClipID,
+	getDeckID,
+	getLayerID,
+	intIfSet,
+	mapAddressToDeckLocation,
+	mapAddressToEffectContainer,
+	mapAddressToEffectLocation,
+	parameterPathToAddress,
+)
 
 
 def test_intIfSet():

@@ -246,7 +246,7 @@ class ToxManager:
 				executeParameterCallback(sysOp, SETTINGS_AFTER_SAVE_SCRIPT)
 
 			self.Close()
-		except Exception as _:  # pylint: disable=broad-except
+		except Exception:  # pylint: disable=broad-except
 			ui.messageBox(
 				'!!!Warning!!!',
 				'Encountered an unexpected error while attempting to save system toxes: \n\n'

@@ -34,7 +34,7 @@ def onReloadInput(info):
 	i.e. /a
 	      -> /a/b
 		     -> /a/b/c/d
-	"""
+	"""  # noqa: E101
 	try:
 		treeLister = info['listerExt']
 

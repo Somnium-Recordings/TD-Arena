@@ -1,6 +1,12 @@
 from tda import LoadableExt
-from tdaUtils import (EffectLocation, addSectionParameters, filePathToName,
-                      intIfSet, layoutComps, mapAddressToEffectLocation)
+from tdaUtils import (
+	EffectLocation,
+	addSectionParameters,
+	filePathToName,
+	intIfSet,
+	layoutComps,
+	mapAddressToEffectLocation,
+)
 
 DEFAULT_STATE = {}
 

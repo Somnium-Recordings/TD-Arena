@@ -18,12 +18,15 @@
   "python.envFile": "${workspaceFolder}\\.env",
   "python.analysis.extraPaths": ["Lib"],
   "python.analysis.typeCheckingMode": "basic",
+  "python.analysis.autoImportCompletions": true,
   "[python]": {
     "editor.defaultFormatter": "ms-python.python",
     "editor.codeActionsOnSave": {
       "source.organizeImports": true
     }
   },
+  "ruff.args": ["--config=./pyproject.toml"],
+
   "cSpell.words": ["absframe", "Toxes"],
   "files.eol": "\r\n"
 }

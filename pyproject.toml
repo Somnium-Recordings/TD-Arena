@@ -1,11 +1,11 @@
 [tool.poetry]
-name = "td-arena"
-version = "0.1.0"
-description = "Resolume Arena inspired (clone) TouchDesigner runtime for live shows."
 authors = ["Steven Nance <steven@somniumrecordings.com>"]
+description = "Resolume Arena inspired (clone) TouchDesigner runtime for live shows."
 license = "MIT"
-readme = "README.md"
+name = "td-arena"
 packages = []
+readme = "README.md"
+version = "0.1.0"
 
 [tool.poetry.dependencies]
 python = "3.9.5"
@@ -15,89 +15,121 @@ python = "3.9.5"
 numpy = "=1.20.3"
 
 [tool.poetry.group.dev.dependencies]
+pre-commit = "^3.2.2"
 pylint = "^2.17.2"
 pylint-quotes = "^0.2.3"
-pre-commit = "^3.2.2"
-unify = "^0.5"
-isort = "^5.12.0"
+pyright = "^1.1.302"
 pytest = "^7.3.0"
 rope = "^1.7.0"
-yapf = "^0.32.0"
+ruff = "^0.0.261"
 toml = "^0.10.2"
-pyright = "^1.1.302"
+unify = "^0.5"
+yapf = "^0.32.0"
 
 [build-system]
-requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core"]
 
 [tool.yapf]
 based_on_style = "pep8"
-use_tabs = true
+continuation_align_style = "valign-right"
+continuation_indent_width = 1
 dedent_closing_brackets = true
 indent_width = 1
-continuation_indent_width = 1
-continuation_align_style = "valign-right"
 split_complex_comprehension = true
+use_tabs = true
 
 [tool.pylint.'MASTER']
-init-hook="import sys; sys.path.append('Lib')"
-load-plugins="pylint_quotes"
-indent-string="\t"
-indent-after-paren=1
-disable=[
-	"attribute-defined-outside-init",
-	"duplicate-code",
-	"fixme",
-	"invalid-name",
-	"line-too-long",
-	"missing-class-docstring",
-	"missing-function-docstring",
-	"missing-module-docstring",
-	"too-many-instance-attributes",
+disable = [
+  "attribute-defined-outside-init",
+  "bare-except",
+  "duplicate-code",
+  "fixme",
+  "invalid-name",
+  "line-too-long",
+  "missing-class-docstring",
+  "missing-function-docstring",
+  "missing-module-docstring",
+  "too-many-instance-attributes",
 ]
+indent-after-paren = 1
+indent-string = "\t"
+init-hook = "import sys; sys.path.append('Lib')"
+load-plugins = "pylint_quotes"
 
 [tool.pylint."VARIABLES"]
-additional-builtins=[
-	"absTime",
-	"baseCOMP",
-	"Cell",
-	"COMP",
-	"DAT",
-	"debug",
-	"op",
-	"OP",
-	"parent",
-	"PaneType",
-	"ParMode",
-	"Par",
-	"project",
-	"run",
-	"tableDAT",
-	"textDAT",
-	"tdu",
-	"ui",
-	"WindowsError",
+additional-builtins = [
+  "absTime",
+  "baseCOMP",
+  "Cell",
+  "COMP",
+  "DAT",
+  "debug",
+  "op",
+  "OP",
+  "parent",
+  "PaneType",
+  "ParMode",
+  "Par",
+  "project",
+  "run",
+  "tableDAT",
+  "textDAT",
+  "tdu",
+  "ui",
+  "WindowsError",
+]
+
+[tool.ruff]
+ignore = [
+  "E501",
+]
+select = ["E", "F", "I"]
+
+builtins = [
+  "absTime",
+  "baseCOMP",
+  "Cell",
+  "COMP",
+  "DAT",
+  "debug",
+  "op",
+  "OP",
+  "parent",
+  "PaneType",
+  "ParMode",
+  "Par",
+  "project",
+  "run",
+  "tableDAT",
+  "textDAT",
+  "tdu",
+  "ui",
+  "WindowsError",
+]
+exclude = [
+  "typings",
 ]
 
 [tool.pyright]
-include = [
-	"Lib"
-]
 ignore = [
-	# TODO: remove these as modules are migrated over to new patterns
-	"Lib/Logger/Logger.py",
-	"Lib/Render/ClipCtrl/ClipCtrl.py",
-	"Lib/Render/DeckCtrl/DeckCtrl.py",
-	"Lib/Render/EffectCtrl/EffectCtrl.py",
-	"Lib/ToxManager/ToxManager.py",
-	"Lib/ToxManager/button_callbacks.py",
-	"Lib/ToxManager/datexec_toggleSelectedButtonVisibility.py",
-	"Lib/ToxManager/script_processToxList_callbacks.py",
-	"Lib/UI/AppBar/AppBar.py",
-	"Lib/UI/Clip/ClipUI.py",
-	"Lib/UI/DragCtrl/DragCtrl.py",
-	"Lib/UI/Grid/Grid.py",
-	"Lib/UI/Parameters/on_ctrl_value_parexec.py",
-	"Lib/UI/Parameters/Parameters_test.py",
-	"Lib/UI/Parameters/Parameters.py",
+  # TODO: remove these as modules are migrated over to new patterns
+  "Lib/Logger/Logger.py",
+  "Lib/Render/ClipCtrl/ClipCtrl.py",
+  "Lib/Render/DeckCtrl/DeckCtrl.py",
+  "Lib/Render/EffectCtrl/EffectCtrl.py",
+  "Lib/ToxManager/ToxManager.py",
+  "Lib/ToxManager/button_callbacks.py",
+  "Lib/ToxManager/datexec_toggleSelectedButtonVisibility.py",
+  "Lib/ToxManager/script_processToxList_callbacks.py",
+  "Lib/UI/AppBar/AppBar.py",
+  "Lib/UI/Clip/ClipUI.py",
+  "Lib/UI/DragCtrl/DragCtrl.py",
+  "Lib/UI/Grid/Grid.py",
+  "Lib/UI/Parameters/on_ctrl_value_parexec.py",
+  "Lib/UI/Parameters/Parameters_test.py",
+  "Lib/UI/Parameters/Parameters.py",
+]
+include = [
+  "Lib",
 ]

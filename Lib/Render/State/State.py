@@ -7,8 +7,12 @@ from collections import OrderedDict
 
 from oscDispatcher import OSCDispatcher
 from tda import LoadableExt
-from tdaUtils import (getLayerID, mapAddressToDeckLocation,
-                      mapAddressToEffectContainer, mapAddressToEffectLocation)
+from tdaUtils import (
+	getLayerID,
+	mapAddressToDeckLocation,
+	mapAddressToEffectContainer,
+	mapAddressToEffectLocation,
+)
 
 
 class StateCtrl(LoadableExt):
