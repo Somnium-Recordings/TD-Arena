@@ -1889,6 +1889,7 @@ class COMP(OP):
 	def findChildren(
 		self,
 		type: Optional[Type] = None,
+		name: Optional[str] = None,
 		path: Optional[str] = None,
 		depth: Optional[int] = None,
 		text: Optional[str] = None,

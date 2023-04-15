@@ -7,7 +7,7 @@ class LogManagerExt:
 	def LogCountsDat(self):
 		return self.ownerComp.op('./null_counts')
 
-	def __init__(self, ownerComp) -> None:
+	def __init__(self, ownerComp: baseCOMP) -> None:
 		self.ownerComp = ownerComp
 
 	def SetGlobalLogParam(self, paramName: str, value: int):
@@ -18,7 +18,12 @@ class LogManagerExt:
 		for handle in self.allLogHandles():
 			handle.par[paramName].pulse()
 
-	def SetLoggerParam(self, logName: str, paramName: str, value: Any):
+	def SetLoggerParam(
+		self,
+		logName: str,
+		paramName: str,
+		value: Any  # noqa: ANN401
+	):
 		for handle in [
 			h for h in self.allLogHandles() if h.par.Name.eval() == logName
 		]:
