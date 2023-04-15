@@ -201,10 +201,9 @@ class DeckCtrl(LoadableExt):
 
 	def getClipID(self, clipLocation: DeckLocation, deckID: int = None):
 		(layerNumber, clipNumber) = clipLocation
-		if deckID is None:
-			deckState = self.selectedDeckState
-		else:
-			deckState = self.decks[deckID]['state']
+		deckState = (
+			self.selectedDeckState if deckID is None else self.decks[deckID]['state']
+		)
 
 		return intIfSet(deckState[layerNumber, clipNumber])
 
