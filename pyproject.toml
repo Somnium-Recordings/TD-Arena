@@ -52,6 +52,7 @@ disable = [
   "missing-function-docstring",
   "missing-module-docstring",
   "too-many-instance-attributes",
+  "unused-import" # Covered by F
 ]
 indent-after-paren = 1
 indent-string = "\t"
@@ -106,11 +107,13 @@ select = [
   "ICN",
   "PIE",
   "PT",
+  "PTH",
   "Q",
   "RET",
   "RUF",
   "SIM",
   "TCH",
+  "TID",
   "T20",
   "UP",
   "W",

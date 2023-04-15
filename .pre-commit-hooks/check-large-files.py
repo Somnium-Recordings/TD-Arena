@@ -6,10 +6,10 @@ We want to check all files, not just added. This removes the
 """
 import argparse
 import math
-import os
 import subprocess
 import sys
 from collections.abc import Sequence
+from pathlib import Path
 from typing import Any, Optional
 
 
@@ -44,7 +44,7 @@ def find_large_files(filenames: Sequence[str], maxkb: int) -> int:
 	# us about
 	retv = 0
 	for filename in staged_files() & set(filenames):
-		kb = int(math.ceil(os.stat(filename).st_size / 1024))
+		kb = int(math.ceil(Path(filename).stat().st_size / 1024))
 		if kb > maxkb:
 			print(f'{filename} ({kb} KB) exceeds {maxkb} KB.')  # noqa: T201
 			retv = 1

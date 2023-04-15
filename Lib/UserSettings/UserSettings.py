@@ -1,16 +1,16 @@
 import json
-from os import path
+from pathlib import Path
 
 from tda import LoadableExt
 
-SETTINGS_FILE = path.join('.td-arena', 'settings.json')
+SETTINGS_FILE = Path('.td-arena') / 'settings.json'
 
 
 class UserSettings(LoadableExt):
 
 	@property
 	def settingsFilePath(self):
-		return tdu.expandPath(SETTINGS_FILE)
+		return tdu.expandPath(str(SETTINGS_FILE))
 
 	# pylint: disable=too-many-arguments
 	def __init__(self, ownerComponent, logger):  # noqa: ANN001
@@ -24,7 +24,7 @@ class UserSettings(LoadableExt):
 	def loadSettingsFile(self):
 		self.logDebug('loading settings file')
 		try:
-			with open(self.settingsFilePath, encoding='utf8') as saveFile:
+			with Path(self.settingsFilePath).open(encoding='utf8') as saveFile:
 				settings = json.load(saveFile)
 		except (json.JSONDecodeError, FileNotFoundError):
 			self.logDebug(f'no settings file found at {self.settingsFilePath}')
@@ -56,5 +56,5 @@ class UserSettings(LoadableExt):
 				userSettings[par.name] = par.eval()
 
 		if applyUserSettings is None:
-			with open(self.settingsFilePath, 'w', encoding='utf8') as saveFile:
+			with Path(self.settingsFilePath).open('w', encoding='utf8') as saveFile:
 				json.dump(userSettings, saveFile, indent='\t')

@@ -4,6 +4,7 @@ Or at least some sort of Ctrl base class
 """
 import json
 from collections import OrderedDict
+from pathlib import Path
 
 from oscDispatcher import OSCDispatcher
 from tda import LoadableExt
@@ -237,11 +238,11 @@ class StateCtrl(LoadableExt):
 	def writeSaveFile(self, saveState, filePath: str):  # noqa: ANN001
 		self.logInfo(f'saving state to {filePath}')
 
-		with open(filePath, 'w', encoding='utf-8') as saveFile:
+		with Path(filePath).open('w', encoding='utf-8') as saveFile:
 			json.dump(saveState, saveFile, indent='\t')
 
 	def readSaveFile(self, filePath: str):
 		self.logInfo(f'loading save file from {filePath}')
 
-		with open(filePath, encoding='utf-8') as saveFile:
+		with Path(filePath).open(encoding='utf-8') as saveFile:
 			return json.load(saveFile)

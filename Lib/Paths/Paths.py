@@ -1,4 +1,4 @@
-import os.path
+from pathlib import Path
 
 from tda import BaseExt
 
@@ -16,8 +16,8 @@ class Paths(BaseExt):  # pylint: disable=too-few-public-methods
 	def Apply(self):
 		newPaths = {}
 		for protocol, path in self.configuredPaths.rows():
-			expanded = os.path.expanduser(path.val)
-			if not os.path.exists(expanded):
+			expanded = Path(path.val).expanduser()
+			if not expanded.exists():
 				self.logError(
 					f'configured path for protocol ({protocol}) does not exist: {expanded}'
 				)
