@@ -123,7 +123,7 @@ class TDAExt(LoadableExt):
 
 		if not self.userSettings.Loaded:
 			raise RuntimeError(
-				'TDArena initialized before user settings, ' +
+				'TDArena initialized before user settings, '
 				'add logic to delay system init until user settings loaded'
 			)
 

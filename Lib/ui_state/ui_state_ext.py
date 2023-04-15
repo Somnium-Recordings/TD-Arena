@@ -133,7 +133,7 @@ class UIStateExt(BaseExt):
 					handler(address, newValue)
 				except:  # noqa: E722
 					self.logError(
-						f'failed to apply CtrlValue change handler ({sourceName}) @ {address}:' +
+						f'failed to apply CtrlValue change handler ({sourceName}) @ {address}:'
 						f'\n{traceback.format_exc()}'
 					)
 

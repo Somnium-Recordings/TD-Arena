@@ -102,6 +102,7 @@ select = [
   "F",
   "FBT",
   "I", # "N", -- one day
+  "ISC",
   "PT",
   "RUF",
   "TCH",
