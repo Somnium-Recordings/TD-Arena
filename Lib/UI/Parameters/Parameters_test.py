@@ -16,7 +16,7 @@ def test_matchEffectAddress():
 def test_getSectionCloseScript():
 	assert Parameters.getSectionCloseScript(
 		'/composition/clips/4/video/effects/0'
-	) == 'op.ui_state.SendMessage(\'/composition/clips/4/video/effects/0/clear\')'
+	) == "op.ui_state.SendMessage('/composition/clips/4/video/effects/0/clear')"
 
 
 class TestParameters():

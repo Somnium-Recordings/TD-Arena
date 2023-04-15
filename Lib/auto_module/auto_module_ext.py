@@ -124,7 +124,7 @@ class Directory(RootDirectory):
 		)
 		moduleText = '\n'.join(
 			[
-				f'{child.name}=mod(\'{self.containerOpName}/{child.name}\')'
+				f"{child.name}=mod('{self.containerOpName}/{child.name}')"
 				for child in self.children.values()
 				if child.shouldHaveTdModule
 			]

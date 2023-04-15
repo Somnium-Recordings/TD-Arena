@@ -23,7 +23,6 @@ pytest = "^7.3.0"
 rope = "^1.7.0"
 ruff = "^0.0.261"
 toml = "^0.10.2"
-unify = "^0.5"
 yapf = "^0.32.0"
 
 [build-system]
@@ -47,6 +46,7 @@ disable = [
   "duplicate-code",
   "fixme",
   "invalid-name",
+  "invalid-string-quote", # Covered by Q
   "line-too-long",
   "missing-class-docstring",
   "missing-function-docstring",
@@ -103,7 +103,10 @@ select = [
   "FBT",
   "I", # "N", -- one day
   "ISC",
+  "ICN",
+  "PIE",
   "PT",
+  "Q",
   "RUF",
   "TCH",
   "T20",
@@ -160,3 +163,7 @@ ignore = [
 include = [
   "Lib",
 ]
+
+[tool.ruff.flake8-quotes]
+inline-quotes = "single"
+multiline-quotes = "single"

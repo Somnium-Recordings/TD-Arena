@@ -79,7 +79,7 @@ class ParameterCtrl(LoadableExt):
 
 		if par is None:
 			self.logWarning(
-				f'attempted to set parameter that doesn\'t exist @ {address}'
+				f"attempted to set parameter that doesn't exist @ {address}"
 			)
 			return
 
