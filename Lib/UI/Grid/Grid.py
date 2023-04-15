@@ -452,10 +452,9 @@ class Grid(LoadableExt):
 		self.cells.remove(cell)
 
 	def OnDividerClick(self, divider):  # noqa: ANN001
-		if divider.name.startswith('vDivider'):
-			directions = ('l', 'r')
-		else:
-			directions = ('b', 't')
+		directions = (
+			('l', 'r') if divider.name.startswith('vDivider') else ('b', 't')
+		)
 
 		for direction in directions:
 			closestDivider = self.closestDividerTo(divider, direction)

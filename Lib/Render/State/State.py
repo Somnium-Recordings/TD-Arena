@@ -190,7 +190,7 @@ class StateCtrl(LoadableExt):
 		self.setLoading()
 		self.logInfo('creating new state')
 
-		newState = {k: None for k in self.ctrls.keys()}
+		newState = {k: None for k in self.ctrls}
 		self.loadControllers(newState)
 
 		self.setLoaded()

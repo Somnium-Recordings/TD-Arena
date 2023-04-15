@@ -47,13 +47,10 @@ class UserSettings(LoadableExt):
 				continue
 
 			if applyUserSettings is not None:
-				if par.name in applyUserSettings:
-					par.val = applyUserSettings[par.name]
-				else:
-					# reset to default to avoid any non-default config
-					# carrying over from different systems where td-arena is
-					# developed on
-					par.val = par.default
+				# reset to default to avoid any non-default config
+				# carrying over from different systems where td-arena is
+				# developed on
+				par.val = applyUserSettings.get(par.name, par.default)
 
 			if not par.isDefault:
 				userSettings[par.name] = par.eval()
