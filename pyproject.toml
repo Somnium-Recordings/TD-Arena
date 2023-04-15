@@ -95,6 +95,7 @@ ignore = [
   "ANN204",
   "E501",
   "PGH003",
+  "TRY003",
   "W191",
 ]
 select = [
@@ -123,6 +124,7 @@ select = [
   "TCH",
   "TID",
   "T20",
+  "TRY",
   "UP",
   "W",
 ]

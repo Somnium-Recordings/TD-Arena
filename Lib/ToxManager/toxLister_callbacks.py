@@ -65,7 +65,7 @@ def onReloadInput(info):  # noqa: ANN001
 	# For some reason the lister doesn't actually dump the error
 	except Exception as e:
 		print(traceback.format_exc())  # noqa: T201
-		raise e
+		raise e  # noqa: TRY201
 
 
 def onClick(info):  # noqa: ANN001
