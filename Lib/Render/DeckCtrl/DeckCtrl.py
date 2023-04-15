@@ -1,9 +1,16 @@
 from typing import Optional, Union
 
 from tda import LoadableExt
-from tdaUtils import (DeckLocation, clearChildren, getCellValues, getClipID,
-                      getDeckID, intIfSet, layoutComps,
-                      mapAddressToDeckLocation)
+from tdaUtils import (
+	DeckLocation,
+	clearChildren,
+	getCellValues,
+	getClipID,
+	getDeckID,
+	intIfSet,
+	layoutComps,
+	mapAddressToDeckLocation,
+)
 
 DECK_COLUMNS = 10
 

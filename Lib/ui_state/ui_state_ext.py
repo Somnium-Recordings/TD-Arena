@@ -97,7 +97,7 @@ class UIStateExt(BaseExt):
 			)
 			return
 
-		if not sourceName in ctrlState['handlers']:
+		if sourceName not in ctrlState['handlers']:
 			self.logWarning(
 				f'attempted to deregister unknown handler {sourceName} @ {address}'
 			)
@@ -131,7 +131,7 @@ class UIStateExt(BaseExt):
 			if sourceName != source:
 				try:
 					handler(address, newValue)
-				except:  # pylint: disable=bare-except
+				except:  # noqa: E722
 					self.logError(
 						f'failed to apply CtrlValue change handler ({sourceName}) @ {address}:' +
 						f'\n{traceback.format_exc()}'

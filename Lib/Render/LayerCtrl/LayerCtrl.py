@@ -1,10 +1,15 @@
 from typing import Optional
 
 from tda import LoadableExt
-from tdaUtils import (addSectionParameters, clearChildren, getLayerID,
-                      intIfSet, layoutComps)
+from tdaUtils import (
+	addSectionParameters,
+	clearChildren,
+	getLayerID,
+	intIfSet,
+	layoutComps,
+)
 
-# NOTE: if you change the layer count, update default deck state as well
+# NOTE: if you change the layer count, update default deck state as well .
 DEFAULT_STATE = {
 	str(layerID): {
 		'Layername': 'Composition' if layerID == 0 else f'Layer {layerID}',
@@ -117,7 +122,10 @@ class LayerCtrl(LoadableExt):
 
 	def getLayerByOrder(self, layerNumber: int):
 		layer = next(
-			(l for l in self.layers.values() if l.par.Layerorder.eval() == layerNumber),
+			(
+				l for l in self.layers.values()  # noqa: E741
+				if l.par.Layerorder.eval() == layerNumber
+			),
 			None
 		)
 		assert layer, f'could not find layer number {layerNumber} to set clip in'

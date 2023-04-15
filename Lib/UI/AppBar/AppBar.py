@@ -1,6 +1,10 @@
 from tda import BaseExt
-from win32 import (findWindowByName, isMaximizedWindow, minimizeWindow,
-                   toggleMaximizeWindow)
+from win32 import (
+	findWindowByName,
+	isMaximizedWindow,
+	minimizeWindow,
+	toggleMaximizeWindow,
+)
 
 
 class AppBar(BaseExt):

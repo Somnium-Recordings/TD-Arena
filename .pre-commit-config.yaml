@@ -22,10 +22,10 @@ repos:
         language: system
         types: [python]
 
-      - id: yapf-isort
-        name: Run yapf + isort
-        description: Let yapf format your python code but isort sort your imports.
-        entry: .pre-commit-hooks/yapf-isort.ps1
+      - id: yapf-ruff
+        name: Run yapf + ruff
+        description: Let yapf format your python code but ruff sort imports.
+        entry: .pre-commit-hooks/yapf-ruff.ps1
         language: system
         files: \.py$
 
@@ -49,7 +49,7 @@ repos:
         always_run: true
 
 exclude: |
-    (?x)^(
-        .*.excalidraw|
-        .pre-commit-hooks/yapf-isort.sh
-    )$
+  (?x)^(
+      .*.excalidraw|
+      .pre-commit-hooks/yapf-isort.sh
+  )$

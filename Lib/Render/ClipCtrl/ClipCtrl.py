@@ -1,8 +1,7 @@
 from typing import Optional
 
 from tda import LoadableExt
-from tdaUtils import (addSectionParameters, clearChildren, getCellValues,
-                      layoutComps)
+from tdaUtils import addSectionParameters, clearChildren, getCellValues, layoutComps
 
 
 # TODO: be smarter about this, direct map?
