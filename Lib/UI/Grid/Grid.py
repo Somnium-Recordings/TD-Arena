@@ -324,7 +324,7 @@ class Grid(LoadableExt):
 				self.RemoveCell(cell)
 
 	# pylint: disable=too-many-branches,too-many-statements
-	def AddDivider(self, targetDivider, oppositeDivider, direction):
+	def AddDivider(self, targetDivider, oppositeDivider, direction):  # noqa: C901
 		if direction == 'r':
 			newDivider = self.createNextVDivider()
 			targetX = 1

@@ -83,7 +83,7 @@ class WINDOWPLACEMENT(Structure):
 PWINDOWPLACEMENT = POINTER(WINDOWPLACEMENT)
 
 
-def RaiseIfZero(result, func=None, arguments=()):
+def RaiseIfZero(result, func=None, arguments=()):  # noqa: ARG001
 	"""
     Error checking for most Win32 API calls.
 
@@ -146,7 +146,10 @@ def DestroyWindow(hWnd: HANDLE) -> bool:
 	return _DestroyWindow(hWnd)
 
 
-def findWindowByName(name: str, retrying=False) -> typing.Optional[HANDLE]:
+def findWindowByName(
+	name: str,
+	retrying=False,  # noqa: ARG001
+) -> typing.Optional[HANDLE]:
 	try:
 		w = FindWindowW(None, name)
 
@@ -154,7 +157,7 @@ def findWindowByName(name: str, retrying=False) -> typing.Optional[HANDLE]:
 			# Touch designer adds a * if the project is unsaved,
 			# try that before erroring
 			w = FindWindowW(None, f'{name}*')
-	except WindowsError:
+	except OSError:
 		# For some reason this function throws a file not found error
 		# when opening the window for the first time. We return None here
 		# and handle retry on the consuming side.

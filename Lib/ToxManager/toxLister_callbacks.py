@@ -64,7 +64,7 @@ def onReloadInput(info):
 
 	# For some reason the lister doesn't actually dump the error
 	except Exception as e:
-		print(traceback.format_exc())
+		print(traceback.format_exc())  # noqa: T201
 		raise e
 
 

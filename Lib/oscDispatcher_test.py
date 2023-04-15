@@ -6,11 +6,11 @@ from oscDispatcher import OSCDispatcher
 
 class TestDispatcher():
 
-	@pytest.fixture
+	@pytest.fixture()
 	def ownerComponent(self):
 		return MagicMock()
 
-	@pytest.fixture
+	@pytest.fixture()
 	def dispatcher(self, ownerComponent):
 		return OSCDispatcher(
 			ownerComponent,
@@ -43,7 +43,7 @@ class TestDispatcher():
 				},
 				'/mappedAddress': {
 					'handler': mappedHandler,
-					'mapAddress': lambda address: 'mapped-address'
+					'mapAddress': lambda address: 'mapped-address'  # noqa: ARG005
 				}
 			}
 		)

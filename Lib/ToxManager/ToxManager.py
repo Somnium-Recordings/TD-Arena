@@ -1,9 +1,10 @@
 import shutil
 import traceback
+from collections.abc import Iterable
 from glob import glob
 from itertools import filterfalse, tee
 from pathlib import Path, PureWindowsPath
-from typing import Iterable, NamedTuple, Optional, Tuple, Union
+from typing import NamedTuple, Optional, Union
 
 from tda import TDFileInfo
 from tdaUtils import addressToToxPath, resetCustomParameters
@@ -128,7 +129,7 @@ def findLastBackup(savePath: TDFileInfo):
 				int(backupFile.replace(saveStem, '').replace(savePath.ext, ''))
 			)
 		except ValueError:
-			print(
+			print(  # noqa: T201
 				f'Failed to parse version from unexpected matched backup file: {backupFile}\n'
 				+ traceback.format_exc()
 			)
@@ -292,7 +293,7 @@ class ToxManager:
 	def getToxes(
 		self,
 		selected=True
-	) -> Tuple[Iterable[ToxInfo], Iterable[ToxInfo]]: # yapf: disable
+	) -> tuple[Iterable[ToxInfo], Iterable[ToxInfo]]: # yapf: disable
 		toxDat = self.selectedToxesDat if selected else self.allToxesDat
 
 		paths = [

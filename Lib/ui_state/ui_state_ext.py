@@ -1,5 +1,5 @@
 import traceback
-from typing import Callable, Dict, TypedDict, Union
+from typing import Callable, TypedDict, Union
 
 from oscDispatcher import OSCDispatcher
 from tda import BaseExt
@@ -9,7 +9,7 @@ OSCValue = Union[str, int, float, bool]
 
 class CtrlState(TypedDict):
 	# key is sourceName
-	handlers: Dict[str, Callable]
+	handlers: dict[str, Callable]
 	currentValue: Union[OSCValue, None]
 
 
@@ -33,7 +33,7 @@ class UIStateExt(BaseExt):
 		"""
 		TODO: call this on composition [re]load
 		"""
-		self.oscControlState: Dict[str, CtrlState] = {}
+		self.oscControlState: dict[str, CtrlState] = {}
 
 	def SendMessage(self, address, *args):
 		if address:
@@ -52,7 +52,7 @@ class UIStateExt(BaseExt):
 		self.dispatcher.MapMultiple(*args)
 
 	def DumpCtrlState(self):
-		print(self.oscControlState)
+		print(self.oscControlState)  # noqa: T201
 
 	def RegisterCtrl(
 		self,

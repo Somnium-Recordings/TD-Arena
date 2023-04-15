@@ -5,12 +5,12 @@ import pytest
 from tdaTesting import MockOP
 
 
-@pytest.fixture
+@pytest.fixture()
 def uiThemeSectionTemplate():
 	return MagicMock()
 
 
-@pytest.fixture
+@pytest.fixture()
 def uiTheme(uiThemeSectionTemplate):
 	uiTheme = MagicMock()
 	uiTheme.op = MockOP()
@@ -19,7 +19,7 @@ def uiTheme(uiThemeSectionTemplate):
 	return uiTheme
 
 
-@pytest.fixture
+@pytest.fixture()
 def op(uiTheme):
 	op = MockOP()
 	op.uiTheme = uiTheme
@@ -27,12 +27,12 @@ def op(uiTheme):
 	return op
 
 
-@pytest.fixture
+@pytest.fixture()
 def logger():
 	return MagicMock()
 
 
-@pytest.fixture
+@pytest.fixture()
 def ownerComponent():
 	comp = MagicMock()
 

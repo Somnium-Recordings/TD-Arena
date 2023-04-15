@@ -12,7 +12,7 @@ class TestMockCell:
 
 class TestMockTable:
 
-	@pytest.fixture
+	@pytest.fixture()
 	def testTable(self):
 		return MockTable([
 			['0-0', '0-1'],

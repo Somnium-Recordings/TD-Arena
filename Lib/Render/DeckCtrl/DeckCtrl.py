@@ -91,7 +91,9 @@ class DeckCtrl(LoadableExt):
 		self.logInfo('TODO: add Deck')
 		# TODO: show add button if DeckCtrl not initialized
 		# TODO: find way to prompt for deck name
-		assert False, 'update AddDeck to work with new state system (sans replicator)'
+		raise NotImplementedError(
+			'update AddDeck to work with new state system (sans replicator)'
+		)
 		# self.deckList.appendRow(['Deck {}'.format(self.deckList.numRows)])
 		# self.layoutDeckContainer()
 		# call layout after creating

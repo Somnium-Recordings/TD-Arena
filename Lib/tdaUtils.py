@@ -3,7 +3,7 @@ import re
 from collections import namedtuple
 from fnmatch import fnmatchcase
 from pathlib import PureWindowsPath
-from typing import List, NamedTuple, Optional
+from typing import NamedTuple, Optional
 
 SELECTED_DECK_LOCATION_RE = re.compile(
 	r'/selecteddeck/layers/(\d+)/clips/(\d+)/?.*'
@@ -47,7 +47,7 @@ def layoutChildren(op, columns=4):
 	layoutComps(children, columns)
 
 
-def getCellValues(datRow) -> List[str]:
+def getCellValues(datRow) -> list[str]:
 	return [cell.val for cell in datRow]
 
 
