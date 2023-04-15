@@ -4,8 +4,7 @@ import time
 def formatTimestamp(timestamp):  # noqa: ANN001
 	winSecs = int(timestamp / 10000000)  ## divide by 10 000 000 to get seconds
 	epoch = max(winSecs - 11644473600, 0)
-	timeStr = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(epoch))
-	return timeStr
+	return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(epoch))
 
 
 def isCloneOfSelf(c):  # noqa: ANN001
