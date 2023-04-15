@@ -83,6 +83,7 @@ additional-builtins = [
 
 [tool.ruff]
 ignore = [
+  "A003",
   "ANN101",
   "ANN201",
   "ANN204",
@@ -90,6 +91,7 @@ ignore = [
   "W191",
 ]
 select = [
+  "A",
   "ANN",
   "ARG",
   "B",
