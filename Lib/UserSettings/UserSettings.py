@@ -12,7 +12,6 @@ class UserSettings(LoadableExt):
 	def settingsFilePath(self):
 		return tdu.expandPath(str(SETTINGS_FILE))
 
-	# pylint: disable=too-many-arguments
 	def __init__(self, ownerComponent, logger):  # noqa: ANN001
 		super().__init__(ownerComponent, logger)
 

@@ -19,7 +19,7 @@ class Layer(BaseExt):
 	def ctrlOpacityAddress(self) -> str:
 		return f'/composition/layers/{self.LayerID}/video:Opacity'
 
-	def __init__(self, ownerComponent, logger, uiState):  # pylint: disable=too-many-arguments  # noqa: ANN001
+	def __init__(self, ownerComponent, logger, uiState):  # noqa: ANN001
 		super().__init__(ownerComponent, logger)
 		self.uiState = uiState
 		self.popMenu = op.TDResources.op('popMenu')

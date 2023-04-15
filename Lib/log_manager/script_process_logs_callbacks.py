@@ -1,4 +1,3 @@
-# pylint: disable=too-many-locals
 # me - this DAT
 # scriptOp - the OP which is cooking
 #

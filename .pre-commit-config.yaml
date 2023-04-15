@@ -44,6 +44,5 @@ repos:
 
 exclude: |
   (?x)^(
-      .*.excalidraw|
-      .pre-commit-hooks/yapf-isort.sh
+      .*.excalidraw
   )$

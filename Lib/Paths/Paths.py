@@ -3,7 +3,7 @@ from pathlib import Path
 from tda import BaseExt
 
 
-class Paths(BaseExt):  # pylint: disable=too-few-public-methods
+class Paths(BaseExt):
 
 	def __init__(self, ownerComp, logger):  # noqa: ANN001
 		super().__init__(ownerComp, logger)

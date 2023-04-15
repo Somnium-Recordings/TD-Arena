@@ -1,4 +1,3 @@
-# pylint: disable=too-many-arguments
 from unittest.mock import MagicMock, call
 
 import pytest

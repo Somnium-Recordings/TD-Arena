@@ -147,7 +147,6 @@ class Directory(RootDirectory):
 			self.createAggregateModuleInParent()
 
 
-# pylint: disable=too-few-public-methods
 class AutoModuleExt:
 
 	def __init__(self, ownerComp: baseCOMP) -> None:

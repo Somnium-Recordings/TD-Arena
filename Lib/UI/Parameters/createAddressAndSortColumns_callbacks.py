@@ -25,8 +25,10 @@ def onCook(scriptOp):  # noqa: ANN001
 
 		# While clearing out ui elements, the targetOp can get deleted before the
 		# table is updated causing errors. The None check prevents that
-		if targetOp is None or targetOp.par[paramName
-																																						] is None or paramLabel == 'Opacity':
+		if (
+			targetOp is None or targetOp.par[paramName] is None
+			or paramLabel == 'Opacity'
+		):
 			order = -1
 		else:
 			order = targetOp.par[paramName].order

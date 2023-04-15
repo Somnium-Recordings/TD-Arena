@@ -77,7 +77,6 @@ class TDAExt(LoadableExt):
 	def useEngine(self, newVal: bool):  # noqa: ANN202
 		self.userSettings.par.Useengine.val = newVal
 
-	# pylint: disable=too-many-arguments
 	def __init__(  # noqa: PLR0913
 		self,
 		ownerComponent,  # noqa: ANN001
@@ -282,7 +281,6 @@ class TDAExt(LoadableExt):
 		self.CompositionState = STATE_UNLOADED
 
 		if self.onRenderLoaded is not None:
-			# pylint: disable=not-callable
 			self.onRenderLoaded()
 			self.onRenderLoaded = None
 		elif self.Loading:

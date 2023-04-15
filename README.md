@@ -18,7 +18,6 @@ I'm currently developing this using [VS Code](https://code.visualstudio.com/) on
 
 **Note:** I don't use python much in my day job, or windows for that matter. If there are better ways to manage any of this I'd love to hear how it can be improved!
 
-
 ## Development Setup
 
 1. Install Python version currently shipped with TouchDesigner
@@ -63,7 +62,7 @@ I'm currently developing this using [VS Code](https://code.visualstudio.com/) on
 
 1. Local site-packages
 
-   `TODO`
+[`TODO(#87)`](https://github.com/Somnium-Recordings/TD-Arena/issues/87)
 
 ### A Note about code style
 

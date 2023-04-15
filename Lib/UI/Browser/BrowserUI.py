@@ -1,4 +1,3 @@
-# pylint: disable=too-few-public-methods
 class BrowserUI:
 
 	def __init__(self, ownerComponent):  # noqa: ANN001
