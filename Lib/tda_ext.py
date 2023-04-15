@@ -74,13 +74,19 @@ class TDAExt(LoadableExt):
 		return self.userSettings.par.Useengine.eval()
 
 	@useEngine.setter
-	def useEngine(self, newVal: bool):
+	def useEngine(self, newVal: bool):  # noqa: ANN202
 		self.userSettings.par.Useengine.val = newVal
 
 	# pylint: disable=too-many-arguments
 	def __init__(
-		self, ownerComponent, logger, userSettings, renderLocal, renderEngine,
-		uiGrid, logManager
+		self,
+		ownerComponent,  # noqa: ANN001
+		logger,  # noqa: ANN001
+		userSettings,  # noqa: ANN001
+		renderLocal,  # noqa: ANN001
+		renderEngine,  # noqa: ANN001
+		uiGrid,  # noqa: ANN001
+		logManager  # noqa: ANN001
 	):
 		super().__init__(ownerComponent, logger)
 		self.uiState = cast(ui_state_ext.UIStateExt, op.ui_state.ext.UIStateExt)
@@ -111,7 +117,7 @@ class TDAExt(LoadableExt):
 		self.logInfo('initialized')
 		self.StartRenderer()
 
-	def StartRenderer(self, useEngine=None):
+	def StartRenderer(self, useEngine=None):  # noqa: ANN001
 		self.setLoading()
 		self.CompositionState = STATE_UNLOADED
 
@@ -161,7 +167,7 @@ class TDAExt(LoadableExt):
 		self.logManager.SetLoggerParam('Render-L', 'Active', not self.useEngine)
 		self.logManager.SetLoggerParam('Render-L', 'Visible', not self.useEngine)
 
-	def ConnectRenderOutputs(self, useEngine=None):
+	def ConnectRenderOutputs(self, useEngine=None):  # noqa: ANN001
 		if useEngine is None:
 			useEngine = self.useEngine
 
@@ -193,7 +199,7 @@ class TDAExt(LoadableExt):
 	# TODO: How do we get the failure message/state back?
 	# 		since we're only keying off of layer state length
 	# 		right now which won't change on failure
-	def OpenComposition(self, promptIfConfigured=True):
+	def OpenComposition(self, promptIfConfigured=True):  # noqa: ANN001
 		saveFile = self.getSaveFile(promptIfConfigured, load=True)
 		if not saveFile:
 			self.logInfo('no save file selected, aborting open')
@@ -204,7 +210,7 @@ class TDAExt(LoadableExt):
 		self.logInfo(f'opening composition: {saveFile}')
 		self.uiState.SendMessage('/composition/load', saveFile)
 
-	def SaveComposition(self, saveAs=False):
+	def SaveComposition(self, saveAs=False):  # noqa: ANN001
 		saveFile = self.getSaveFile(promptIfConfigured=saveAs, load=True)
 		if not saveFile:
 			self.logInfo('no save file selected, aborting save')
@@ -271,7 +277,7 @@ class TDAExt(LoadableExt):
 
 		return saveFile
 
-	def onRenderInitialized(self, address):
+	def onRenderInitialized(self, address):  # noqa: ANN001
 		self.uiState.SendMessage(f'/ack{address}')
 		self.CompositionState = STATE_UNLOADED
 
@@ -330,7 +336,7 @@ class TDAExt(LoadableExt):
 					f'could not bind {parName} setting to {targetName}, configured parameter not found'
 				)
 
-	def getTargetPar(self, targetOp, mapConfig):
+	def getTargetPar(self, targetOp, mapConfig):  # noqa: ANN001
 		target = getattr(targetOp.par, mapConfig['par'], None)
 		if target is None:
 			self.logError(

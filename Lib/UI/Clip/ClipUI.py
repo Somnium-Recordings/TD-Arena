@@ -8,8 +8,13 @@ class ClipUI(BaseExt):
 		return self.ownerComponent.par.Clipdeckaddress.eval()
 
 	def __init__(
-		self, ownerComponent, logger, uiState, movieBrowser, generatorBrowser,
-		effectBrowser
+		self,
+		ownerComponent,  # noqa: ANN001
+		logger,  # noqa: ANN001
+		uiState,  # noqa: ANN001
+		movieBrowser,  # noqa: ANN001
+		generatorBrowser,  # noqa: ANN001
+		effectBrowser  # noqa: ANN001
 	):  # pylint: disable=too-many-arguments
 		super().__init__(ownerComponent, logger)
 		self.uiState = uiState

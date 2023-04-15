@@ -53,8 +53,14 @@ class TestParameters():
 
 	@pytest.fixture()
 	def parameters(
-		self, ownerComponent, op: MockOP, logger, parameterList, containerList,
-		mockContainerOP1, mockContainerOP3
+		self,
+		ownerComponent,  # noqa: ANN001
+		op: MockOP,
+		logger,  # noqa: ANN001
+		parameterList,  # noqa: ANN001
+		containerList,  # noqa: ANN001
+		mockContainerOP1,  # noqa: ANN001
+		mockContainerOP3  # noqa: ANN001
 	):
 		# yapf: disable
 		op.addPath('/tdArena/ui/parametersUI/leftControlContainer/layerControlsContainer/layer1', mockContainerOP1)

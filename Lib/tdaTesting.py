@@ -13,7 +13,7 @@ class MockCell:
 		return str(self.val)
 
 
-def createMockRow(rowNumber, rowData):
+def createMockRow(rowNumber, rowData):  # noqa: ANN001
 	return [
 		MockCell(val, rowNumber, colNumber) for colNumber, val in enumerate(rowData)
 	]
@@ -21,10 +21,10 @@ def createMockRow(rowNumber, rowData):
 
 class MockTable:
 
-	def __init__(self, rows):
+	def __init__(self, rows):  # noqa: ANN001
 		self._rowData = [createMockRow(i, r) for i, r in enumerate(rows)]
 
-	def __getitem__(self, pos):
+	def __getitem__(self, pos):  # noqa: ANN001
 		rowIndex, colIndex = pos
 
 		if not isinstance(colIndex, int):
@@ -45,7 +45,7 @@ class MockTable:
 	def rows(self):
 		return self._rowData
 
-	def _colIndexByName(self, name):
+	def _colIndexByName(self, name):  # noqa: ANN001, ANN202
 		if len(self._rowData) == 0:
 			return None
 
@@ -56,14 +56,14 @@ class MockTable:
 
 		return None
 
-	def _rowIndexByName(self, name):
+	def _rowIndexByName(self, name):  # noqa: ANN001, ANN202
 		for i, row in enumerate(self._rowData):
 			if row[0].val == name:
 				return i
 
 		return None
 
-	def row(self, index):
+	def row(self, index):  # noqa: ANN001
 		if isinstance(index, int):
 			try:
 				return self._rowData[index]
@@ -80,7 +80,7 @@ class MockTable:
 		for row in rows:
 			self.appendRow(row)
 
-	def deleteRow(self, index):
+	def deleteRow(self, index):  # noqa: ANN001
 		if isinstance(index, int):
 			del self._rowData[index]
 		else:
@@ -105,11 +105,11 @@ class MockOP(MagicMock):
 
 		self.side_effect = self.resolve
 
-	def addPath(self, path, instance):
+	def addPath(self, path, instance):  # noqa: ANN001
 		instance.path = path
 		self.paths[path] = instance
 
-	def resolve(self, path):
+	def resolve(self, path):  # noqa: ANN001
 		if path not in self.paths:
 			self.addPath(path, MagicMock())
 
@@ -118,7 +118,7 @@ class MockOP(MagicMock):
 
 class MockParameter:
 
-	def __init__(self, val) -> None:
+	def __init__(self, val) -> None:  # noqa: ANN001
 		self._val = val
 
 	def eval(self):
@@ -127,10 +127,10 @@ class MockParameter:
 
 class MockParameterBag:
 
-	def __init__(self, pars):
+	def __init__(self, pars):  # noqa: ANN001
 		self._parameters = pars
 
-	def __getattr__(self, attr):
+	def __getattr__(self, attr):  # noqa: ANN001
 		if attr not in self._parameters:
 			raise AttributeError()
 

@@ -83,7 +83,7 @@ class WINDOWPLACEMENT(Structure):
 PWINDOWPLACEMENT = POINTER(WINDOWPLACEMENT)
 
 
-def RaiseIfZero(result, func=None, arguments=()):  # noqa: ARG001
+def RaiseIfZero(result, func=None, arguments=()):  # noqa: ANN001, ARG001
 	"""
     Error checking for most Win32 API calls.
 
@@ -95,7 +95,7 @@ def RaiseIfZero(result, func=None, arguments=()):  # noqa: ARG001
 	return result
 
 
-def FindWindowW(lpClassName=None, lpWindowName=None) -> HANDLE:
+def FindWindowW(lpClassName=None, lpWindowName=None) -> HANDLE:  # noqa: ANN001
 	_FindWindowW = user32.FindWindowW
 	_FindWindowW.argtypes = [LPWSTR, LPWSTR]
 	_FindWindowW.restype = HWND
@@ -108,7 +108,7 @@ def FindWindowW(lpClassName=None, lpWindowName=None) -> HANDLE:
 	return hWnd
 
 
-def ShowWindow(hWnd: HANDLE, nCmdShow=SW_SHOW) -> bool:
+def ShowWindow(hWnd: HANDLE, nCmdShow=SW_SHOW) -> bool:  # noqa: ANN001
 	_ShowWindow = user32.ShowWindow
 	_ShowWindow.argtypes = [HWND, ctypes.c_int]
 	_ShowWindow.restype = bool
@@ -148,7 +148,7 @@ def DestroyWindow(hWnd: HANDLE) -> bool:
 
 def findWindowByName(
 	name: str,
-	retrying=False,  # noqa: ARG001
+	retrying=False,  # noqa: ANN001, ARG001
 ) -> typing.Optional[HANDLE]:
 	try:
 		w = FindWindowW(None, name)

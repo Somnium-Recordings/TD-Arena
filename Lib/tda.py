@@ -41,26 +41,26 @@ class TDFileInfo(str):
 
 class BaseExt():
 
-	def __init__(self, ownerComponent, logger):
+	def __init__(self, ownerComponent, logger):  # noqa: ANN001
 		self.ownerComponent = ownerComponent
 		self.logger = logger
 
-	def logInfo(self, *args):
+	def logInfo(self, *args):  # noqa: ANN002
 		self.logger.Info(self.ownerComponent, *args)
 
-	def logDebug(self, *args):
+	def logDebug(self, *args):  # noqa: ANN002
 		self.logger.Debug(self.ownerComponent, *args)
 
-	def logWarning(self, *args):
+	def logWarning(self, *args):  # noqa: ANN002
 		self.logger.Warning(self.ownerComponent, *args)
 
-	def logError(self, *args):
+	def logError(self, *args):  # noqa: ANN002
 		self.logger.Error(self.ownerComponent, *args)
 
 
 class LoadableExt(BaseExt):
 
-	def __init__(self, ownerComponent, logger):
+	def __init__(self, ownerComponent, logger):  # noqa: ANN001
 		super().__init__(ownerComponent, logger)
 		self.Loaded: bool
 		self._Loaded: Par
@@ -80,7 +80,7 @@ class LoadableExt(BaseExt):
 		self._Loaded.val = False
 		self._Loading.val = True
 
-	def setLoaded(self, wasSuccessful=True):
+	def setLoaded(self, wasSuccessful=True):  # noqa: ANN001
 		self._Loaded.val = wasSuccessful
 		self._Loading.val = False
 

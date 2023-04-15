@@ -9,7 +9,7 @@ from win32 import (
 
 class AppBar(BaseExt):
 
-	def __init__(self, ownerComponent, logger, uiWindow):
+	def __init__(self, ownerComponent, logger, uiWindow):  # noqa: ANN001
 		super().__init__(ownerComponent, logger)
 
 		self.uiWindow = uiWindow
@@ -28,7 +28,7 @@ class AppBar(BaseExt):
 	def uiWindowhandle(self):
 		return findWindowByName(self.uiWindow.par.title.eval())
 
-	def OnUIResize(self, retrying=False):
+	def OnUIResize(self, retrying=False):  # noqa: ANN001
 		w = self.uiWindowhandle
 
 		if w:

@@ -5,12 +5,12 @@ from tdaUtils import addSectionParameters, clearChildren, getCellValues, layoutC
 
 
 # TODO: be smarter about this, direct map?
-def initMovieClip(name, path, clip, source):
+def initMovieClip(name, path, clip, source):  # noqa: ANN001
 	clip.par.Clipname = name
 	source.par.Sourcepath = path
 
 
-def initToxClip(name, path, clip, source):
+def initToxClip(name, path, clip, source):  # noqa: ANN001
 	clip.par.Clipname = name
 	source.par.Sourcepath = path
 
@@ -20,7 +20,7 @@ DEFAULT_STATE = []
 
 class ClipCtrl(LoadableExt):
 
-	def __init__(self, ownerComponent, logger, effectCtrl):
+	def __init__(self, ownerComponent, logger, effectCtrl):  # noqa: ANN001
 		super().__init__(ownerComponent, logger)
 
 		self.effectCtrl = effectCtrl
@@ -41,7 +41,7 @@ class ClipCtrl(LoadableExt):
 			}
 		}
 
-	def Init(self, _renderState):
+	def Init(self, _renderState):  # noqa: ANN001
 		self.setUnloaded()
 
 		self.clipContainer = self.composition.op('clips')
@@ -58,7 +58,7 @@ class ClipCtrl(LoadableExt):
 
 		self.logInfo('initialized')
 
-	def Load(self, saveState=None):
+	def Load(self, saveState=None):  # noqa: ANN001
 		self.setLoading()
 		self.logInfo('loading composition')
 
@@ -77,27 +77,33 @@ class ClipCtrl(LoadableExt):
 			getCellValues(clip) for clip in self.clipState.rows()
 		] if self.Loaded else None
 
-	def GetClipProp(self, clipID: int, propName):
+	def GetClipProp(self, clipID: int, propName):  # noqa: ANN001
 		if not self.Loaded:
 			return None
 
 		prop = self.clipState[str(clipID), propName]
 		return prop.val if prop is not None else None
 
-	def CreateClip(self, sourceType, name, path, clipID: Optional[int] = None):
+	def CreateClip(
+		self,
+		sourceType,  # noqa: ANN001
+		name,  # noqa: ANN001
+		path,  # noqa: ANN001
+		clipID: Optional[int] = None
+	):  # noqa: ANN001, RUF100
 		clip = self.createNextClip(clipID)
 		self.loadSource(sourceType, name, path, clip)
 
 		return clip
 
-	def ReplaceSource(self, sourceType, name, path, clipID: int):
+	def ReplaceSource(self, sourceType, name, path, clipID: int):  # noqa: ANN001
 		clip = self.clipComps[clipID]
 		assert clip, f'could not replace {sourceType} clip of unknown clip id {clipID}'
 		self.loadSource(sourceType, name, path, clip)
 
 		return clip
 
-	def ActivateClip(self, clipID: int, fromSelect=False):
+	def ActivateClip(self, clipID: int, fromSelect=False):  # noqa: ANN001
 		clip = self.clipComps[clipID]
 		assert clip, f'could not activate unknown clip id {clipID}'
 		source = clip.op('./video/source')
@@ -129,7 +135,7 @@ class ClipCtrl(LoadableExt):
 			)
 			self.updateClipNetworkPositions()
 
-	def loadSource(self, sourceType, name, path, clip):
+	def loadSource(self, sourceType, name, path, clip):  # noqa: ANN001
 		sourceMap = self.sourceMap.get(sourceType, None)
 		assert sourceMap, f'unmapped source type "{sourceType}" requested'
 		sourceTemplate = sourceMap['template']

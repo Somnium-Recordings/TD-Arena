@@ -29,12 +29,12 @@ class DeckLocation(NamedTuple):
 	columnNumber: int
 
 
-def intIfSet(stringNumber):
+def intIfSet(stringNumber):  # noqa: ANN001
 	# NOTE: the == 0 check is to support touch table cells with a value of 0
 	return int(stringNumber) if stringNumber or stringNumber == 0 else None
 
 
-def layoutComps(compList, columns=4, xBase=0):
+def layoutComps(compList, columns=4, xBase=0):  # noqa: ANN001
 	# TODO: use TDF.arrangeNode instead
 	# TODO: should we skip if ui.performMode == False?
 	for i, comp in enumerate(compList):
@@ -42,16 +42,16 @@ def layoutComps(compList, columns=4, xBase=0):
 		comp.nodeY = (1 + math.floor(i / columns)) * -200
 
 
-def layoutChildren(op, columns=4):
+def layoutChildren(op, columns=4):  # noqa: ANN001
 	children = op.findChildren(depth=1)
 	layoutComps(children, columns)
 
 
-def getCellValues(datRow) -> list[str]:
+def getCellValues(datRow) -> list[str]:  # noqa: ANN001
 	return [cell.val for cell in datRow]
 
 
-def clearChildren(op, exclude=None):
+def clearChildren(op, exclude=None):  # noqa: ANN001
 	if not exclude:
 		exclude = []
 
@@ -60,7 +60,7 @@ def clearChildren(op, exclude=None):
 			child.destroy()
 
 
-def syncToDat(data, targetDat):
+def syncToDat(data, targetDat):  # noqa: ANN001
 	if data is None:
 		targetDat.clear()
 		return
@@ -95,28 +95,28 @@ def mapAddressToEffectContainer(address: str) -> str:
 	return m.group(1)
 
 
-def getDeckID(address):
+def getDeckID(address):  # noqa: ANN001
 	m = re.match(DECK_ID_RE, address)
 	assert m, f'expected to match deck id in {address}'
 
 	return int(m.group(1))
 
 
-def getLayerID(address):
+def getLayerID(address):  # noqa: ANN001
 	m = re.match(LAYER_ID_RE, address)
 	assert m, f'expected to match layer id in {address}'
 
 	return int(m.group(1))
 
 
-def getClipID(address):
+def getClipID(address):  # noqa: ANN001
 	m = re.match(CLIP_ID_RE, address)
 	assert m, f'expected to match clip id in {address}'
 
 	return int(m.group(1))
 
 
-def addressToValueLocation(address, compositionPath):
+def addressToValueLocation(address, compositionPath):  # noqa: ANN001
 	"""
 	from: /composition/layers/1/...
 	to  : /composition/layers/layer1/...
@@ -127,7 +127,7 @@ def addressToValueLocation(address, compositionPath):
 	return tuple(fullPath.replace('/composition', compositionPath).rsplit('/', 1))
 
 
-def addressToToxPath(address, compositionPath):
+def addressToToxPath(address, compositionPath):  # noqa: ANN001
 	(container, el) = addressToValueLocation(address, compositionPath)
 	path = f'{container}/{el}'
 
@@ -146,12 +146,12 @@ def parameterPathToAddress(path: str, parameter: str):
 	return f'{address}:{parameter}'
 
 
-def addressToExport(address):
+def addressToExport(address):  # noqa: ANN001
 	(path, prop) = addressToValueLocation(address, '')
 	return f'{path.lstrip("/")}:{prop}'
 
 
-def exportToAddress(exportName):
+def exportToAddress(exportName):  # noqa: ANN001
 	(path, prop) = exportName.split(':')
 
 	address = COLLAPSE_TO_ID_RE.sub(r'/\1s/\3', f'/composition/{path}')
@@ -160,7 +160,10 @@ def exportToAddress(exportName):
 
 
 def addSectionParameters(
-	op, order: int, name: str, opacity: Optional[float] = None
+	op,  # noqa: ANN001
+	order: int,
+	name: str,
+	opacity: Optional[float] = None  # noqa: ANN001, RUF100
 ):
 	page = op.appendCustomPage('Section')
 
@@ -184,7 +187,7 @@ def addSectionParameters(
 	op.sortCustomPages(*pageOrder)
 
 
-def resetCustomParameters(operator, checkDefaultExpr=False):
+def resetCustomParameters(operator, checkDefaultExpr=False):  # noqa: ANN001
 	for p in operator.customPars:
 		# There's some weird cases where the defaultExpr is string 'None'
 		# Ignore those when using the expr. Specifically, I noticed this

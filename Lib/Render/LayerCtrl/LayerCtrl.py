@@ -25,7 +25,7 @@ class LayerCtrl(LoadableExt):
 	def LayerCount(self):
 		return max(0, len(self.layers) - 1) if self.Loaded else 0
 
-	def __init__(self, ownerComponent, logger, clipCtrl):  # pylint: disable=too-many-arguments
+	def __init__(self, ownerComponent, logger, clipCtrl):  # pylint: disable=too-many-arguments  # noqa: ANN001
 		super().__init__(ownerComponent, logger)
 		self.clipCtrl = clipCtrl
 		self.layerTemplate = ownerComponent.op('./layerTemplate')
@@ -34,7 +34,7 @@ class LayerCtrl(LoadableExt):
 		self.layerState = ownerComponent.op('./null_layerState')
 		assert self.composition, 'could not find composition component'
 
-	def Init(self, renderState):
+	def Init(self, renderState):  # noqa: ANN001
 		self.setUnloaded()
 		self.renderState = renderState
 
@@ -52,7 +52,7 @@ class LayerCtrl(LoadableExt):
 
 		self.logInfo('initialized')
 
-	def Load(self, saveState=None):
+	def Load(self, saveState=None):  # noqa: ANN001
 		self.setLoading()
 		self.logInfo('loading composition from state')
 
@@ -87,7 +87,7 @@ class LayerCtrl(LoadableExt):
 		if currentClipID != '':
 			self.clipCtrl.DeactivateClip(int(currentClipID))
 
-	def Insert(self, layerNumber: int, direction):
+	def Insert(self, layerNumber: int, direction):  # noqa: ANN001
 		self.logInfo(f'inserting layer {direction} layer {layerNumber}')
 		targetLayer = self.getLayerByOrder(
 			layerNumber if direction == 'below' else layerNumber - 1
@@ -132,7 +132,7 @@ class LayerCtrl(LoadableExt):
 
 		return layer
 
-	def SetClip(self, layerNumber, clipID: int):
+	def SetClip(self, layerNumber, clipID: int):  # noqa: ANN001
 		layer = self.getLayerByOrder(layerNumber)
 
 		previousClipID = intIfSet(layer.par.Clipid.val)
@@ -144,7 +144,7 @@ class LayerCtrl(LoadableExt):
 		if previousClipID is not None and previousClipID != clipID:
 			self.clipCtrl.DeactivateClip(previousClipID)
 
-	def SelectLayer(self, address):
+	def SelectLayer(self, address):  # noqa: ANN001
 		layerID = getLayerID(address)
 		self.composition.par.Previstarget = f'composition/layers/layer{layerID}/video/null_previs'
 		# previousSelectedLayer = self.composition.par.Selectedlayer.eval()

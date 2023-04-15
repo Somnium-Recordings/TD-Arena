@@ -15,7 +15,7 @@ def escapeLogMessage(message: str) -> str:
 	return message.replace('\n', '\\n').replace('\t', '\\t')
 
 
-def formatLog(comp, message):
+def formatLog(comp, message):  # noqa: ANN001
 	return LOG_FORMAT.format(
 		source=comp.path,
 		message=escapeLogMessage(message),
@@ -35,7 +35,7 @@ class Logger:
 	def debug(self):
 		return self.ownerComp.par.Debug.eval()
 
-	def __init__(self, ownerComp):
+	def __init__(self, ownerComp):  # noqa: ANN001
 		self.ownerComp = ownerComp
 		self.logFile = tdu.expandPath(f'Logs/TDArena.{self.logName}.log')
 		self.logger = logging.getLogger(self.logName)
@@ -80,7 +80,7 @@ class Logger:
 	def LogCurrentErrors(self):
 		self.ownerComp.par.Logcurrenterrors.pulse()
 
-	def LogTouchError(self, message, absFrame, frame, severity, compType, source):  # pylint: disable=too-many-arguments
+	def LogTouchError(self, message, absFrame, frame, severity, compType, source):  # pylint: disable=too-many-arguments  # noqa: ANN001
 		if source in IGNORED_ERROR_SOURCES:
 			return
 
@@ -104,17 +104,17 @@ class Logger:
 		else:  # severity == 3
 			self.logger.critical(message)
 
-	def Debug(self, comp, msg, *args):
+	def Debug(self, comp, msg, *args):  # noqa: ANN001, ANN002
 		self.logger.debug(formatLog(comp, msg), *args)
 
-	def Info(self, comp, msg, *args):
+	def Info(self, comp, msg, *args):  # noqa: ANN001, ANN002
 		self.logger.info(formatLog(comp, msg), *args)
 
-	def Error(self, comp, msg, *args):
+	def Error(self, comp, msg, *args):  # noqa: ANN001, ANN002
 		self.logger.error(formatLog(comp, msg), *args)
 
-	def Warning(self, comp, msg, *args):
+	def Warning(self, comp, msg, *args):  # noqa: ANN001, ANN002
 		self.logger.warning(formatLog(comp, msg), *args)
 
-	def Critical(self, comp, msg, *args):
+	def Critical(self, comp, msg, *args):  # noqa: ANN001, ANN002
 		self.logger.critical(formatLog(comp, msg), *args)

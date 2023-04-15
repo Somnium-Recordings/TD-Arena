@@ -9,26 +9,29 @@ DIRECTIONS = ('l', 'r', 'b', 't')
 OPPOSITE_DIRECTIONS = {'l': 'r', 'r': 'l', 't': 'b', 'b': 't'}
 
 
-def nextID(ops):
+def nextID(ops):  # noqa: ANN001
 	return reduce(lambda acc, op: max(acc, op.digits), ops, -1) + 1
 
 
-def setDivider(op, direction, divider=None, dividerName=None):
+def setDivider(op, direction, divider=None, dividerName=None):  # noqa: ANN001
 	if dividerName is None:
 		dividerName = divider.name if divider else ''
 	op.par[f'Divider{direction}'].val = dividerName
 
 
-def getDivider(op, direction):
+def getDivider(op, direction):  # noqa: ANN001
 	return op.par[f'Divider{direction}'].eval()
 
 
-def nameIfSet(op):
+def nameIfSet(op):  # noqa: ANN001
 	return op.name if op else str(op)
 
 
 def findAdjacentToDivider(
-	searchCollection, targetDivider, direction, exclude=None
+	searchCollection,  # noqa: ANN001
+	targetDivider,  # noqa: ANN001
+	direction,  # noqa: ANN001
+	exclude=None  # noqa: ANN001
 ):
 	return [
 		x for x in searchCollection
@@ -36,7 +39,7 @@ def findAdjacentToDivider(
 	]
 
 
-def setDividerReferences(element, layoutSpec):
+def setDividerReferences(element, layoutSpec):  # noqa: ANN001
 	if layoutSpec['l'] is not None:
 		setDivider(element, 'l', dividerName=f'vDivider{layoutSpec["l"]}')
 	if layoutSpec['r'] is not None:
@@ -80,13 +83,13 @@ DEFAULT_LAYOUT = {
 # yapf: enable
 
 
-def dividerState(par):
+def dividerState(par):  # noqa: ANN001
 	targetOp = par.eval()
 
 	return targetOp.digits if targetOp else None
 
 
-def getOpSaveState(op, posPar=None):
+def getOpSaveState(op, posPar=None):  # noqa: ANN001
 	state = {
 		'id': op.digits,
 		'l': dividerState(op.par.Dividerl),
@@ -101,11 +104,11 @@ def getOpSaveState(op, posPar=None):
 	return state
 
 
-def layoutFilePath(layoutName):
+def layoutFilePath(layoutName):  # noqa: ANN001
 	return tdu.expandPath(path.join('.td-arena', f'layout.{layoutName}.json'))
 
 
-def layoutExists(layoutName):
+def layoutExists(layoutName):  # noqa: ANN001
 	return path.isfile(layoutFilePath(layoutName))
 
 
@@ -116,10 +119,10 @@ class Grid(LoadableExt):
 		return self.userSettings.par.Gridlayout.eval()
 
 	@layoutUserSetting.setter
-	def layoutUserSetting(self, value):
+	def layoutUserSetting(self, value):  # noqa: ANN001, ANN202
 		self.userSettings.par.Gridlayout = value
 
-	def __init__(self, ownerComponent, logger, userSettings):
+	def __init__(self, ownerComponent, logger, userSettings):  # noqa: ANN001
 		super().__init__(ownerComponent, logger)
 		self.userSettings = userSettings
 
@@ -147,7 +150,7 @@ class Grid(LoadableExt):
 
 		self.logInfo('initalized')
 
-	def SelectLayout(self, layoutName):
+	def SelectLayout(self, layoutName):  # noqa: ANN001
 		self.logInfo(f'selecting layout {layoutName}')
 		self.Unload()
 
@@ -155,7 +158,7 @@ class Grid(LoadableExt):
 
 		self.Init()
 
-	def loadLayoutFile(self, layoutName):
+	def loadLayoutFile(self, layoutName):  # noqa: ANN001
 		if not layoutName or layoutName == 'Default':
 			self.logDebug('loading default layout from memory')
 			return DEFAULT_LAYOUT
@@ -171,7 +174,7 @@ class Grid(LoadableExt):
 			)
 			return DEFAULT_LAYOUT
 
-	def loadLayout(self, layout=None):
+	def loadLayout(self, layout=None):  # noqa: ANN001
 		self.setLoading()
 		layout = self.loadLayoutFile(self.layoutUserSetting)
 
@@ -248,7 +251,10 @@ class Grid(LoadableExt):
 		self.Init()
 
 	def AddCell(
-		self, baseCell, targetDirection: str, droppedItem: DroppedItem = None
+		self,
+		baseCell,  # noqa: ANN001
+		targetDirection: str,
+		droppedItem: DroppedItem = None  # noqa: ANN001, RUF100
 	):
 		# TODO(#55): this is obnoxious to follow, just use 4 if/else statemetns
 		# TODO(#55): If new anchor is not within repositionxmin, reject new division
@@ -291,7 +297,11 @@ class Grid(LoadableExt):
 		if droppedItem:
 			self.MovePanelIntoCell(newCell, droppedItem)
 
-	def MovePanelIntoCell(self, targetCell, droppedItem: DroppedItem):
+	def MovePanelIntoCell(
+		self,
+		targetCell,  # noqa: ANN001
+		droppedItem: DroppedItem
+	):  # noqa: ANN001, RUF100
 		itemHeadingOp = op(droppedItem.itemPath)
 		sourceCellPanelsDat = itemHeadingOp.parent.cell.op('./null_cellPanels')
 		targetCellPanelsDat = targetCell.op('./null_cellPanels')
@@ -324,7 +334,9 @@ class Grid(LoadableExt):
 				self.RemoveCell(cell)
 
 	# pylint: disable=too-many-branches,too-many-statements
-	def AddDivider(self, targetDivider, oppositeDivider, direction):  # noqa: C901
+	def AddDivider(  # noqa: C901
+		self, targetDivider, oppositeDivider, direction  # noqa: ANN001
+	):  # noqa: ANN001, C901, RUF100
 		if direction == 'r':
 			newDivider = self.createNextVDivider()
 			targetX = 1
@@ -384,7 +396,7 @@ class Grid(LoadableExt):
 
 		return newDivider
 
-	def RemoveCell(self, cell):
+	def RemoveCell(self, cell):  # noqa: ANN001
 		if len(self.cells) <= 1:
 			self.logWarning('cannot remove the last cell of the grid')
 			return
@@ -439,7 +451,7 @@ class Grid(LoadableExt):
 		cell.destroy()
 		self.cells.remove(cell)
 
-	def OnDividerClick(self, divider):
+	def OnDividerClick(self, divider):  # noqa: ANN001
 		if divider.name.startswith('vDivider'):
 			directions = ('l', 'r')
 		else:
@@ -453,7 +465,7 @@ class Grid(LoadableExt):
 				)
 				setDivider(divider, direction, closestDivider)
 
-	def closestDividerTo(self, divider, direction, exclude=None):
+	def closestDividerTo(self, divider, direction, exclude=None):  # noqa: ANN001
 		adjacent = findAdjacentToDivider(
 			self.vDividers if divider.name.startswith('vDivider') else self.hDividers,
 			divider, OPPOSITE_DIRECTIONS[direction], exclude
@@ -464,16 +476,16 @@ class Grid(LoadableExt):
 		pos = 'x' if direction in ('l', 'r') else 'y'
 		if direction in ('l', 'b'):
 
-			def isCloser(d1, d2):
+			def isCloser(d1, d2):  # noqa: ANN001, ANN202
 				return getattr(d1, pos) > getattr(d2, pos)
 		else:
 
-			def isCloser(d1, d2):
+			def isCloser(d1, d2):  # noqa: ANN001, ANN202
 				return getattr(d1, pos) < getattr(d2, pos)
 
 		return reduce(lambda d1, d2: d1 if isCloser(d1, d2) else d2, adjacent)
 
-	def createNextCell(self, cellID=None):
+	def createNextCell(self, cellID=None):  # noqa: ANN001
 		if cellID is None:
 			cellID = nextID(self.cells)
 		cell = self.ownerComponent.copy(self.cellTemplate, name=f'cell{cellID}')
@@ -484,7 +496,7 @@ class Grid(LoadableExt):
 
 		return cell
 
-	def createNextVDivider(self, dividerID=None):
+	def createNextVDivider(self, dividerID=None):  # noqa: ANN001
 		if dividerID is None:
 			dividerID = nextID(self.vDividers)
 		template = self.vDividerTemplate
@@ -496,7 +508,7 @@ class Grid(LoadableExt):
 
 		return divider
 
-	def createNextHDivider(self, dividerID=None):
+	def createNextHDivider(self, dividerID=None):  # noqa: ANN001
 		if dividerID is None:
 			dividerID = nextID(self.hDividers)
 		template = self.hDividerTemplate

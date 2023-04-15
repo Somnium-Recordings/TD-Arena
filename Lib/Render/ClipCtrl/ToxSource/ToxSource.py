@@ -13,7 +13,7 @@ class ToxSource(BaseExt):
 	def tox(self):
 		return self.ownerComponent.op('./tox')
 
-	def __init__(self, ownerComponent, logger):
+	def __init__(self, ownerComponent, logger):  # noqa: ANN001
 		super().__init__(ownerComponent, logger)
 		# TODO: support running a tox in an engine
 		self.thumb = ownerComponent.op('./null_thumb')
@@ -25,7 +25,7 @@ class ToxSource(BaseExt):
 		self.tox.par.reinitnet.pulse()
 		self.waitForPreload()
 
-	def waitForPreload(self, waitCount=0):
+	def waitForPreload(self, waitCount=0):  # noqa: ANN001
 		# TODO(#44): this isn't actually necessary, reinitnet seems to be synchronus
 		if waitCount > MAX_WAIT_CYCLES:
 			self.setLoaded(wasSuccessful=False)
@@ -65,11 +65,11 @@ class ToxSource(BaseExt):
 		self.state['Loaded', 1] = 0
 		self.setStatusText('Loading...')
 
-	def setLoaded(self, wasSuccessful=True):
+	def setLoaded(self, wasSuccessful=True):  # noqa: ANN001
 		if not wasSuccessful:
 			self.setStatusText('Error')
 
 		self.state['Loaded', 1] = int(wasSuccessful)
 
-	def setStatusText(self, text):
+	def setStatusText(self, text):  # noqa: ANN001
 		self.state['Status Text', 1] = text

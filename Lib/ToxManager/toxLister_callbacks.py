@@ -27,7 +27,7 @@ import traceback
 # 	print('refreshed')
 
 
-def onReloadInput(info):
+def onReloadInput(info):  # noqa: ANN001
 	"""
 	Note, there is a FromPathsSelectRows function, but it ends up in an
 	infinite loop when there is a gap in the tree.
@@ -68,7 +68,7 @@ def onReloadInput(info):
 		raise e
 
 
-def onClick(info):
+def onClick(info):  # noqa: ANN001
 	if info['rowData'] is None or info['colName'] == 'Expando':
 		return
 
@@ -85,7 +85,7 @@ def onClick(info):
 		lister.SelectRow(rowNumber, addRow=True)
 
 
-def onClickRight(info):
+def onClickRight(info):  # noqa: ANN001
 	if info['rowData'] is None or info['colName'] == 'Expando':
 		return
 

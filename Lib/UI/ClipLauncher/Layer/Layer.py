@@ -19,7 +19,7 @@ class Layer(BaseExt):
 	def ctrlOpacityAddress(self) -> str:
 		return f'/composition/layers/{self.LayerID}/video:Opacity'
 
-	def __init__(self, ownerComponent, logger, uiState):  # pylint: disable=too-many-arguments
+	def __init__(self, ownerComponent, logger, uiState):  # pylint: disable=too-many-arguments  # noqa: ANN001
 		super().__init__(ownerComponent, logger)
 		self.uiState = uiState
 		self.popMenu = op.TDResources.op('popMenu')
@@ -33,7 +33,7 @@ class Layer(BaseExt):
 			dividersAfterItems=['Insert Below']
 		)
 
-	def onMenuClick(self, click):
+	def onMenuClick(self, click):  # noqa: ANN001
 		if click['callbackName'] != 'onSelect':
 			raise NotImplementedError(
 				f'unsupported click callback {click["callbackName"]}'

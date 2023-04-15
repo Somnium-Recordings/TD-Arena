@@ -1,6 +1,6 @@
 class LogHandleExt:
 
-	def __init__(self, ownerComp, logStorageDat) -> None:
+	def __init__(self, ownerComp, logStorageDat) -> None:  # noqa: ANN001
 		self.ownerComp = ownerComp
 		self.wasPreviouslyActive = False
 		self.logStorageDat = logStorageDat

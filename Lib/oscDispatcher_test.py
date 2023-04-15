@@ -11,19 +11,19 @@ class TestDispatcher():
 		return MagicMock()
 
 	@pytest.fixture()
-	def dispatcher(self, ownerComponent):
+	def dispatcher(self, ownerComponent):  # noqa: ANN001
 		return OSCDispatcher(
 			ownerComponent,
 			MagicMock()  # logger
 		)
 
-	def test_Map(self, dispatcher):
+	def test_Map(self, dispatcher):  # noqa: ANN001
 		handler = MagicMock()
 		dispatcher.Map('/foo', {'handler': handler})
 		dispatcher.Dispatch('/foo')
 		handler.assert_called_with('/foo')
 
-	def test_MapMultiple(self, dispatcher):
+	def test_MapMultiple(self, dispatcher):  # noqa: ANN001
 		fooHandler = MagicMock()
 		barHandler = MagicMock()
 		mappedHandler = MagicMock()

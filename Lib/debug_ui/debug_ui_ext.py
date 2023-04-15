@@ -4,7 +4,7 @@ class DebugUIExt:
 	def IsOpen(self):
 		return self.WindowInfo['winopen']
 
-	def __init__(self, ownerComp) -> None:
+	def __init__(self, ownerComp) -> None:  # noqa: ANN001
 		self.ownerComp = ownerComp
 		self.window = ownerComp.op('window_debug')
 		self.WindowInfo = ownerComp.op('info_window')

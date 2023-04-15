@@ -13,7 +13,7 @@ DEFAULT_STATE = {}
 
 class EffectCtrl(LoadableExt):
 
-	def Init(self, _renderState):
+	def Init(self, _renderState):  # noqa: ANN001
 		self.setUnloaded()
 
 		self.saveState = None
@@ -21,7 +21,7 @@ class EffectCtrl(LoadableExt):
 
 		self.logInfo('initialized')
 
-	def Load(self, saveState=None):
+	def Load(self, saveState=None):  # noqa: ANN001
 		self.setLoading()
 
 		self.saveState = saveState or DEFAULT_STATE
@@ -43,11 +43,15 @@ class EffectCtrl(LoadableExt):
 			for (address, container) in self.effectsContainers.items()
 		} if self.Loaded else None
 
-	def AddEffect(self, containerAddress, effectPath, index=None):
+	def AddEffect(self, containerAddress, effectPath, index=None):  # noqa: ANN001
 		assert containerAddress in self.effectsContainers, f'unknown effects container {containerAddress}'
 		self.effectsContainers[containerAddress].AddEffect(effectPath, index)
 
-	def RegisterEffectsContainer(self, address: str, containerComp):
+	def RegisterEffectsContainer(
+		self,
+		address: str,
+		containerComp  # noqa: ANN001
+	):  # noqa: ANN001, RUF100
 		self.logDebug(f'registering effects container at {address}')
 
 		if not hasattr(self, 'saveState') or self.saveState is None:
@@ -107,7 +111,7 @@ class EffectCtrl(LoadableExt):
 		)
 
 
-def getSourceID(effectOp):
+def getSourceID(effectOp):  # noqa: ANN001
 	return intIfSet(effectOp.par.Sourceeffectid.eval()) if effectOp else None
 
 
@@ -118,14 +122,19 @@ class EffectsContainer(LoadableExt):
 		return intIfSet(self.ownerComponent.par.Headeffectid.eval())
 
 	@headEffectID.setter
-	def headEffectID(self, value):
+	def headEffectID(self, value):  # noqa: ANN001, ANN202
 		self.ownerComponent.par.Headeffectid.val = value
 
 	@property
 	def address(self):
 		return self.ownerComponent.par.Address.eval()
 
-	def __init__(self, ownerComponent, logger, effectCtrl: EffectCtrl):
+	def __init__(
+		self,
+		ownerComponent,  # noqa: ANN001
+		logger,  # noqa: ANN001
+		effectCtrl: EffectCtrl
+	):  # noqa: ANN001, RUF100
 		super().__init__(ownerComponent, logger)
 		self.effectCtrl = effectCtrl
 		self.effectTemplate = effectCtrl.op('./effectTemplate')
@@ -158,7 +167,7 @@ class EffectsContainer(LoadableExt):
 
 		self.logInfo('initialized')
 
-	def Load(self, saveState=None):
+	def Load(self, saveState=None):  # noqa: ANN001
 		self.setLoading()
 
 		headEffectId = saveState['Headeffectid'] if saveState is not None else None
@@ -200,7 +209,7 @@ class EffectsContainer(LoadableExt):
 		}
 
 	def AddEffect(  # To bottom
-		self, effectPath, effectID: int = None, # sourceEffectID: int = None,
+		self, effectPath, effectID: int = None, # sourceEffectID: int = None,  # noqa: ANN001
 	):
 		self.logDebug(f'adding {effectPath}')
 
@@ -243,7 +252,12 @@ class EffectsContainer(LoadableExt):
 
 		self.insertIntoChain(effect, effectID, targetEffectID)
 
-	def insertIntoChain(self, effect, effectID, targetEffectID=None):
+	def insertIntoChain(
+		self,
+		effect,  # noqa: ANN001
+		effectID,  # noqa: ANN001
+		targetEffectID=None  # noqa: ANN001
+	):  # noqa: ANN001, RUF100
 		if targetEffectID is None:
 			self.logDebug(f'inserting effect {effectID} at head')
 			effect.par.Sourceeffectid = self.headEffectID
@@ -256,7 +270,7 @@ class EffectsContainer(LoadableExt):
 
 		self.updateEffectOrder()
 
-	def removeFromChain(self, effect, effectID: int):
+	def removeFromChain(self, effect, effectID: int):  # noqa: ANN001
 		sourceID = getSourceID(effect)
 
 		if self.headEffectID == effectID:
