@@ -11,8 +11,10 @@ TouchDesignerCrash.*
 /Compositions
 /Logs
 !/Logs/.gitkeep
+TD-Arena.Settings.json
 
 __pycache__
 .pytest_cache
 
 .venv
+.ruff_cache

@@ -51,6 +51,7 @@ disable = [
   "missing-module-docstring",
   "too-few-public-methods",
   "too-many-arguments", # Covered by PLR0913
+  "too-many-locals",
   "too-many-branches", # Covered by PLR0912
   "too-many-statements", # Covered by PLR0915
   "too-many-instance-attributes",

@@ -14,9 +14,6 @@ def getParValue(parameter):  # noqa: ANN001
 
 DEFAULT_STATE = {}
 
-# # The UI doesn't rely on us sending all
-# SYNCED_PARAMETER_NAMES = ['Sectionorder']
-
 
 class ParameterCtrl(LoadableExt):
 

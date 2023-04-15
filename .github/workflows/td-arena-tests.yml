@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      # TODO: This is slow... figure out why uninstall of latest 3.9 on windows takes forever
+      # TODO(#88): This is slow... figure out why uninstall of latest 3.9 on windows takes forever
       - name: Set up python
         id: setup-python
         uses: actions/setup-python@v4

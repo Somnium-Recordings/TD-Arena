@@ -1,5 +1,3 @@
-# pylint: disable=too-few-public-methods, unused-argument
-#
 # Patterns / APIs lifted from winappdbg
 #
 # @see https://github.com/MarioVilas/winappdbg

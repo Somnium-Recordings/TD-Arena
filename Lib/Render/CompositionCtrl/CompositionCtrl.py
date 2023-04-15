@@ -25,7 +25,7 @@ class CompositionCtrl(LoadableExt):
 		for parameter in self.compositionContainer.customPars:
 			parameter.val = parameter.default
 
-	def Load(self, state=None):  # pylint: disable=unused-argument  # noqa: ANN001
+	def Load(self, state=None):  # noqa: ANN001
 		self.setLoading()
 		self.logInfo('loading composition')
 
