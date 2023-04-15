@@ -29,7 +29,7 @@ jobs:
         with:
           virtualenvs-in-project: true
 
-      - name: Load cached venv
+      - name: Load venv Cache
         id: cached-poetry-dependencies
         uses: actions/cache@v3
         with:
@@ -40,5 +40,11 @@ jobs:
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
         run: poetry install --no-interaction
 
+      - name: Load Pre-Commit Cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('.pre-commit-config.yaml') }}
+
       - name: Test
-        run: poetry run pre-commit run --all-files --color=always
+        run: poetry run pre-commit run --show-diff-on-failure --all-files --color=always
