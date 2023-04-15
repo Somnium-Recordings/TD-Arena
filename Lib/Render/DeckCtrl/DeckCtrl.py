@@ -31,7 +31,7 @@ class DeckCtrl(LoadableExt):
 		# TODO: make this dynamic
 		return self.decks[int(self.composition.par.Selecteddeck)]['state']
 
-	def __init__(
+	def __init__(  # noqa: PLR0913
 		self,
 		ownerComponent,  # noqa: ANN001
 		logger,  # noqa: ANN001
@@ -39,7 +39,7 @@ class DeckCtrl(LoadableExt):
 		clipCtrl,  # noqa: ANN001
 		layerCtrl,  # noqa: ANN001
 		effectCtrl  # noqa: ANN001
-	):  # pylint: disable=too-many-arguments
+	):
 		super().__init__(ownerComponent, logger)
 		self.render = render
 		self.clipCtrl = clipCtrl

@@ -236,7 +236,7 @@ class ParameterContainer(BaseExt):
 		self.logDebug(f'setting control for {address} to {newValue}')
 		self.parameters[address].par.Value0 = newValue
 
-	def SyncParameter(
+	def SyncParameter(  # noqa: PLR0913
 		self,
 		address,  # noqa: ANN001
 		label,  # noqa: ANN001
@@ -245,7 +245,7 @@ class ParameterContainer(BaseExt):
 		normMax,  # noqa: ANN001
 		menuLabels,  # noqa: ANN001
 		order  # noqa: ANN001
-	):  # pylint: disable=too-many-arguments
+	):
 		sectionAddress, _ = address.rsplit(':', 1)  # The last value is the parameter
 		self.activeParameters.add(address)
 		self.activeSections.add(sectionAddress)

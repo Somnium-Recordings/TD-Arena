@@ -18,7 +18,7 @@ from tdaUtils import (
 
 class StateCtrl(LoadableExt):
 
-	def __init__(
+	def __init__(  # noqa: PLR0913
 		self,
 		ownerComponent,  # noqa: ANN001
 		logger,  # noqa: ANN001
@@ -28,7 +28,7 @@ class StateCtrl(LoadableExt):
 		layerCtrl,  # noqa: ANN001
 		effectCtrl,  # noqa: ANN001
 		parameterCtrl  # noqa: ANN001
-	):  # pylint: disable=too-many-arguments
+	):
 		super().__init__(ownerComponent, logger)
 
 		self.oscOut = ownerComponent.op('./oscout1')
@@ -173,7 +173,7 @@ class StateCtrl(LoadableExt):
 		if self.initializedAcknowledged:
 			return
 
-		if attempts > 20:
+		if attempts > 20:  # noqa: PLR2004
 			self.logError(
 				'timed out waiting for acknowledgement of initialization from ui'
 			)

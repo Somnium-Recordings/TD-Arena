@@ -80,7 +80,9 @@ class Logger:
 	def LogCurrentErrors(self):
 		self.ownerComp.par.Logcurrenterrors.pulse()
 
-	def LogTouchError(self, message, absFrame, frame, severity, compType, source):  # pylint: disable=too-many-arguments  # noqa: ANN001
+	def LogTouchError(  # noqa: PLR0913
+		self, message, absFrame, frame, severity, compType, source  # noqa: ANN001
+	):
 		if source in IGNORED_ERROR_SOURCES:
 			return
 
@@ -97,9 +99,9 @@ class Logger:
 		# Docs(incorrect): https://docs.derivative.ca/ErrorDAT_Class#Callbacks
 		if severity <= 1:
 			self.logger.info(message)
-		elif severity == 2:
+		elif severity == 2:  # noqa: PLR2004
 			self.logger.warning(message)
-		elif severity == 3:
+		elif severity == 3:  # noqa: PLR2004
 			self.logger.error(message)
 		else:  # severity == 3
 			self.logger.critical(message)

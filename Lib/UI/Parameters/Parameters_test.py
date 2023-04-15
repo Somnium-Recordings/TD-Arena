@@ -52,7 +52,7 @@ class TestParameters():
 		return MagicMock()
 
 	@pytest.fixture()
-	def parameters(
+	def parameters(  # noqa: PLR0913
 		self,
 		ownerComponent,  # noqa: ANN001
 		op: MockOP,

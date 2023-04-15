@@ -78,7 +78,7 @@ class TDAExt(LoadableExt):
 		self.userSettings.par.Useengine.val = newVal
 
 	# pylint: disable=too-many-arguments
-	def __init__(
+	def __init__(  # noqa: PLR0913
 		self,
 		ownerComponent,  # noqa: ANN001
 		logger,  # noqa: ANN001
