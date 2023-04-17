@@ -12,7 +12,7 @@ python = "3.9.5"
 
 # Dependencies from touchdesigner
 [tool.poetry.group.td.dependencies]
-numpy = "=1.20.3"
+numpy = "=1.22.0"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.2.2"
