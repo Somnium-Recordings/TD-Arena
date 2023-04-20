@@ -1,7 +1,7 @@
 from tda import BaseExt
 
 
-class MidiManager(BaseExt):
+class MidiManagerExt(BaseExt):
 
 	def __init__(self, ownerComponent, logger):  # noqa: ANN001
 		super().__init__(ownerComponent, logger)

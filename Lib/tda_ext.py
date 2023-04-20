@@ -276,6 +276,7 @@ class TDAExt(LoadableExt):
 
 		return saveFile
 
+	# TODO: why is this not in the ui_state?
 	def onRenderInitialized(self, address):  # noqa: ANN001
 		self.uiState.SendMessage(f'/ack{address}')
 		self.CompositionState = STATE_UNLOADED

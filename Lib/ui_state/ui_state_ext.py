@@ -1,10 +1,19 @@
 import traceback
-from typing import Callable, TypedDict, Union
+from typing import Any, Callable, TypedDict, TypeVar, Union, cast
 
 from oscDispatcher import OSCDispatcher
 from tda import BaseExt
 
+# OSCValue = Union[str, int, float, bool]
 OSCValue = Union[str, int, float, bool]
+_OSCValue = TypeVar('_OSCValue', str, int, float, bool)
+
+# TODO: Once we migrate to python 3.11 and are able to use generic typed dicts
+# See: https://github.com/python/cpython/issues/89026#issuecomment-1116093221
+# class CtrlState(TypedDict, Generic[OSCValue]):
+# 	# key is sourceName
+# 	handlers: dict[str, Callable]
+# 	currentValue: Union[OSCValue, None]
 
 
 class CtrlState(TypedDict):
@@ -58,11 +67,12 @@ class UIStateExt(BaseExt):
 		self,
 		address: str,
 		sourceName: str,
-		setCtrlValueHandler: Callable[[str, OSCValue], None],
+		setCtrlValueHandler: Callable[[str, _OSCValue], None],
 		alwaysRequestValue=False  # noqa: ANN001, FBT002
-	) -> Union[None, OSCValue]:
+	) -> Union[None, _OSCValue]:
 		self.logDebug(f'registering control {sourceName} handler @ {address}')
 
+		# TODO: should this be a part of the OSCDispatcher rather than a parallel system?
 		if (ctrlState := self.oscControlState.get(address, None)) is None:
 			ctrlState = CtrlState(
 				handlers={sourceName: setCtrlValueHandler}, currentValue=None
@@ -88,7 +98,8 @@ class UIStateExt(BaseExt):
 			self.logDebug(
 				f'currentValue in state, calling handler immediately @ {address}'
 			)
-			setCtrlValueHandler(address, ctrlState['currentValue'])
+			# TODO: remove cast once we can make this generic in python 3.11
+			setCtrlValueHandler(address, cast(Any, ctrlState['currentValue']))
 
 	def DeregisterCtrl(self, address, sourceName):  # noqa: ANN001
 		if (ctrlState := self.oscControlState.get(address, None)) is None:
@@ -113,7 +124,7 @@ class UIStateExt(BaseExt):
 			del self.oscControlState[address]
 
 	def UpdateCtrlValue(
-		self, address: str, newValue: OSCValue, source: str
+		self, address: str, newValue: _OSCValue, source: str
 	) -> None:
 		if (controlState := self.oscControlState.get(address, None)) is None:
 			self.logWarning(

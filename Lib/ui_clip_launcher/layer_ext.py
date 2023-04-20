@@ -1,7 +1,10 @@
+from typing import cast
+
 from tda import BaseExt
+from ui_state import ui_state_ext
 
 
-class Layer(BaseExt):
+class UIClipLauncherLayerExt(BaseExt):
 
 	@property
 	def LayerID(self):
@@ -19,9 +22,10 @@ class Layer(BaseExt):
 	def ctrlOpacityAddress(self) -> str:
 		return f'/composition/layers/{self.LayerID}/video:Opacity'
 
-	def __init__(self, ownerComponent, logger, uiState):  # noqa: ANN001
+	def __init__(self, ownerComponent, logger):  # noqa: ANN001
 		super().__init__(ownerComponent, logger)
-		self.uiState = uiState
+		# self.uiState = uiState
+		self.uiState = cast(ui_state_ext.UIStateExt, op.ui_state.ext.UIStateExt)
 		self.popMenu = op.TDResources.op('popMenu')
 		self.opacityCtrl = ownerComponent.op('sliderVert')
 		self.registerLayerOpacityCtrl()
