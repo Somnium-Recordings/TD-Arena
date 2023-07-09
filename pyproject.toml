@@ -9,9 +9,10 @@ version = "0.1.0"
 
 [tool.poetry.dependencies]
 python = "3.9.5"
+python-statemachine = "^2.1.0"
 
-# Dependencies from touchdesigner
 [tool.poetry.group.td.dependencies]
+# Dependencies from touchdesigner
 numpy = "=1.20.3"
 
 [tool.poetry.group.dev.dependencies]
@@ -55,35 +56,13 @@ disable = [
   "too-many-branches", # Covered by PLR0912
   "too-many-statements", # Covered by PLR0915
   "too-many-instance-attributes",
+  "undefined-variable", # Covered by F821
   "unused-argument", # Covered by ARG0002
   "unused-import", # Covered by F
 ]
 indent-after-paren = 1
 indent-string = "\t"
 init-hook = "import sys; sys.path.append('Lib')"
-
-[tool.pylint."VARIABLES"]
-additional-builtins = [
-  "absTime",
-  "baseCOMP",
-  "Cell",
-  "COMP",
-  "DAT",
-  "debug",
-  "op",
-  "OP",
-  "parent",
-  "PaneType",
-  "ParMode",
-  "Par",
-  "project",
-  "run",
-  "tableDAT",
-  "textDAT",
-  "tdu",
-  "ui",
-  "WindowsError",
-]
 
 [tool.ruff]
 ignore = [
@@ -113,6 +92,7 @@ builtins = [
   "baseCOMP",
   "Cell",
   "COMP",
+  "CHOP",
   "DAT",
   "debug",
   "op",

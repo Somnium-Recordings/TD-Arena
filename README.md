@@ -18,7 +18,7 @@ I'm currently developing this using [VS Code](https://code.visualstudio.com/) on
 
 **Note:** I don't use python much in my day job, or windows for that matter. If there are better ways to manage any of this I'd love to hear how it can be improved!
 
-## Development Setup
+### Development Setup
 
 1. Install Python version currently shipped with TouchDesigner
 
@@ -67,3 +67,60 @@ I'm currently developing this using [VS Code](https://code.visualstudio.com/) on
 ### A Note about code style
 
 _I was originally using [black](https://github.com/psf/black) but have switched to [yapf](https://github.com/google/yapf) with a modified config to allow python generated from touch to be in the same format as the project files. The primary incompatabilities with `black` were `tabs` and `single quotes`._
+
+### Module + Extension Conventions
+
+🚧 **Note: I'm actively migrating from the old structure to the new as I touch things. Once a good chunk has been migrated, I'll sit down and wrap up the rest** 🚧
+
+- semi-flat structure with extensions colocated with tox files in `Lib` folder
+- `__init__.py` created for any module that should be auto-created (See `Libe/auto-Module`)
+- `ui` or `render` modules prefixed accordingly.
+  - e.g. `Lib/ui_state`
+- modules and toxes in `snake_case`
+- extensions with `_ext` suffix and class name matching file name in `PascalCase`
+  - e.g. `ui_foo/ui_foo_ext.py` -> `UiFooExt`
+- Extensions attached to components with the following config:
+  - `opshortcut`: snake case name
+    - e.g. `ui_state`
+  - `extension1` initialized using `mod` reference
+    - e.g. `mod.ui_state.ui_state_ext.UIStateExt(me, ...)`
+  - `extname1` set to initialized class name
+    - e.g. `UIStateExt`
+    - _NOTE: this is the default and can be excluded in most cases_
+
+#### Referencing Other Extensions
+
+When referencing one extension from another:
+
+- Use the `op` shortcut in combination with the `ext` member to get a reference to the instance
+- Cast the extension reference it to the type of the extension class
+  - This should be imported using the module name which should correspond to the shortcut name
+  - This cast ensures both type safety as well as allowing TD to understand the extension dependency
+
+For example, to use the `UIStateExt` in a module:
+
+```py
+
+from ui_state import ui_state_ext
+
+class SomeDependentExt:
+    def __init__(self, ownerComponent):
+        self.ownerComponent = ownerComponent
+        self.uiState = cast(ui_state_ext.UIStateExt, op.ui_state.ext.UIStateExt)
+
+```
+
+From TD, using promoted extension members is the preferred way:
+
+```py
+op.ui_state.SomePromotedMember(...)
+```
+
+#### The Rationale
+
+- Enable importing extensions from other extensions and retain typesafety in VsCode along with pyright
+- Colocate extensions with tox files without having one giant folder for all modules
+- Allow touchdesigner to track module dependencies and automatically reload extensions and their dependencies on change
+- Auto generate module definitions in touchdesigner
+
+I've gone through a few different iterations of structuring tox files along with their python extensions and have finally landed on a somewhat happy middle ground that allows for retaining typesafety with out a ton of extra overhead. The secret sauce is in `Lib/auto_module` which will
