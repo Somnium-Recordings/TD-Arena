@@ -1,4 +1,7 @@
 from enum import IntEnum
+from typing import cast
+
+from ui_state import ui_state_ext
 
 
 class APC40Mode(IntEnum):
@@ -38,9 +41,23 @@ class APC40():
 	def __init__(self, midiOut: midioutCHOP, deviceID: int):
 		self.midiOut = midiOut
 		self.deviceID = deviceID
+		self.uiState = cast(ui_state_ext.UIStateExt, op.ui_state.ext.UIStateExt)
 
 	def OnConnect(self):
 		self.setMode(APC40Mode.ABLETON_LIVE_ALT)
+		self.registerHandlers()
 
 	def setMode(self, mode: APC40Mode):
 		self.midiOut.sendExclusive(71, 1, 41, 96, 0, 4, mode, 8, 2, 7)
+
+	def registerHandlers(self):
+		self.uiState.RegisterCtrl(
+			'/composition/layers/1/video:Opacity',
+			f'midi-out:{self.name}',
+			self.onCtrlValue,
+			alwaysRequestValue=True
+		)
+
+	def onCtrlValue(self, address: str, value: ui_state_ext.OSCValue) -> None:
+		debug('received: ', address, value)
+		self.midiOut.sendControl(1, 48, value)

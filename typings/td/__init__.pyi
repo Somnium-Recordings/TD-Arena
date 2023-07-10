@@ -1864,6 +1864,10 @@ class midioutCHOP(CHOP):
 	def sendBalance(self, channel: int, value: int) -> None:
 		...
 
+	# TODO: figure out what the appropriate type for value is
+	def sendControl(self, channel: int, index: int, value: Any) -> None:
+		...
+
 
 class COMP(OP):
 	extensions: list

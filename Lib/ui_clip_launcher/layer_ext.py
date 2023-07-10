@@ -24,7 +24,6 @@ class UIClipLauncherLayerExt(BaseExt):
 
 	def __init__(self, ownerComponent, logger):  # noqa: ANN001
 		super().__init__(ownerComponent, logger)
-		# self.uiState = uiState
 		self.uiState = cast(ui_state_ext.UIStateExt, op.ui_state.ext.UIStateExt)
 		self.popMenu = op.TDResources.op('popMenu')
 		self.opacityCtrl = ownerComponent.op('sliderVert')
