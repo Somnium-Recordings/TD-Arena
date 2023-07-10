@@ -68,6 +68,18 @@ I'm currently developing this using [VS Code](https://code.visualstudio.com/) on
 
 _I was originally using [black](https://github.com/psf/black) but have switched to [yapf](https://github.com/google/yapf) with a modified config to allow python generated from touch to be in the same format as the project files. The primary incompatabilities with `black` were `tabs` and `single quotes`._
 
+#### Manually Running Pre-Commit Checks
+
+```pwsh
+# Most commands work directly (once in a `poetry shell`)
+pytest
+pyright
+
+## Some things are easier to run through using pre-commit though
+pre-commit run yapf-ruff --all-files
+pre-commit run pylint --all-files
+```
+
 ### Module + Extension Conventions
 
 🚧 **Note: I'm actively migrating from the old structure to the new as I touch things. Once a good chunk has been migrated, I'll sit down and wrap up the rest** 🚧

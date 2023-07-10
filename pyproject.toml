@@ -96,6 +96,7 @@ builtins = [
   "midioutCHOP",
   "DAT",
   "debug",
+  "mod",
   "op",
   "OP",
   "parent",
