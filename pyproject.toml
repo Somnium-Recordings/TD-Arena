@@ -93,6 +93,7 @@ builtins = [
   "Cell",
   "COMP",
   "CHOP",
+  "midioutCHOP",
   "DAT",
   "debug",
   "op",

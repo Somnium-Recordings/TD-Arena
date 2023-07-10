@@ -1853,6 +1853,18 @@ class CHOP(OP):
 		...
 
 
+class midioutCHOP(CHOP):
+
+	def send(self, *messages: Union[int, str]) -> None:
+		...
+
+	def sendExclusive(self, *messages: Union[int, str]) -> None:
+		...
+
+	def sendBalance(self, channel: int, value: int) -> None:
+		...
+
+
 class COMP(OP):
 	extensions: list
 	extensionsReady: bool
