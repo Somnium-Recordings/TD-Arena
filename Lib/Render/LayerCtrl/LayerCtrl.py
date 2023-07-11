@@ -148,9 +148,18 @@ class LayerCtrl(LoadableExt):
 
 	def SelectLayer(self, address):  # noqa: ANN001
 		layerID = getLayerID(address)
+		# TODO: distinguish between composition and layer rather than exposing composition as layer0
+		previousLayerID = self.composition.par.Selectedlayer.eval()
 		self.composition.par.Previstarget = f'composition/layers/layer{layerID}/video/null_previs'
 		# previousSelectedLayer = self.composition.par.Selectedlayer.eval()
 		self.composition.par.Selectedlayer = layerID
+
+		self.renderState.SendMessage(
+			f'/composition/layers/layer/{previousLayerID}/connected', 0
+		)
+		self.renderState.SendMessage(
+			f'/composition/layers/layer/{layerID}/connected', 1
+		)
 
 	def createLayer(
 		self,

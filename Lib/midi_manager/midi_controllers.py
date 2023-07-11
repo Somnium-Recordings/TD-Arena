@@ -52,24 +52,37 @@ class APC40():
 		self.registerHandlers()
 
 	def Disconnect(self):
-		self.uiState.DeregisterCtrl(
-			'/composition/layers/1/video:Opacity', self.ctrlSrcName
-		)
+		self.deregisterHandlers()
 
 	def setMode(self, mode: APC40Mode):
 		self.midiOut.sendExclusive(71, 1, 41, 96, 0, 4, mode, 8, 2, 7)
 
+	# NOTE: most below here should probably be either in the midi_manager
+	# 		or an ABC
 	def registerHandlers(self):
 		self.uiState.RegisterCtrl(
 			'/composition/layers/1/video:Opacity',
 			self.ctrlSrcName,
-			self.onCtrlValue,
+			self.onReceiveCtrlValue,
 			alwaysRequestValue=True
 		)
 
-	def onCtrlValue(
+	def deregisterHandlers(self):
+		self.uiState.DeregisterCtrl(
+			'/composition/layers/1/video:Opacity', self.ctrlSrcName
+		)
+
+	def onReceiveCtrlValue(
 		self,
 		address: str,  # noqa: ARG002
 		value: ui_state_ext.OSCValue
 	) -> None:
+		# map oscValue to deviceValue using mapping table
 		self.midiOut.sendControl(1, 48, value)
+
+	def onReceiveDeviceValue(self):
+		# if type is "msg", send with no value
+		#   - self.uiState.SendMessage ???
+		# if type is "ctrl", use map to map/normalize midi value
+		#   - self.uiState.UpdateCtrlValue
+		...
