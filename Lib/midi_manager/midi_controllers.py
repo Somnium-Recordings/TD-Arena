@@ -38,14 +38,23 @@ class APC40Mode(IntEnum):
 class APC40():
 	name = 'APC40 mkII'
 
+	@property
+	def ctrlSrcName(self):
+		return f'midi-out:{self.name}'
+
 	def __init__(self, midiOut: midioutCHOP, deviceID: int):
 		self.midiOut = midiOut
 		self.deviceID = deviceID
 		self.uiState = cast(ui_state_ext.UIStateExt, op.ui_state.ext.UIStateExt)
 
-	def OnConnect(self):
+	def Connect(self):
 		self.setMode(APC40Mode.ABLETON_LIVE_ALT)
 		self.registerHandlers()
+
+	def Disconnect(self):
+		self.uiState.DeregisterCtrl(
+			'/composition/layers/1/video:Opacity', self.ctrlSrcName
+		)
 
 	def setMode(self, mode: APC40Mode):
 		self.midiOut.sendExclusive(71, 1, 41, 96, 0, 4, mode, 8, 2, 7)
@@ -53,11 +62,14 @@ class APC40():
 	def registerHandlers(self):
 		self.uiState.RegisterCtrl(
 			'/composition/layers/1/video:Opacity',
-			f'midi-out:{self.name}',
+			self.ctrlSrcName,
 			self.onCtrlValue,
 			alwaysRequestValue=True
 		)
 
-	def onCtrlValue(self, address: str, value: ui_state_ext.OSCValue) -> None:
-		debug('received: ', address, value)
+	def onCtrlValue(
+		self,
+		address: str,  # noqa: ARG002
+		value: ui_state_ext.OSCValue
+	) -> None:
 		self.midiOut.sendControl(1, 48, value)

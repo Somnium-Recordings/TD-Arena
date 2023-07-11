@@ -101,7 +101,7 @@ class UIStateExt(BaseExt):
 			# TODO: remove cast once we can make this generic in python 3.11
 			setCtrlValueHandler(address, cast(Any, ctrlState['currentValue']))
 
-	def DeregisterCtrl(self, address, sourceName):  # noqa: ANN001
+	def DeregisterCtrl(self, address: str, sourceName: str):
 		if (ctrlState := self.oscControlState.get(address, None)) is None:
 			self.logWarning(
 				f'attempted to deregister an unknown ctrl for {sourceName} @ {address}'
