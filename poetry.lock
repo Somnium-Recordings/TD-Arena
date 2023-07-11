@@ -384,18 +384,6 @@ tomli = {version = ">=1.0.0", markers = "python_version < \"3.11\""}
 testing = ["argcomplete", "attrs (>=19.2.0)", "hypothesis (>=3.56)", "mock", "nose", "pygments (>=2.7.2)", "requests", "xmlschema"]
 
 [[package]]
-name = "python-statemachine"
-version = "2.1.0"
-description = "Python Finite State Machines made easy."
-category = "main"
-optional = false
-python-versions = ">=3.7,<3.12"
-files = [
-    {file = "python_statemachine-2.1.0-py3-none-any.whl", hash = "sha256:195d8a1059ea22e94effce35d5fd9352362391e07ed248e04e27fadb49b41726"},
-    {file = "python_statemachine-2.1.0.tar.gz", hash = "sha256:aded5878526f5249465ce5aec3fb8babc9e08261bba4a4e0d147403e73335c34"},
-]
-
-[[package]]
 name = "pytoolconfig"
 version = "1.2.5"
 description = "Python tool configuration"
@@ -731,4 +719,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "3.9.5"
-content-hash = "09f5f2382b704a2c0cb34fd9dd3f51bfcaf6ad8e21f0d7275d633bb1761863d6"
+content-hash = "c1a1e4bf0b9acf2af93f27aa54e3cdd03b790461dc545b03fa6ca89f6540a90c"
