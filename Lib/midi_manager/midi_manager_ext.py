@@ -57,7 +57,8 @@ class MidiManagerExt(BaseExt, Machine):
 					'trigger': 'MidiOutConnected',
 					'source': 'connecting',
 					'dest': 'connected'
-				}
+				},
+				# TODO: refresh status?
 			]
 		)
 
@@ -68,7 +69,7 @@ class MidiManagerExt(BaseExt, Machine):
 		self.midiIn = cast(CHOP, ownerComponent.op('midiin1'))
 		self.midiOut = cast(midioutCHOP, ownerComponent.op('midiout1'))
 
-		self.targetDevice = APC40(self.midiOut, deviceID=self.TargetDeviceID)
+		self.TargetDevice = APC40(self.midiOut, deviceID=self.TargetDeviceID)
 
 		self.logInfo('MidiManager Initialized')
 
@@ -82,14 +83,14 @@ class MidiManagerExt(BaseExt, Machine):
 		mod('/sys/devices/midi/initDevice').onStart()
 
 		# TD pattern matching doesn't support spaces, so replace them with "?"
-		matchableName = self.targetDevice.name.replace(' ', '?')
+		matchableName = self.TargetDevice.name.replace(' ', '?')
 
 		if not (
 			self.midiInputs.findCell(matchableName)
 			and self.midiInputs.findCell(matchableName)
 		):
 			self.logWarning(
-				f'unable to activate midi control, "{self.targetDevice.name}" is not connected'
+				f'unable to activate midi control, "{self.TargetDevice.name}" is not connected'
 			)
 			return False
 
@@ -98,19 +99,19 @@ class MidiManagerExt(BaseExt, Machine):
 	def configureMidiDevice(self):
 		midiConfig = [
 			# id
-			self.targetDevice.deviceID,
+			self.TargetDevice.deviceID,
 			# indevice
-			self.targetDevice.name,
+			self.TargetDevice.name,
 			# outdevice
-			self.targetDevice.name,
+			self.TargetDevice.name,
 			# definition
 			'',
 			# channel
-			self.targetDevice.deviceID,
+			self.TargetDevice.deviceID,
 		]
 
-		if self.midiDevice.row(str(self.targetDevice.deviceID)):
-			self.midiDevice.replaceRow(str(self.targetDevice.deviceID), midiConfig)
+		if self.midiDevice.row(str(self.TargetDevice.deviceID)):
+			self.midiDevice.replaceRow(str(self.TargetDevice.deviceID), midiConfig)
 		else:
 			self.midiDevice.appendRow(midiConfig)
 
@@ -118,13 +119,13 @@ class MidiManagerExt(BaseExt, Machine):
 	# State Machine Callbacks
 	####
 	def on_enter_connecting(self):
-		self.logInfo(f'connecting to "{self.targetDevice.name}"')
+		self.logInfo(f'connecting to "{self.TargetDevice.name}"')
 
 	def on_enter_connected(self):
 		self.configureMidiDevice()
-		self.targetDevice.Connect()
-		self.logInfo(f'connected to "{self.targetDevice.name}"')
+		self.TargetDevice.Connect()
+		self.logInfo(f'connected to "{self.TargetDevice.name}"')
 
 	def on_exit_connected(self):
-		self.logInfo(f'disconnected from "{self.targetDevice.name}"')
-		self.targetDevice.Disconnect()
+		self.logInfo(f'disconnected from "{self.TargetDevice.name}"')
+		self.TargetDevice.Disconnect()
