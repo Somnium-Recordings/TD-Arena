@@ -24,6 +24,7 @@ rope = "^1.7.0"
 ruff = "^0.0.261"
 toml = "^0.10.2"
 yapf = "^0.32.0"
+pytest-watcher = "^0.3.4"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"

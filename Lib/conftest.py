@@ -1,8 +1,13 @@
 # pylint: disable=redefined-outer-name
+import builtins
 from unittest.mock import MagicMock
 
 import pytest
 from tdaTesting import MockOP
+
+# Globals that TD creates that crash our tests when not present
+builtins.midioutCHOP = MagicMock()  # type: ignore
+builtins.OP = MagicMock()  # type: ignore
 
 
 @pytest.fixture()
