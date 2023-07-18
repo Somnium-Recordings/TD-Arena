@@ -4,6 +4,8 @@ from typing import Optional, Union
 
 from tdaUtils import getCellValues
 
+IGNORED_ERROR_PREFIXES = ['/probe', '/tdArena/TD_SearchPalette']
+
 # NOTE: message needs to stay first for search/matching to work correctly
 LogRecord = namedtuple(
 	'LogRecord', [
@@ -30,6 +32,10 @@ def rowToLogRecord(row: list[Cell], rowCols: list[str]) -> LogRecord:
 			for colName in LOG_STORAGE_COLS
 		]
 	)
+
+
+def isIgnoredSource(source: str) -> bool:
+	return any(source.startswith(prefix) for prefix in IGNORED_ERROR_PREFIXES)
 
 
 class LogCollectorExt:
@@ -119,6 +125,9 @@ class LogCollectorExt:
 		self.logStorage.deleteRows(messagesToDelete)
 
 	def processLogRecord(self, logRecord: LogRecord) -> None:
+		if isIgnoredSource(logRecord.source):
+			return
+
 		log = self.findMatchingLog(
 			logRecord
 		) if self.shouldGroupSimilarLogs else None

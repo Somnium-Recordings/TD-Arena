@@ -42,5 +42,6 @@ def ownerComponent():
 	comp = MagicMock()
 
 	comp.op = MockOP()
+	comp.path = '/test/component/path'
 
 	return comp

@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from itertools import chain
-from typing import Optional, TypedDict, cast
+from typing import Callable, Optional, Protocol, TypedDict, cast
 
-from tda import BaseExt
+from logger import logging_mixins
 from transitions import Machine
 from ui_state import ui_state_ext
 
@@ -65,7 +65,13 @@ CONTROL_LIST = list(
 CONTROLS = {ctrl['name']: ctrl for ctrl in CONTROL_LIST}
 
 
-class MidiDeviceExt(ABC, BaseExt):
+class ConnectFn(Protocol):
+
+	def __call__(self, deviceID: int) -> None:
+		...
+
+
+class MidiDeviceExt(ABC, logging_mixins.ComponentLoggerMixin):
 	State: str
 	DeviceID: Optional[int]
 
@@ -83,11 +89,12 @@ class MidiDeviceExt(ABC, BaseExt):
 	def ctrlSrcName(self):
 		return f'midi-out:{self.name}'
 
-	def Connect(self, deviceID: int) -> None:
-		...
+	# Triggers defined by the statemachine
+	Connect: ConnectFn
+	Disconnect: Callable[[], None]
 
-	def __init__(self, ownerComponent: OP, logger):
-		BaseExt.__init__(self, ownerComponent, logger)
+	def __init__(self, ownerComponent: OP):
+		self.ownerComponent = ownerComponent
 
 		TDF = op.TDModules.mod.TDFunctions
 		TDF.createProperty(self, 'DeviceID', None)

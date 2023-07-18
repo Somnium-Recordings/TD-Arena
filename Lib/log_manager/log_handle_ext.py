@@ -5,8 +5,11 @@ class LogHandleExt:
 		self.wasPreviouslyActive = False
 		self.logStorageDat = logStorageDat
 		self.logDataBeforeSave = None
+		self.SetToDefaultState()
 
-		self.ownerComp.par.Active = 1
+	def SetToDefaultState(self):
+		self.ownerComp.par.Active = self.ownerComp.par.Defaultstate.eval()
+		self.ownerComp.par.Visible = self.ownerComp.par.Defaultstate.eval()
 
 	def OnBeforeSave(self):
 		if self.ownerComp.par.Active.eval():

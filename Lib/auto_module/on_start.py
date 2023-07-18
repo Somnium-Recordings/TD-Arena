@@ -3,6 +3,8 @@ from pathlib import Path
 
 
 def onStart():
+	mod.logger.log_manager.ensureLogHandlersPresent()
+
 	localPythonPath = Path(project.folder) / '.venv' / 'Lib' / 'site-packages'
 
 	if not localPythonPath.is_dir():

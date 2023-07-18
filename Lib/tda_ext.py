@@ -85,7 +85,6 @@ class TDAExt(LoadableExt):
 		renderLocal,  # noqa: ANN001
 		renderEngine,  # noqa: ANN001
 		uiGrid,  # noqa: ANN001
-		logManager  # noqa: ANN001
 	):
 		super().__init__(ownerComponent, logger)
 		self.uiState = cast(ui_state_ext.UIStateExt, op.ui_state.ext.UIStateExt)
@@ -105,7 +104,6 @@ class TDAExt(LoadableExt):
 		self.renderLocal = renderLocal
 		self.renderEngine = renderEngine
 		self.uiGrid = uiGrid
-		self.logManager = logManager
 
 		self.CompositionState: str
 		TDF = op.TDModules.mod.TDFunctions
@@ -147,24 +145,15 @@ class TDAExt(LoadableExt):
 		else:
 			self.logInfo('starting local renderer')
 			self.renderLocal.allowCooking = True
-			self.ToggleLoggers()
 			self.bindUserSettings()
 			self.renderLocal.par.Reinitctrls.pulse()
 			self.renderEngine.par.unload.pulse()
 
 	def OnEngineRendererStart(self):
 		self.logInfo('finishing engine renderer setup')
-		self.ToggleLoggers()
 		self.bindUserSettings()
 		self.ConnectRenderOutputs()
 		self.renderEngine.par.Syncouts.pulse()
-
-	def ToggleLoggers(self):
-		# Turn on or off log handlers based on the renderer we are enabling
-		self.logManager.SetLoggerParam('Render-E', 'Active', self.useEngine)
-		self.logManager.SetLoggerParam('Render-E', 'Visible', self.useEngine)
-		self.logManager.SetLoggerParam('Render-L', 'Active', not self.useEngine)
-		self.logManager.SetLoggerParam('Render-L', 'Visible', not self.useEngine)
 
 	def ConnectRenderOutputs(self, useEngine=None):  # noqa: ANN001
 		if useEngine is None:
