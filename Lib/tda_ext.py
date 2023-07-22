@@ -46,7 +46,7 @@ RENDER_OUTPUT_MAP = [
 	'null_selectedDeckState',
 	'null_layerState',
 	'null_parameterState',
-	# 'null_finalOut',
+	None,  # 'null_finalOut',
 	'null_finalPrevis',
 	'null_finalThumbnails',
 	'null_finalLayerThumbnails',
@@ -168,6 +168,9 @@ class TDAExt(LoadableExt):
 
 		for outputIndex, target in enumerate(RENDER_OUTPUT_MAP):
 			targetOpName = target[targetName] if isinstance(target, dict) else target
+			if targetOpName is None:  # Unmapped outputs
+				continue
+
 			targetOp = self.ownerComponent.op(targetOpName)
 
 			if targetOp is None:
