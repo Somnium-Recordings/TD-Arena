@@ -1,7 +1,9 @@
 from collections.abc import Mapping
 from logging import LoggerAdapter
 from types import TracebackType
-from typing import Optional, Union
+from typing import Optional, TypedDict, Union
+
+from typing_extensions import Unpack
 
 from .log_manager import getComponentLogger
 
@@ -11,6 +13,12 @@ _SysExcInfoType = Union[(
 							Union[TracebackType, None]], tuple[None, None, None]
 )]
 _ExcInfoType = Union[None, bool, _SysExcInfoType, BaseException]
+
+
+class LogKwargs(TypedDict, total=False):
+	exc_info: _ExcInfoType
+	stack_info: bool
+	extra: Mapping[str, object]
 
 
 class ComponentLoggerMixin():
@@ -30,51 +38,27 @@ class ComponentLoggerMixin():
 
 		return self._componentLogger
 
-	# TODO: there has got to be a better way to copy the types from the logger to these functions...
-	def logInfo(
-		self,
-		msg: object,
-		*args: object,
-		exc_info: _ExcInfoType = None,
-		stack_info: bool = False,
-		extra: Optional[Mapping[str, object]] = None,
+	def newLog(
+		self, msg: object, *args: object, **kwargs: Unpack[LogKwargs]
 	) -> None:
-		self.componentLogger.info(
-			msg, *args, exc_info=exc_info, stack_info=stack_info, extra=extra
-		)
+		self.componentLogger.info(msg, *args, **kwargs)
+
+	def logInfo(
+		self, msg: object, *args: object, **kwargs: Unpack[LogKwargs]
+	) -> None:
+		self.componentLogger.info(msg, *args, **kwargs)
 
 	def logDebug(
-		self,
-		msg: object,
-		*args: object,
-		exc_info: _ExcInfoType = None,
-		stack_info: bool = False,
-		extra: Optional[Mapping[str, object]] = None,
+		self, msg: object, *args: object, **kwargs: Unpack[LogKwargs]
 	) -> None:
-		self.componentLogger.debug(
-			msg, *args, exc_info=exc_info, stack_info=stack_info, extra=extra
-		)
+		self.componentLogger.debug(msg, *args, **kwargs)
 
 	def logWarning(
-		self,
-		msg: object,
-		*args: object,
-		exc_info: _ExcInfoType = None,
-		stack_info: bool = False,
-		extra: Optional[Mapping[str, object]] = None,
+		self, msg: object, *args: object, **kwargs: Unpack[LogKwargs]
 	) -> None:
-		self.componentLogger.warning(
-			msg, *args, exc_info=exc_info, stack_info=stack_info, extra=extra
-		)
+		self.componentLogger.warning(msg, *args, **kwargs)
 
 	def logError(
-		self,
-		msg: object,
-		*args: object,
-		exc_info: _ExcInfoType = None,
-		stack_info: bool = False,
-		extra: Optional[Mapping[str, object]] = None,
+		self, msg: object, *args: object, **kwargs: Unpack[LogKwargs]
 	) -> None:
-		self.componentLogger.error(
-			msg, *args, exc_info=exc_info, stack_info=stack_info, extra=extra
-		)
+		self.componentLogger.error(msg, *args, **kwargs)

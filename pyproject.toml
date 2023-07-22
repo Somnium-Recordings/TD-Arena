@@ -12,6 +12,7 @@ orjson = "^3.9.2"
 python = "3.9.5"
 python-json-logger = "^2.0.7"
 transitions = "^0.9.0"
+typing-extensions = "^4.7.1"
 
 [tool.poetry.group.td.dependencies]
 # Dependencies from touchdesigner

@@ -4,7 +4,6 @@ from typing import Any, Callable, TypedDict, TypeVar, Union, cast
 from oscDispatcher import OSCDispatcher
 from tda import BaseExt
 
-# OSCValue = Union[str, int, float, bool]
 OSCValue = Union[str, int, float, bool, list[int]]
 _OSCValue = TypeVar('_OSCValue', str, int, float, bool, list[int])
 

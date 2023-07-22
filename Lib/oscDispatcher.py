@@ -1,13 +1,13 @@
 from collections import OrderedDict
 from fnmatch import fnmatchcase
-from typing import Callable, TypedDict
+from typing import Callable
 
 from tda import BaseExt
+from typing_extensions import Required, TypedDict
 
 
-# TODO: when we upgrade to python 3.10 switch to using Required specifiers
 class OSCHandler(TypedDict, total=False):
-	handler: Callable
+	handler: Required[Callable]
 	sendAddress: bool
 	mapAddress: Callable[[str], str]
 
@@ -37,7 +37,7 @@ class OSCDispatcher(BaseExt):
 		for address, handler in mappings.items():
 			self.Map(address, handler)
 
-	def getMapping(self, address, args):  # noqa: ANN001
+	def getMapping(self, address: str, args):  # noqa: ANN001
 		if (len(args) == 1 and args[0] == '?'):
 			return self.getMapping('?', [])
 
