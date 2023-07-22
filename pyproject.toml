@@ -104,6 +104,8 @@ builtins = [
   "mod",
   "op",
   "OP",
+  "oscinDAT",
+  "oscoutDAT",
   "parent",
   "PaneType",
   "ParMode",

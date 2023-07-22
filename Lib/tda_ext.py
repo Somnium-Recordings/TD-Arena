@@ -46,7 +46,7 @@ RENDER_OUTPUT_MAP = [
 	'null_selectedDeckState',
 	'null_layerState',
 	'null_parameterState',
-	'null_finalOut',
+	# 'null_finalOut',
 	'null_finalPrevis',
 	'null_finalThumbnails',
 	'null_finalLayerThumbnails',
@@ -318,7 +318,8 @@ class TDAExt(LoadableExt):
 				self.logDebug(
 					f'binding {parName} setting to {targetPar.owner.name}.par.{targetPar.name}'
 				)
-				targetPar.bindExpr = f'op.userSettings.par.{parName}'
+				# targetPar.bindExpr = f'op.userSettings.par.{parName}'
+				targetPar.val = op.userSettings.par[parName].eval()
 			else:
 				self.logError(
 					f'could not bind {parName} setting to {targetName}, configured parameter not found'

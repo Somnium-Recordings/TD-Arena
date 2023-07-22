@@ -1,45 +1,50 @@
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from itertools import chain
-from typing import Callable, Optional, Protocol, TypedDict, cast
+from typing import Callable, Optional, Protocol, Union, cast
 
 from logger import logging_mixins
 from transitions import Machine
 from ui_state import ui_state_ext
 
 
-class _MappableControl(TypedDict):
+@dataclass
+class MappableControl():
 	name: str
-	address: str
+	oscAddress: str
+	sendMessage: Optional[str] = None
 
 
-# Replace with NotRequired once we get python 3.11
-class MappableControl(_MappableControl, total=False):
-	sendMessage: str
-
-
-class _MidiMap(TypedDict):
+@dataclass
+class _MidiMap(ABC):
 	control: MappableControl
 	channel: int
 
+	@property
+	@abstractmethod
+	def midiAddress(self) -> str:
+		...
 
-class MidiMap(_MidiMap, total=False):
-	index: int
+
+@dataclass
+class MidiNoteMap(_MidiMap):
 	note: int
 
+	@property
+	def midiAddress(self):
+		return f'ch{self.channel}n{self.note}'
 
-def toMidiAddress(mapping: MidiMap) -> str:
-	channel = f'ch{mapping["channel"]}'
 
-	if 'note' in mapping:
-		return f'{channel}n{mapping["note"]}'
+@dataclass
+class MidiCtrlMap(_MidiMap):
+	index: int
 
-	if 'index' in mapping:
-		return f'{channel}ctrl{mapping["index"]}'
+	@property
+	def midiAddress(self):
+		return f'ch{self.channel}ctrl{self.index}'
 
-	raise NotImplementedError(
-		'midi maps without a note or index are not implemented'
-	)
 
+MidiMap = Union[MidiNoteMap, MidiCtrlMap]
 
 CONTROL_LIST = list(
 	chain(
@@ -47,22 +52,22 @@ CONTROL_LIST = list(
 			[
 				MappableControl(
 					name=f'layer{n}select',
-					address=f'/composition/layers/{n}/selected',
+					oscAddress=f'/composition/layers/{n}/selected',
 					sendMessage=f'/composition/layers/{n}/select'
 				),
 				MappableControl(
 					name=f'layer{n}fader',
-					address=f'/composition/layers/{n}/video:Opacity',
+					oscAddress=f'/composition/layers/{n}/video:Opacity',
 				),
 				MappableControl(
 					name=f'layer{n}knob',
-					address=f'/composition/layers/{n}/video:Opacity',
+					oscAddress=f'/composition/layers/{n}/video:Opacity',
 				),
 			] for n in range(1, 9)
 		]
 	)
 )
-CONTROLS = {ctrl['name']: ctrl for ctrl in CONTROL_LIST}
+CONTROLS = {ctrl.name: ctrl for ctrl in CONTROL_LIST}
 
 
 class ConnectFn(Protocol):
@@ -86,8 +91,16 @@ class MidiDeviceExt(ABC, logging_mixins.ComponentLoggerMixin):
 		...
 
 	@property
-	def ctrlSrcName(self):
+	def ctrlOutSrcName(self):
 		return f'midi-out:{self.name}'
+
+	@property
+	def ctrlInSrcName(self):
+		return f'midi-in:{self.name}'
+
+	@property
+	def mappedOscAddresses(self) -> set[str]:
+		return {mapping.control.oscAddress for mapping in self.mappings.values()}
 
 	# Triggers defined by the statemachine
 	Connect: ConnectFn
@@ -218,32 +231,53 @@ class MidiDeviceExt(ABC, logging_mixins.ComponentLoggerMixin):
 	####
 
 	def registerHandlers(self):
-		# [print(address) for mapping in MappableControl]
-		self.uiState.RegisterCtrl(
-			'/composition/layers/1/video:Opacity',
-			self.ctrlSrcName,
-			self.onCtrlValueChange,
-			alwaysRequestValue=True
-		)
+		for oscAddress in self.mappedOscAddresses:
+			self.uiState.RegisterCtrl(
+				oscAddress,
+				self.ctrlOutSrcName,
+				self.onCtrlValueChange,
+				alwaysRequestValue=True
+			)
 
 	def deregisterHandlers(self):
-		self.uiState.DeregisterCtrl(
-			'/composition/layers/1/video:Opacity', self.ctrlSrcName
-		)
+		for oscAddress in self.mappedOscAddresses:
+			self.uiState.DeregisterCtrl(oscAddress, self.ctrlOutSrcName)
 
 	def onCtrlValueChange(
-		self,
-		address: str,  # noqa: ARG002
-		value: ui_state_ext.OSCValue
+		self, address: str, value: ui_state_ext.OSCValue
 	) -> None:
-		# TODO: map oscValue to deviceValue using mapping table
-		self.midiOut.sendControl(1, 48, value)
+		mappings = [
+			mapping for mapping in self.mappings.values()
+			if mapping.control.oscAddress == address
+		]
+
+		for mapping in mappings:
+			self.logDebug(f'{mapping.midiAddress}:{value} <- {self.ctrlOutSrcName}')
+			if isinstance(mapping, MidiCtrlMap):
+				self.midiOut.sendControl(mapping.channel, mapping.index, value)
+			else:
+				raise NotImplementedError(f'unimplemented mapping type: {type(mapping)}')
+		# mappings = [self.]
+		# self.logDebug(f'{midiAddress}:{value} -> {self.ctrlOutSrcName}')
 
 	def OnDeviceValueChange(self, midiAddress: str, value: ui_state_ext.OSCValue):
-		# if midiAddress not in self.mappings:
-		# self.LogWarning('foo')
-		# if type is "msg", send with no value
-		#   - self.uiState.SendMessage ???
-		# if type is "ctrl", use map to map/normalize midi value
-		#   - self.uiState.UpdateCtrlValue
-		debug('recieved: ', midiAddress, value)
+		"""
+		TODO: ignore inputs if system isn't loaded?
+		"""
+		if midiAddress not in self.mappings:
+			self.logWarning(f'unmapped midi address: {midiAddress}')
+			return
+
+		mapping = self.mappings[midiAddress]
+		self.logDebug(f'{self.ctrlInSrcName}:{value} -> {midiAddress}')
+
+		# TODO: support "pickup" values
+
+		# TODO:
+		#   if type is "msg", send with no value
+		#     - self.uiState.SendMessage ???
+		#   if type is "note", ???
+		#   if type is Ctrl
+		self.uiState.UpdateCtrlValue(
+			mapping.control.oscAddress, value, self.ctrlInSrcName
+		)

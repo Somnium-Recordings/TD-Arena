@@ -1783,7 +1783,8 @@ class oscoutDAT(DAT):
 
 	def sendOSC(
 		self,
-		*addressesFollowedByValueLists: Union[str, List[Any]],
+		address: str,
+		*valueList: tuple[Any, ...],
 		asBundle=True,
 		useNonStandardTypes=True,
 		use64BitPrecision=False

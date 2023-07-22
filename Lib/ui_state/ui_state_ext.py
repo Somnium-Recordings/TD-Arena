@@ -5,8 +5,8 @@ from oscDispatcher import OSCDispatcher
 from tda import BaseExt
 
 # OSCValue = Union[str, int, float, bool]
-OSCValue = Union[str, int, float, bool]
-_OSCValue = TypeVar('_OSCValue', str, int, float, bool)
+OSCValue = Union[str, int, float, bool, list[int]]
+_OSCValue = TypeVar('_OSCValue', str, int, float, bool, list[int])
 
 # TODO: Once we migrate to python 3.11 and are able to use generic typed dicts
 # See: https://github.com/python/cpython/issues/89026#issuecomment-1116093221
@@ -24,9 +24,9 @@ class CtrlState(TypedDict):
 
 class UIStateExt(BaseExt):
 
-	def __init__(self, ownerComponent, logger):  # noqa: ANN001
+	def __init__(self, ownerComponent: OP, logger):  # noqa: ANN001
 		super().__init__(ownerComponent, logger)
-		self.oscIn = ownerComponent.op('oscin1')
+		self.oscIn = cast(oscinDAT, ownerComponent.op('oscin1'))
 
 		self.dispatcher = OSCDispatcher(
 			ownerComponent, logger, defaultMapping={'handler': self.onOSCReply}
@@ -44,7 +44,7 @@ class UIStateExt(BaseExt):
 		"""
 		self.oscControlState: dict[str, CtrlState] = {}
 
-	def SendMessage(self, address, *args):  # noqa: ANN001, ANN002
+	def SendMessage(self, address: str, *args: OSCValue):
 		if address:
 			self.logDebug(f'UI -> Render -- {address} with {args}')
 			self.oscIn.sendOSC(address, args)
@@ -124,7 +124,7 @@ class UIStateExt(BaseExt):
 			del self.oscControlState[address]
 
 	def UpdateCtrlValue(
-		self, address: str, newValue: _OSCValue, source: str
+		self, address: str, newValue: OSCValue, source: str
 	) -> None:
 		if (controlState := self.oscControlState.get(address, None)) is None:
 			self.logWarning(

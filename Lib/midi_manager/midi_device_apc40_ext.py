@@ -1,7 +1,13 @@
 from enum import IntEnum
 from itertools import chain
 
-from .midi_device_ext import CONTROLS, MidiDeviceExt, MidiMap, toMidiAddress
+from .midi_device_ext import (
+	CONTROLS,
+	MidiCtrlMap,
+	MidiDeviceExt,
+	MidiMap,
+	MidiNoteMap,
+)
 
 
 class APC40Mode(IntEnum):
@@ -35,20 +41,20 @@ class APC40Mode(IntEnum):
 	'''
 
 
-APC40_MAPPINGS_LIST = list(
+APC40_MAPPINGS_LIST: list[MidiMap] = list(
 	chain(
 		*[
 			[
-				MidiMap(control=CONTROLS[f'layer{n}select'], channel=n, note=51),
-				MidiMap(control=CONTROLS[f'layer{n}fader'], channel=n, index=7),
-				MidiMap(control=CONTROLS[f'layer{n}knob'], channel=1, index=47 + n)
+				MidiNoteMap(control=CONTROLS[f'layer{n}select'], channel=n, note=51),
+				MidiCtrlMap(control=CONTROLS[f'layer{n}fader'], channel=n, index=7),
+				MidiCtrlMap(control=CONTROLS[f'layer{n}knob'], channel=1, index=47 + n)
 			] for n in range(1, 9)
 		]
 	)
 )
 
 APC40_MAPPINGS = {
-	toMidiAddress(mapping): mapping
+	mapping.midiAddress: mapping
 	for mapping in APC40_MAPPINGS_LIST
 }
 
