@@ -1,8 +1,8 @@
 from collections import OrderedDict
 from fnmatch import fnmatchcase
-from typing import Callable
+from typing import Any, Callable
 
-from tda import BaseExt
+from logger import logging_mixins
 from typing_extensions import Required, TypedDict
 
 
@@ -15,16 +15,16 @@ class OSCHandler(TypedDict, total=False):
 OSCMappings = OrderedDict[str, OSCHandler]
 
 
-class OSCDispatcher(BaseExt):
+class OSCDispatcher(logging_mixins.ComponentLoggerMixin):
 
 	def __init__(
 		self,
 		ownerComponent,  # noqa: ANN001
-		logger,  # noqa: ANN001
+		logger: Any = None,  # noqa: ARG002, ANN401
 		mappings=None,  # noqa: ANN001
 		defaultMapping=None  # noqa: ANN001
 	) -> None:
-		super().__init__(ownerComponent, logger)
+		self.ownerComponent = ownerComponent
 		self.mappings: OSCMappings = mappings if mappings else OrderedDict()
 		self.defaultMapping = defaultMapping
 

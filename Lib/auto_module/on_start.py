@@ -3,8 +3,6 @@ from pathlib import Path
 
 
 def onStart():
-	mod.logger.log_manager.ensureLogHandlersPresent()
-
 	localPythonPath = Path(project.folder) / '.venv' / 'Lib' / 'site-packages'
 
 	if not localPythonPath.is_dir():
@@ -17,6 +15,8 @@ def onStart():
 	if pathString not in sys.path:
 		debug(f'adding local install to python path: {pathString}')
 		sys.path = [str(pathString), *sys.path]
+
+	mod.logger.log_manager.ensureLogHandlersPresent()
 
 
 def onCreate():

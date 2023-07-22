@@ -1,8 +1,8 @@
 import traceback
 from typing import Any, Callable, TypedDict, TypeVar, Union, cast
 
+from logger import logging_mixins
 from oscDispatcher import OSCDispatcher
-from tda import BaseExt
 
 OSCValue = Union[str, int, float, bool, list[int]]
 _OSCValue = TypeVar('_OSCValue', str, int, float, bool, list[int])
@@ -21,18 +21,16 @@ class CtrlState(TypedDict):
 	currentValue: Union[OSCValue, None]
 
 
-class UIStateExt(BaseExt):
+class UIStateExt(logging_mixins.ComponentLoggerMixin):
 
-	def __init__(self, ownerComponent: OP, logger):  # noqa: ANN001
-		super().__init__(ownerComponent, logger)
+	def __init__(self, ownerComponent: OP):
+		self.ownerComponent = ownerComponent
 		self.oscIn = cast(oscinDAT, ownerComponent.op('oscin1'))
 
 		self.dispatcher = OSCDispatcher(
-			ownerComponent, logger, defaultMapping={'handler': self.onOSCReply}
+			ownerComponent, defaultMapping={'handler': self.onOSCReply}
 		)
 
-		self.oscControlList = ownerComponent.op('opfind_oscControls')
-		self.initializedControlList = ownerComponent.op('table_initializedControls')
 		self.InitOSCControls()
 
 		self.logInfo('initialized')
@@ -60,7 +58,7 @@ class UIStateExt(BaseExt):
 		self.dispatcher.MapMultiple(*args)
 
 	def DumpCtrlState(self):
-		print(self.oscControlState)  # noqa: T201
+		debug(self.oscControlState)
 
 	def RegisterCtrl(
 		self,
@@ -149,9 +147,6 @@ class UIStateExt(BaseExt):
 
 		# Send change to renderer
 		self.SendMessage(address, newValue)
-
-	def UnRegisterCtrl(self):
-		pass
 
 	def onOSCReply(self, address, *args):  # noqa: ANN001, ANN002
 		if (controlState := self.oscControlState.get(address, None)) is None:
