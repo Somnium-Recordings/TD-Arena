@@ -1,12 +1,31 @@
 from collections import OrderedDict
 from fnmatch import fnmatchcase
-from typing import Any, Callable
+from typing import Any, Callable, Optional, Protocol, TypeVar, Union
 
 from logger import logging_mixins
 from typing_extensions import Required, TypedDict
 
+OSCValue = Union[str, int, float, bool, list[int], list[float]]
+_OSCValue_contra = TypeVar(
+	'_OSCValue_contra', bound=OSCValue, contravariant=True
+)
+
+
+class OSCHandlerAddressCallback(Protocol[_OSCValue_contra]):
+
+	def __call__(self, address: str, newValue: _OSCValue_contra) -> None:
+		...
+
+
+class OSCHandlerCallback(Protocol[_OSCValue_contra]):
+
+	def __call__(self, updatedValue: _OSCValue_contra) -> None:
+		...
+
 
 class OSCHandler(TypedDict, total=False):
+	# TODO: handle these types better
+	# handler: Required[Union[OSCHandlerCallback, OSCHandlerAddressCallback]]
 	handler: Required[Callable]
 	sendAddress: bool
 	mapAddress: Callable[[str], str]
@@ -21,11 +40,11 @@ class OSCDispatcher(logging_mixins.ComponentLoggerMixin):
 		self,
 		ownerComponent,  # noqa: ANN001
 		logger: Any = None,  # noqa: ARG002, ANN401
-		mappings=None,  # noqa: ANN001
+		mappings: Optional[OSCMappings] = None,
 		defaultMapping=None  # noqa: ANN001
 	) -> None:
 		self.ownerComponent = ownerComponent
-		self.mappings: OSCMappings = mappings if mappings else OrderedDict()
+		self.mappings = mappings if mappings else OSCMappings()
 		self.defaultMapping = defaultMapping
 
 		self.logInfo('OSCDispatcher initialized')
@@ -50,7 +69,7 @@ class OSCDispatcher(logging_mixins.ComponentLoggerMixin):
 		# added later. For example from the TdArena class.
 		return self.defaultMapping
 
-	def Dispatch(self, address, *args):  # noqa: ANN001, ANN002
+	def Dispatch(self, address: str, *args: OSCValue):
 		mapping = self.getMapping(address, args)
 		assert mapping, f'unmapped osc address {address}'
 

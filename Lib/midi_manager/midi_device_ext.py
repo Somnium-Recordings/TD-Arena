@@ -38,6 +38,7 @@ class MidiNoteMap(_MidiMap):
 @dataclass
 class MidiCtrlMap(_MidiMap):
 	index: int
+	pickup: bool = False
 
 	@property
 	def midiAddress(self):
@@ -278,6 +279,12 @@ class MidiDeviceExt(ABC, logging_mixins.ComponentLoggerMixin):
 		#     - self.uiState.SendMessage ???
 		#   if type is "note", ???
 		#   if type is Ctrl
-		self.uiState.UpdateCtrlValue(
-			mapping.control.oscAddress, value, self.ctrlInSrcName
-		)
+		if isinstance(mapping, MidiCtrlMap):
+			self.uiState.UpdateCtrlValue(
+				mapping.control.oscAddress,
+				value,
+				self.ctrlInSrcName,
+				pickup=mapping.pickup
+			)
+		else:
+			self.logWarning(f'unsupported midi mapping type: {type(mapping)}')

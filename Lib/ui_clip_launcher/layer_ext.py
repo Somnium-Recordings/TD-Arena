@@ -12,7 +12,7 @@ class UIClipLauncherLayerExt(BaseExt):
 
 	@property
 	def LayerNumber(self):
-		return self.ownerComponent.par.alignorder.eval()
+		return cast(float, self.ownerComponent.par.alignorder.eval())
 
 	@property
 	def CtrlSrcName(self) -> str:

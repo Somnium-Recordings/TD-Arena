@@ -3,7 +3,7 @@ import re
 from collections import namedtuple
 from fnmatch import fnmatchcase
 from pathlib import PureWindowsPath
-from typing import NamedTuple, Optional
+from typing import Any, NamedTuple, Optional, TypeVar
 
 SELECTED_DECK_LOCATION_RE = re.compile(
 	r'/selecteddeck/layers/(\d+)/clips/(\d+)/?.*'
@@ -218,3 +218,12 @@ def matchesGlob(globStr: str, path: str) -> bool:
 		(True for glob in globStr.split(',') if fnmatchcase(path, glob)),
 		False  # noqa: FBT003
 	)
+
+
+_INSTANCE_TYPE = TypeVar('_INSTANCE_TYPE')
+
+def matchesType(
+	values: list[Any],
+	MatchType: type[_INSTANCE_TYPE]
+) -> list[_INSTANCE_TYPE]: # yapf:disable
+	return [v for v in values if isinstance(v, MatchType)]

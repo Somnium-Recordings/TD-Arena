@@ -1,11 +1,14 @@
 import traceback
-from typing import Any, Callable, TypedDict, TypeVar, Union, cast
+from typing import Any, Callable, TypedDict, Union, cast
 
 from logger import logging_mixins
-from oscDispatcher import OSCDispatcher
-
-OSCValue = Union[str, int, float, bool, list[int]]
-_OSCValue = TypeVar('_OSCValue', str, int, float, bool, list[int])
+from oscDispatcher import (
+	OSCDispatcher,
+	OSCHandler,
+	OSCHandlerAddressCallback,
+	OSCMappings,
+	OSCValue,
+)
 
 # TODO: Once we migrate to python 3.11 and are able to use generic typed dicts
 # See: https://github.com/python/cpython/issues/89026#issuecomment-1116093221
@@ -48,14 +51,14 @@ class UIStateExt(logging_mixins.ComponentLoggerMixin):
 		else:
 			self.logWarning(f'attempted to send to invalid address {address}')
 
-	def Dispatch(self, *args):  # noqa: ANN002
-		self.dispatcher.Dispatch(*args)
+	def Dispatch(self, address: str, *args: OSCValue):
+		self.dispatcher.Dispatch(address, *args)
 
-	def MapOSCHandler(self, *args):  # noqa: ANN002
-		self.dispatcher.Map(*args)
+	def MapOSCHandler(self, address: str, handler: OSCHandler):
+		self.dispatcher.Map(address, handler)
 
-	def MapOSCHandlers(self, *args):  # noqa: ANN002
-		self.dispatcher.MapMultiple(*args)
+	def MapOSCHandlers(self, mappings: OSCMappings):
+		self.dispatcher.MapMultiple(mappings)
 
 	def DumpCtrlState(self):
 		debug(self.oscControlState)
@@ -64,9 +67,10 @@ class UIStateExt(logging_mixins.ComponentLoggerMixin):
 		self,
 		address: str,
 		sourceName: str,
-		setCtrlValueHandler: Callable[[str, _OSCValue], None],
-		alwaysRequestValue=False  # noqa: ANN001, FBT002
-	) -> Union[None, _OSCValue]:
+		setCtrlValueHandler: OSCHandlerAddressCallback,
+		*,
+		alwaysRequestValue: bool = False
+	) -> None:
 		self.logDebug(f'registering control {sourceName} handler @ {address}')
 
 		# TODO: should this be a part of the OSCDispatcher rather than a parallel system?
@@ -121,7 +125,12 @@ class UIStateExt(logging_mixins.ComponentLoggerMixin):
 			del self.oscControlState[address]
 
 	def UpdateCtrlValue(
-		self, address: str, newValue: OSCValue, source: str
+		self,
+		address: str,
+		newValue: OSCValue,
+		source: str,
+		*,
+		pickup: bool = False
 	) -> None:
 		if (controlState := self.oscControlState.get(address, None)) is None:
 			self.logWarning(
@@ -130,6 +139,16 @@ class UIStateExt(logging_mixins.ComponentLoggerMixin):
 			return
 
 		if newValue == controlState['currentValue']:
+			return
+
+		debug(type(controlState['currentValue']))
+		debug(type(newValue))
+		if (
+			pickup and isinstance(controlState['currentValue'], float)
+			and isinstance(newValue, float)
+			and abs(controlState['currentValue'] - newValue) > 1 / 27
+		):
+			debug('diff is: ', controlState['currentValue'] - newValue)
 			return
 
 		controlState['currentValue'] = newValue

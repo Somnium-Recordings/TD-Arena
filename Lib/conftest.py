@@ -3,11 +3,13 @@ import builtins
 from unittest.mock import MagicMock
 
 import pytest
-from tdaTesting import MockOP
+from tdaTesting import MockOP, MockOPFinder
 
 # Globals that TD creates that crash our tests when not present
 builtins.midioutCHOP = MagicMock()  # type: ignore
 builtins.OP = MagicMock()  # type: ignore
+builtins.oscinDAT = MagicMock()  # type: ignore
+builtins.debug = print  # type: ignore
 
 
 @pytest.fixture()
@@ -17,8 +19,7 @@ def uiThemeSectionTemplate():
 
 @pytest.fixture()
 def uiTheme(uiThemeSectionTemplate):  # noqa: ANN001
-	uiTheme = MagicMock()
-	uiTheme.op = MockOP()
+	uiTheme = MockOP('/uitheme')
 	uiTheme.op.addPath('sectionTemplate', uiThemeSectionTemplate)
 
 	return uiTheme
@@ -26,7 +27,7 @@ def uiTheme(uiThemeSectionTemplate):  # noqa: ANN001
 
 @pytest.fixture()
 def op(uiTheme):  # noqa: ANN001
-	op = MockOP()
+	op = MockOPFinder()
 	op.uiTheme = uiTheme
 
 	return op
@@ -38,10 +39,5 @@ def logger():
 
 
 @pytest.fixture()
-def ownerComponent():
-	comp = MagicMock()
-
-	comp.op = MockOP()
-	comp.path = '/test/component/path'
-
-	return comp
+def ownerComponent(op: MockOPFinder):
+	return MockOP(path='/test/ownerComponent/path', op=op)

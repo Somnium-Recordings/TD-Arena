@@ -46,7 +46,9 @@ APC40_MAPPINGS_LIST: list[MidiMap] = list(
 		*[
 			[
 				MidiNoteMap(control=CONTROLS[f'layer{n}select'], channel=n, note=51),
-				MidiCtrlMap(control=CONTROLS[f'layer{n}fader'], channel=n, index=7),
+				MidiCtrlMap(
+					control=CONTROLS[f'layer{n}fader'], channel=n, index=7, pickup=True
+				),
 				MidiCtrlMap(control=CONTROLS[f'layer{n}knob'], channel=1, index=47 + n)
 			] for n in range(1, 9)
 		]

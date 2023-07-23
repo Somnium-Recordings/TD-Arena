@@ -1,3 +1,4 @@
+from typing import Optional
 from unittest.mock import MagicMock
 
 
@@ -96,7 +97,7 @@ class MockTable:
 		self._rowData = []
 
 
-class MockOP(MagicMock):
+class MockOPFinder(MagicMock):
 
 	def __init__(self) -> None:
 		super().__init__()
@@ -113,6 +114,35 @@ class MockOP(MagicMock):
 			self.addPath(path, MagicMock())
 
 		return self.paths[path]
+
+
+class MockOP(MagicMock):
+
+	op: MockOPFinder
+
+	def __init__(
+		self,
+		path: str = '/mock_op',
+		op: Optional[MockOPFinder] = None,
+		**kwargs  # noqa: ANN003
+	) -> None:
+		super().__init__(**kwargs)
+		self.path = path
+		self.op = op if op is not None else MockOPFinder()
+
+	def __repr__(self) -> str:
+		return self.path
+
+
+class MockOscinDAT(MockOP):
+
+	def __init__(
+		self,
+		path: str = '/oscin1',
+		**kwargs  # noqa: ANN003
+	) -> None:
+		super().__init__(path, **kwargs)
+		self.sendOSC = MagicMock()
 
 
 class MockParameter:

@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Callable, Optional, cast
 
+from oscDispatcher import OSCMappings
 from tda import LoadableExt
 from ui_state import ui_state_ext
 
@@ -89,15 +90,17 @@ class TDAExt(LoadableExt):
 		super().__init__(ownerComponent, logger)
 		self.uiState = cast(ui_state_ext.UIStateExt, op.ui_state.ext.UIStateExt)
 		self.uiState.MapOSCHandlers(
-			{
-				'/render/initialized': {
-					'handler': self.onRenderInitialized
-				},
-				'/composition/loaded': {
-					'handler': self.onCompositionLoaded,
-					'sendAddress': False
+			OSCMappings(
+				{
+					'/render/initialized': {
+						'handler': self.onRenderInitialized
+					},
+					'/composition/loaded': {
+						'handler': self.onCompositionLoaded,
+						'sendAddress': False
+					}
 				}
-			}
+			)
 		)
 
 		self.userSettings = userSettings
