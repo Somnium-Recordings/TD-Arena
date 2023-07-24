@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Callable, Optional, cast
 
+from oscDispatcher import OSCMappings
 from tda import LoadableExt
 from ui_state import ui_state_ext
 
@@ -46,7 +47,7 @@ RENDER_OUTPUT_MAP = [
 	'null_selectedDeckState',
 	'null_layerState',
 	'null_parameterState',
-	'null_finalOut',
+	None,  # 'null_finalOut',
 	'null_finalPrevis',
 	'null_finalThumbnails',
 	'null_finalLayerThumbnails',
@@ -85,27 +86,27 @@ class TDAExt(LoadableExt):
 		renderLocal,  # noqa: ANN001
 		renderEngine,  # noqa: ANN001
 		uiGrid,  # noqa: ANN001
-		logManager  # noqa: ANN001
 	):
 		super().__init__(ownerComponent, logger)
 		self.uiState = cast(ui_state_ext.UIStateExt, op.ui_state.ext.UIStateExt)
 		self.uiState.MapOSCHandlers(
-			{
-				'/render/initialized': {
-					'handler': self.onRenderInitialized
-				},
-				'/composition/loaded': {
-					'handler': self.onCompositionLoaded,
-					'sendAddress': False
+			OSCMappings(
+				{
+					'/render/initialized': {
+						'handler': self.onRenderInitialized
+					},
+					'/composition/loaded': {
+						'handler': self.onCompositionLoaded,
+						'sendAddress': False
+					}
 				}
-			}
+			)
 		)
 
 		self.userSettings = userSettings
 		self.renderLocal = renderLocal
 		self.renderEngine = renderEngine
 		self.uiGrid = uiGrid
-		self.logManager = logManager
 
 		self.CompositionState: str
 		TDF = op.TDModules.mod.TDFunctions
@@ -147,24 +148,15 @@ class TDAExt(LoadableExt):
 		else:
 			self.logInfo('starting local renderer')
 			self.renderLocal.allowCooking = True
-			self.ToggleLoggers()
 			self.bindUserSettings()
 			self.renderLocal.par.Reinitctrls.pulse()
 			self.renderEngine.par.unload.pulse()
 
 	def OnEngineRendererStart(self):
 		self.logInfo('finishing engine renderer setup')
-		self.ToggleLoggers()
 		self.bindUserSettings()
 		self.ConnectRenderOutputs()
 		self.renderEngine.par.Syncouts.pulse()
-
-	def ToggleLoggers(self):
-		# Turn on or off log handlers based on the renderer we are enabling
-		self.logManager.SetLoggerParam('Render-E', 'Active', self.useEngine)
-		self.logManager.SetLoggerParam('Render-E', 'Visible', self.useEngine)
-		self.logManager.SetLoggerParam('Render-L', 'Active', not self.useEngine)
-		self.logManager.SetLoggerParam('Render-L', 'Visible', not self.useEngine)
 
 	def ConnectRenderOutputs(self, useEngine=None):  # noqa: ANN001
 		if useEngine is None:
@@ -179,6 +171,9 @@ class TDAExt(LoadableExt):
 
 		for outputIndex, target in enumerate(RENDER_OUTPUT_MAP):
 			targetOpName = target[targetName] if isinstance(target, dict) else target
+			if targetOpName is None:  # Unmapped outputs
+				continue
+
 			targetOp = self.ownerComponent.op(targetOpName)
 
 			if targetOp is None:
@@ -276,6 +271,7 @@ class TDAExt(LoadableExt):
 
 		return saveFile
 
+	# TODO: why is this not in the ui_state?
 	def onRenderInitialized(self, address):  # noqa: ANN001
 		self.uiState.SendMessage(f'/ack{address}')
 		self.CompositionState = STATE_UNLOADED
@@ -328,7 +324,8 @@ class TDAExt(LoadableExt):
 				self.logDebug(
 					f'binding {parName} setting to {targetPar.owner.name}.par.{targetPar.name}'
 				)
-				targetPar.bindExpr = f'op.userSettings.par.{parName}'
+				# targetPar.bindExpr = f'op.userSettings.par.{parName}'
+				targetPar.val = op.userSettings.par[parName].eval()
 			else:
 				self.logError(
 					f'could not bind {parName} setting to {targetName}, configured parameter not found'

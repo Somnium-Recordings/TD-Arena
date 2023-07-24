@@ -1783,7 +1783,8 @@ class oscoutDAT(DAT):
 
 	def sendOSC(
 		self,
-		*addressesFollowedByValueLists: Union[str, List[Any]],
+		address: str,
+		valueList: tuple[Any],
 		asBundle=True,
 		useNonStandardTypes=True,
 		use64BitPrecision=False
@@ -1850,6 +1851,22 @@ class CHOP(OP):
 		...
 
 	def save(self, filepath) -> str:
+		...
+
+
+class midioutCHOP(CHOP):
+
+	def send(self, *messages: Union[int, str]) -> None:
+		...
+
+	def sendExclusive(self, *messages: Union[int, str]) -> None:
+		...
+
+	def sendBalance(self, channel: int, value: int) -> None:
+		...
+
+	# TODO: figure out what the appropriate type for value is
+	def sendControl(self, channel: int, index: int, value: Any) -> None:
 		...
 
 

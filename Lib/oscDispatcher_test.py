@@ -7,10 +7,6 @@ from oscDispatcher import OSCDispatcher
 class TestDispatcher():
 
 	@pytest.fixture()
-	def ownerComponent(self):
-		return MagicMock()
-
-	@pytest.fixture()
 	def dispatcher(self, ownerComponent):  # noqa: ANN001
 		return OSCDispatcher(
 			ownerComponent,

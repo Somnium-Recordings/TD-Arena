@@ -27,6 +27,6 @@
   },
   "ruff.args": ["--config=./pyproject.toml"],
 
-  "cSpell.words": ["absframe", "Toxes"],
+  "cSpell.words": ["absframe", "oscin", "Toxes"],
   "files.eol": "\r\n"
 }

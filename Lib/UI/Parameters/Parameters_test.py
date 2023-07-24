@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock, call
 
 import pytest
-from tdaTesting import MockOP, MockTable
+from tdaTesting import MockOPFinder, MockTable
 from UI.Parameters import Parameters
 
 
@@ -54,7 +54,7 @@ class TestParameters():
 	def parameters(  # noqa: PLR0913
 		self,
 		ownerComponent,  # noqa: ANN001
-		op: MockOP,
+		op: MockOPFinder,
 		logger,  # noqa: ANN001
 		parameterList,  # noqa: ANN001
 		containerList,  # noqa: ANN001
@@ -67,7 +67,7 @@ class TestParameters():
 		# yapf: enable
 		Parameters.op = op
 
-		ownerComponent.op = MockOP()
+		ownerComponent.op = MockOPFinder()
 		ownerComponent.op.addPath('null_parameterList', parameterList)
 		ownerComponent.op.addPath('null_containerList', containerList)
 

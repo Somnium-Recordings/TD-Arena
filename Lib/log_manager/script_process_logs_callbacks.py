@@ -113,7 +113,11 @@ def onCook(scriptOp):  # noqa: ANN001
 		if severity not in enabledLogLevels:
 			continue
 
-		message = decode(d[i, 'message'].val, 'unicode-escape')
+		try:
+			message = decode(d[i, 'message'].val, 'unicode-escape')
+		except UnicodeDecodeError:
+			message = d[i, 'message'].val
+
 		message = f'{severity}: {message}'
 
 		logs.add(message, sourceParts)

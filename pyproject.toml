@@ -1,3 +1,10 @@
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core"]
+
+[tool.coverage.run]
+source = ["Lib"]
+
 [tool.poetry]
 authors = ["Steven Nance <steven@somniumrecordings.com>"]
 description = "Resolume Arena inspired (clone) TouchDesigner runtime for live shows."
@@ -8,10 +15,14 @@ readme = "README.md"
 version = "0.1.0"
 
 [tool.poetry.dependencies]
+orjson = "^3.9.2"
 python = "3.9.5"
+python-json-logger = "^2.0.7"
+transitions = "^0.9.0"
+typing-extensions = "^4.7.1"
 
-# Dependencies from touchdesigner
 [tool.poetry.group.td.dependencies]
+# Dependencies from touchdesigner
 numpy = "=1.20.3"
 
 [tool.poetry.group.dev.dependencies]
@@ -19,23 +30,12 @@ pre-commit = "^3.2.2"
 pylint = "^2.17.2"
 pyright = "^1.1.302"
 pytest = "^7.3.0"
+pytest-cov = "^4.1.0"
+pytest-watcher = "^0.3.4"
 rope = "^1.7.0"
 ruff = "^0.0.261"
 toml = "^0.10.2"
 yapf = "^0.32.0"
-
-[build-system]
-build-backend = "poetry.core.masonry.api"
-requires = ["poetry-core"]
-
-[tool.yapf]
-based_on_style = "pep8"
-continuation_align_style = "valign-right"
-continuation_indent_width = 1
-dedent_closing_brackets = true
-indent_width = 1
-split_complex_comprehension = true
-use_tabs = true
 
 [tool.pylint.'MASTER']
 disable = [
@@ -49,12 +49,14 @@ disable = [
   "missing-class-docstring",
   "missing-function-docstring",
   "missing-module-docstring",
+  "no-name-in-module",
   "too-few-public-methods",
   "too-many-arguments", # Covered by PLR0913
   "too-many-locals",
   "too-many-branches", # Covered by PLR0912
   "too-many-statements", # Covered by PLR0915
   "too-many-instance-attributes",
+  "undefined-variable", # Covered by F821
   "unused-argument", # Covered by ARG0002
   "unused-import", # Covered by F
 ]
@@ -62,28 +64,31 @@ indent-after-paren = 1
 indent-string = "\t"
 init-hook = "import sys; sys.path.append('Lib')"
 
-[tool.pylint."VARIABLES"]
-additional-builtins = [
-  "absTime",
-  "baseCOMP",
-  "Cell",
-  "COMP",
-  "DAT",
-  "debug",
-  "op",
-  "OP",
-  "parent",
-  "PaneType",
-  "ParMode",
-  "Par",
-  "project",
-  "run",
-  "tableDAT",
-  "textDAT",
-  "tdu",
-  "ui",
-  "WindowsError",
+[tool.pyright]
+ignore = [
+  # TODO: remove these as modules are migrated over to new patterns
+  "Lib/Logger/Logger.py",
+  "Lib/Render/ClipCtrl/ClipCtrl.py",
+  "Lib/Render/DeckCtrl/DeckCtrl.py",
+  "Lib/Render/EffectCtrl/EffectCtrl.py",
+  "Lib/ToxManager/ToxManager.py",
+  "Lib/ToxManager/button_callbacks.py",
+  "Lib/ToxManager/datexec_toggleSelectedButtonVisibility.py",
+  "Lib/ToxManager/script_processToxList_callbacks.py",
+  "Lib/UI/AppBar/AppBar.py",
+  "Lib/UI/Clip/ClipUI.py",
+  "Lib/UI/DragCtrl/DragCtrl.py",
+  "Lib/UI/Grid/Grid.py",
+  "Lib/UI/Parameters/on_ctrl_value_parexec.py",
+  "Lib/UI/Parameters/Parameters_test.py",
+  "Lib/UI/Parameters/Parameters.py",
 ]
+include = [
+  "Lib",
+]
+
+[tool.pytest.ini_options]
+addopts = "--cov --cov-report=lcov:lcov.info"
 
 [tool.ruff]
 ignore = [
@@ -113,10 +118,16 @@ builtins = [
   "baseCOMP",
   "Cell",
   "COMP",
+  "CHOP",
+  "midioutCHOP",
   "DAT",
   "debug",
+  "me",
+  "mod",
   "op",
   "OP",
+  "oscinDAT",
+  "oscoutDAT",
   "parent",
   "PaneType",
   "ParMode",
@@ -134,29 +145,6 @@ exclude = [
   "typings",
 ]
 
-[tool.pyright]
-ignore = [
-  # TODO: remove these as modules are migrated over to new patterns
-  "Lib/Logger/Logger.py",
-  "Lib/Render/ClipCtrl/ClipCtrl.py",
-  "Lib/Render/DeckCtrl/DeckCtrl.py",
-  "Lib/Render/EffectCtrl/EffectCtrl.py",
-  "Lib/ToxManager/ToxManager.py",
-  "Lib/ToxManager/button_callbacks.py",
-  "Lib/ToxManager/datexec_toggleSelectedButtonVisibility.py",
-  "Lib/ToxManager/script_processToxList_callbacks.py",
-  "Lib/UI/AppBar/AppBar.py",
-  "Lib/UI/Clip/ClipUI.py",
-  "Lib/UI/DragCtrl/DragCtrl.py",
-  "Lib/UI/Grid/Grid.py",
-  "Lib/UI/Parameters/on_ctrl_value_parexec.py",
-  "Lib/UI/Parameters/Parameters_test.py",
-  "Lib/UI/Parameters/Parameters.py",
-]
-include = [
-  "Lib",
-]
-
 [tool.ruff.per-file-ignores]
 
 "*_test.py" = ["PLR2004"]
@@ -164,3 +152,12 @@ include = [
 [tool.ruff.flake8-quotes]
 inline-quotes = "single"
 multiline-quotes = "single"
+
+[tool.yapf]
+based_on_style = "pep8"
+continuation_align_style = "valign-right"
+continuation_indent_width = 1
+dedent_closing_brackets = true
+indent_width = 1
+split_complex_comprehension = true
+use_tabs = true

@@ -1,10 +1,21 @@
 import traceback
-from typing import Callable, TypedDict, Union
+from typing import Any, Callable, TypedDict, Union, cast
 
-from oscDispatcher import OSCDispatcher
-from tda import BaseExt
+from logger import logging_mixins
+from oscDispatcher import (
+	OSCDispatcher,
+	OSCHandler,
+	OSCHandlerAddressCallback,
+	OSCMappings,
+	OSCValue,
+)
 
-OSCValue = Union[str, int, float, bool]
+# TODO: Once we migrate to python 3.11 and are able to use generic typed dicts
+# See: https://github.com/python/cpython/issues/89026#issuecomment-1116093221
+# class CtrlState(TypedDict, Generic[OSCValue]):
+# 	# key is sourceName
+# 	handlers: dict[str, Callable]
+# 	currentValue: Union[OSCValue, None]
 
 
 class CtrlState(TypedDict):
@@ -13,18 +24,16 @@ class CtrlState(TypedDict):
 	currentValue: Union[OSCValue, None]
 
 
-class UIStateExt(BaseExt):
+class UIStateExt(logging_mixins.ComponentLoggerMixin):
 
-	def __init__(self, ownerComponent, logger):  # noqa: ANN001
-		super().__init__(ownerComponent, logger)
-		self.oscIn = ownerComponent.op('oscin1')
+	def __init__(self, ownerComponent: OP):
+		self.ownerComponent = ownerComponent
+		self.oscIn = cast(oscinDAT, ownerComponent.op('oscin1'))
 
 		self.dispatcher = OSCDispatcher(
-			ownerComponent, logger, defaultMapping={'handler': self.onOSCReply}
+			ownerComponent, defaultMapping={'handler': self.onOSCReply}
 		)
 
-		self.oscControlList = ownerComponent.op('opfind_oscControls')
-		self.initializedControlList = ownerComponent.op('table_initializedControls')
 		self.InitOSCControls()
 
 		self.logInfo('initialized')
@@ -35,34 +44,36 @@ class UIStateExt(BaseExt):
 		"""
 		self.oscControlState: dict[str, CtrlState] = {}
 
-	def SendMessage(self, address, *args):  # noqa: ANN001, ANN002
+	def SendMessage(self, address: str, *args: OSCValue):
 		if address:
 			self.logDebug(f'UI -> Render -- {address} with {args}')
 			self.oscIn.sendOSC(address, args)
 		else:
 			self.logWarning(f'attempted to send to invalid address {address}')
 
-	def Dispatch(self, *args):  # noqa: ANN002
-		self.dispatcher.Dispatch(*args)
+	def Dispatch(self, address: str, *args: OSCValue):
+		self.dispatcher.Dispatch(address, *args)
 
-	def MapOSCHandler(self, *args):  # noqa: ANN002
-		self.dispatcher.Map(*args)
+	def MapOSCHandler(self, address: str, handler: OSCHandler):
+		self.dispatcher.Map(address, handler)
 
-	def MapOSCHandlers(self, *args):  # noqa: ANN002
-		self.dispatcher.MapMultiple(*args)
+	def MapOSCHandlers(self, mappings: OSCMappings):
+		self.dispatcher.MapMultiple(mappings)
 
 	def DumpCtrlState(self):
-		print(self.oscControlState)  # noqa: T201
+		debug(self.oscControlState)
 
 	def RegisterCtrl(
 		self,
 		address: str,
 		sourceName: str,
-		setCtrlValueHandler: Callable[[str, OSCValue], None],
-		alwaysRequestValue=False  # noqa: ANN001, FBT002
-	) -> Union[None, OSCValue]:
+		setCtrlValueHandler: OSCHandlerAddressCallback,
+		*,
+		alwaysRequestValue: bool = False
+	) -> None:
 		self.logDebug(f'registering control {sourceName} handler @ {address}')
 
+		# TODO: should this be a part of the OSCDispatcher rather than a parallel system?
 		if (ctrlState := self.oscControlState.get(address, None)) is None:
 			ctrlState = CtrlState(
 				handlers={sourceName: setCtrlValueHandler}, currentValue=None
@@ -88,9 +99,10 @@ class UIStateExt(BaseExt):
 			self.logDebug(
 				f'currentValue in state, calling handler immediately @ {address}'
 			)
-			setCtrlValueHandler(address, ctrlState['currentValue'])
+			# TODO: remove cast once we can make this generic in python 3.11
+			setCtrlValueHandler(address, cast(Any, ctrlState['currentValue']))
 
-	def DeregisterCtrl(self, address, sourceName):  # noqa: ANN001
+	def DeregisterCtrl(self, address: str, sourceName: str):
 		if (ctrlState := self.oscControlState.get(address, None)) is None:
 			self.logWarning(
 				f'attempted to deregister an unknown ctrl for {sourceName} @ {address}'
@@ -113,7 +125,12 @@ class UIStateExt(BaseExt):
 			del self.oscControlState[address]
 
 	def UpdateCtrlValue(
-		self, address: str, newValue: OSCValue, source: str
+		self,
+		address: str,
+		newValue: OSCValue,
+		source: str,
+		*,
+		pickup: bool = False
 	) -> None:
 		if (controlState := self.oscControlState.get(address, None)) is None:
 			self.logWarning(
@@ -122,6 +139,16 @@ class UIStateExt(BaseExt):
 			return
 
 		if newValue == controlState['currentValue']:
+			return
+
+		debug(type(controlState['currentValue']))
+		debug(type(newValue))
+		if (
+			pickup and isinstance(controlState['currentValue'], float)
+			and isinstance(newValue, float)
+			and abs(controlState['currentValue'] - newValue) > 1 / 27
+		):
+			debug('diff is: ', controlState['currentValue'] - newValue)
 			return
 
 		controlState['currentValue'] = newValue
@@ -139,9 +166,6 @@ class UIStateExt(BaseExt):
 
 		# Send change to renderer
 		self.SendMessage(address, newValue)
-
-	def UnRegisterCtrl(self):
-		pass
 
 	def onOSCReply(self, address, *args):  # noqa: ANN001, ANN002
 		if (controlState := self.oscControlState.get(address, None)) is None:

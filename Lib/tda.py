@@ -1,4 +1,7 @@
 from collections import namedtuple
+from typing import Optional
+
+from logger import logging_mixins
 
 
 # TODO: Move to td stubs
@@ -39,29 +42,25 @@ class TDFileInfo(str):
 	'Is a file in the file-system'
 
 
-class BaseExt():
+class BaseExt(logging_mixins.ComponentLoggerMixin):
 
-	def __init__(self, ownerComponent, logger):  # noqa: ANN001
+	def __init__(
+		self,
+		ownerComponent: OP,
+		logger: Optional[OP] = None  # noqa: ARG002
+	):
 		self.ownerComponent = ownerComponent
-		self.logger = logger
-
-	def logInfo(self, *args):  # noqa: ANN002
-		self.logger.Info(self.ownerComponent, *args)
-
-	def logDebug(self, *args):  # noqa: ANN002
-		self.logger.Debug(self.ownerComponent, *args)
-
-	def logWarning(self, *args):  # noqa: ANN002
-		self.logger.Warning(self.ownerComponent, *args)
-
-	def logError(self, *args):  # noqa: ANN002
-		self.logger.Error(self.ownerComponent, *args)
 
 
-class LoadableExt(BaseExt):
+# TODO: Should probably use FSM for this
+class LoadableExt(logging_mixins.ComponentLoggerMixin):
 
-	def __init__(self, ownerComponent, logger):  # noqa: ANN001
-		super().__init__(ownerComponent, logger)
+	def __init__(
+		self,
+		ownerComponent: OP,
+		logger: Optional[OP] = None  # noqa: ARG002
+	):
+		self.ownerComponent = ownerComponent
 		self.Loaded: bool
 		self._Loaded: Par
 
@@ -85,7 +84,7 @@ class LoadableExt(BaseExt):
 		self._Loading.val = False
 
 
-# TODO(#56): look into better way to import things from other extensions
+# TODO(#56): Move this to drop controller package
 DroppedItem = namedtuple(
 	'DroppedItem', [
 		'dropName', 'dropExt', 'baseName', 'destPath', 'itemPath',

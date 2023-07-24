@@ -1,13 +1,32 @@
 from collections import OrderedDict
 from fnmatch import fnmatchcase
-from typing import Callable, TypedDict
+from typing import Any, Callable, Optional, Protocol, TypeVar, Union
 
-from tda import BaseExt
+from logger import logging_mixins
+from typing_extensions import Required, TypedDict
+
+OSCValue = Union[str, int, float, bool, list[int], list[float]]
+_OSCValue_contra = TypeVar(
+	'_OSCValue_contra', bound=OSCValue, contravariant=True
+)
 
 
-# TODO: when we upgrade to python 3.10 switch to using Required specifiers
+class OSCHandlerAddressCallback(Protocol[_OSCValue_contra]):
+
+	def __call__(self, address: str, newValue: _OSCValue_contra) -> None:
+		...
+
+
+class OSCHandlerCallback(Protocol[_OSCValue_contra]):
+
+	def __call__(self, updatedValue: _OSCValue_contra) -> None:
+		...
+
+
 class OSCHandler(TypedDict, total=False):
-	handler: Callable
+	# TODO: handle these types better
+	# handler: Required[Union[OSCHandlerCallback, OSCHandlerAddressCallback]]
+	handler: Required[Callable]
 	sendAddress: bool
 	mapAddress: Callable[[str], str]
 
@@ -15,17 +34,17 @@ class OSCHandler(TypedDict, total=False):
 OSCMappings = OrderedDict[str, OSCHandler]
 
 
-class OSCDispatcher(BaseExt):
+class OSCDispatcher(logging_mixins.ComponentLoggerMixin):
 
 	def __init__(
 		self,
 		ownerComponent,  # noqa: ANN001
-		logger,  # noqa: ANN001
-		mappings=None,  # noqa: ANN001
+		logger: Any = None,  # noqa: ARG002, ANN401
+		mappings: Optional[OSCMappings] = None,
 		defaultMapping=None  # noqa: ANN001
 	) -> None:
-		super().__init__(ownerComponent, logger)
-		self.mappings: OSCMappings = mappings if mappings else OrderedDict()
+		self.ownerComponent = ownerComponent
+		self.mappings = mappings if mappings else OSCMappings()
 		self.defaultMapping = defaultMapping
 
 		self.logInfo('OSCDispatcher initialized')
@@ -37,7 +56,7 @@ class OSCDispatcher(BaseExt):
 		for address, handler in mappings.items():
 			self.Map(address, handler)
 
-	def getMapping(self, address, args):  # noqa: ANN001
+	def getMapping(self, address: str, args):  # noqa: ANN001
 		if (len(args) == 1 and args[0] == '?'):
 			return self.getMapping('?', [])
 
@@ -50,7 +69,7 @@ class OSCDispatcher(BaseExt):
 		# added later. For example from the TdArena class.
 		return self.defaultMapping
 
-	def Dispatch(self, address, *args):  # noqa: ANN001, ANN002
+	def Dispatch(self, address: str, *args: OSCValue):
 		mapping = self.getMapping(address, args)
 		assert mapping, f'unmapped osc address {address}'
 
