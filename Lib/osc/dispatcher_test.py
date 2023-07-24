@@ -1,3 +1,4 @@
+import gc
 import logging
 from unittest.mock import MagicMock
 
@@ -143,11 +144,29 @@ class TestOSCDispatcher():
 		# ensure that the handler is being tracked and ignores the second request
 		assert mockUpdateHandler1.call_count == 1
 
-	# TODO: if sourceOP is no longer .valid, remove binding
-	# TODO: warn if we're overriding a mapping for a source
-	#          -- maybe skip warning it if it's no longer .valid?
+	def test_Map_cleanupReferences(
+		self, dispatcher: OSCDispatcher, oscIn: MockOscinDAT,
+		caplog: pytest.LogCaptureFixture
+	):
+		# caplog.set_level(logging.DEBUG)
+		mockOp = MockOP()
+		mockOp.aCallback = MagicMock()
+
+		dispatcher.Map(mockOp, '/foo', mockOp.aCallback)
+		dispatcher.Dispatch(oscIn, '/foo', 123)
+
+		mockOp.aCallback.assert_called_once()
+
+		del mockOp
+		gc.collect()
+
+		dispatcher.Dispatch(oscIn, '/foo', 456)
+		assert 'unmatched OSC address /foo' in caplog.text
+
+	# TODO: watch https://www.youtube.com/watch?v=kEQAsx6Ar_8 -- did we do all this for nothing?
 	# TODO: error if mapping control using wildcard
 	# TODO: if source is a control and pickup enabled, ignore value unless
 	# 		in sync or it has "crossed the current value"
 	# TODO: dispatching more than one value when there is a TrackedAddress should error
+	#          - or maybe just warn that only the first value will be tracked?
 	# TODO: dispatching no values when there is a TrackedAddress should error

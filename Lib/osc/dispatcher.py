@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from fnmatch import fnmatch
 from itertools import chain
 from typing import Optional, Protocol, Union
+from weakref import ReferenceType, ref
 
 from logger import logging_mixins
 from tdaUtils import matchesType
@@ -50,16 +51,16 @@ Handler = Union[OSCUpdateHandler]
 
 @dataclass
 class Subscriber():
-	handler: Handler
+	handlerRef: ref[Handler]
 	handleValueRequests: bool = False
 
 
-SubscriberList = dict[str, Subscriber]
+SubscriberMap = dict[str, Subscriber]
 
 
 @dataclass
 class AddressMapping:
-	subscribers: SubscriberList
+	subscribers: SubscriberMap
 
 
 @dataclass
@@ -79,17 +80,17 @@ class OSCDispatcher(logging_mixins.ComponentLoggerMixin):
 
 		if not isinstance(mapping, TrackedAddressMapping):
 			mapping = TrackedAddressMapping(
-				mapping.subscribers if mapping else SubscriberList()
+				mapping.subscribers if mapping else SubscriberMap()
 			)
 			self.addressMappings[address] = mapping
 
-		subscriber = self.Map(target, address, handler)
+		self.Map(target, address, handler)
 
 		if mapping.currentValue:
 			self.logDebug(
 				f'currentValue known, calling handler immediately {address}@{target}'
 			)
-			subscriber.handler(address, mapping.currentValue)
+			handler(address, mapping.currentValue)
 		elif not mapping.initialValueRequested:
 			self.logDebug(f'requesting initial value for {address}@{target}')
 			self.Dispatch(target, address, '?')
@@ -109,20 +110,57 @@ class OSCDispatcher(logging_mixins.ComponentLoggerMixin):
 		handler: Handler,
 		*,
 		handleValueRequests: bool = False
-	) -> Subscriber:
+	) -> None:
 		if address not in self.addressMappings:
-			self.addressMappings[address] = AddressMapping(SubscriberList())
+			self.addressMappings[address] = AddressMapping(SubscriberMap())
 
-		subscriber = Subscriber(handler, handleValueRequests=handleValueRequests)
-		self.addressMappings[address].subscribers[str(target)] = subscriber
+		addressMapping = self.addressMappings[address]
 
-		return subscriber
+		if str(target) in addressMapping.subscribers:
+			# TODO: can we use WeakKeyDictionary + finalize to automatically unsubscribe?
+			# This happens if components don't Unmap on __del__
+			self.logWarning(f'overwriting existing mapping for {address}@{target}')
+
+		self.logDebug(f'mapping {address}@{target}')
+		addressMapping.subscribers[str(target)] = Subscriber(
+			ref(handler, self.Unmap), handleValueRequests=handleValueRequests
+		)
 
 	def MapMultiple(self, target: OP, mapping: OrderedDict[str, Handler]) -> None:
 		...
 
-	def Unmap(self, target: OP, address: Optional[str]) -> None:
-		...
+	def Unmap(
+		self,
+		unmapTarget: Union[OP, ReferenceType[Handler]],
+		unmapAddress: Optional[str] = None
+	) -> None:
+		self.logDebug(
+			'processing unmap request for %s@%s, ', unmapAddress or 'any', unmapTarget
+		)
+		matchedMappings = [
+			(address, mapping)
+			for address, mapping in self.addressMappings.items()
+			if unmapAddress is None or address == unmapAddress
+		]
+
+		subscribersToClear = list[tuple[str, str]]()
+		for address, mapping in matchedMappings:
+			subscribersToClear += [
+				(address, target)
+				for target, subscriber in mapping.subscribers.items()
+				if unmapTarget in (target, subscriber.handlerRef)
+			]
+
+		self.logDebug('found %i targets to clear', len(subscribersToClear))
+
+		for address, source in subscribersToClear:
+			self.logDebug('unmapping %s@%s', address, source)
+			del self.addressMappings[address].subscribers[source]
+
+		for address, mapping in matchedMappings:
+			if not mapping.subscribers:
+				self.logDebug('clearing empty address mapping %s', address)
+				del self.addressMappings[address]
 
 	def Dispatch(self, source: OP, address: str, *values: OSCValue) -> None:
 		addressMappings = self.getMatchingMappings(address)
@@ -154,7 +192,9 @@ class OSCDispatcher(logging_mixins.ComponentLoggerMixin):
 
 		for subscriber in matchedSubscribers:
 			# TODO: if not op(target).valid, unregister control and log warning
-			subscriber.handler(address, *values)
+			handler = subscriber.handlerRef()
+			if handler is not None:
+				handler(address, *values)
 
 	def getMatchingMappings(self, address: str) -> list[AddressMapping]:
 		return [
