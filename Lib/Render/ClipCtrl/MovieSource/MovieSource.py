@@ -1,7 +1,12 @@
+from typing import cast
+
 from tda import BaseExt
 
 LOAD_FRAME_DELAY = 2
 MAX_WAIT_CYCLES = 20
+
+COMPOSITION_WIDTH_EXPR = 'parent.composition.par.Width'
+COMPOSITION_HEIGHT_EXPR = 'parent.composition.par.Height'
 
 
 class MovieSource(BaseExt):
@@ -11,12 +16,18 @@ class MovieSource(BaseExt):
 		self.movie = ownerComponent.op('./moviefilein1')
 		self.thumb = ownerComponent.op('./null_thumb')
 		self.state = ownerComponent.op('./table_state')
+		self.fitTop = cast(TOP, ownerComponent.op('./fit1'))
 
 	def Load(self):
 		self.setLoading()
+		self.bindCompositionParameters()
 		self.logInfo('loading movie')
 		self.movie.preload()
 		self.waitForPreload()
+
+	def bindCompositionParameters(self):
+		self.fitTop.par.resolutionw.expr = COMPOSITION_WIDTH_EXPR
+		self.fitTop.par.resolutionh.expr = COMPOSITION_HEIGHT_EXPR
 
 	def waitForPreload(self, waitCount=0):  # noqa: ANN001
 		if waitCount > MAX_WAIT_CYCLES:

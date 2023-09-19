@@ -137,6 +137,7 @@ builtins = [
   "tableDAT",
   "textDAT",
   "tdu",
+  "TOP",
   "ui",
   "WindowsError",
 ]
