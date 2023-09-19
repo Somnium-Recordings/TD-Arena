@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from dataclasses import dataclass
-from fnmatch import fnmatch
+from fnmatch import fnmatch, fnmatchcase
 from itertools import chain
 from typing import Optional, Protocol, Union
 from weakref import ReferenceType, ref
@@ -200,7 +200,7 @@ class OSCDispatcher(logging_mixins.ComponentLoggerMixin):
 		return [
 			addressMapping
 			for mappedAddress, addressMapping in self.addressMappings.items()
-			if fnmatch(address, mappedAddress)
+			if fnmatchcase(address, mappedAddress)
 		]
 
 	def updateTrackedValues(

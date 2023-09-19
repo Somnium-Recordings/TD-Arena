@@ -163,6 +163,27 @@ class TestOSCDispatcher():
 		dispatcher.Dispatch(oscIn, '/foo', 456)
 		assert 'unmatched OSC address /foo' in caplog.text
 
+	def test_Unmap_wildcardHandling(
+		self,
+		dispatcher: OSCDispatcher,
+		oscIn: MockOscinDAT,
+		caplog: pytest.LogCaptureFixture
+	):
+		caplog.set_level(lo)
+		mockTarget0 = MockOP('/mock_target_0')
+		mockUpdateHandler0 = MagicMock()
+		dispatcher.Map(mockTarget0, '/f*', mockUpdateHandler0)
+
+		mockUpdateHandler1 = MagicMock()
+		dispatcher.Map(mockTarget0, '/foo', mockUpdateHandler1)
+
+		dispatcher.Unmap(mockTarget0, '/foo')
+
+		dispatcher.Dispatch(oscIn, '/foo', 123)
+
+		mockUpdateHandler0.assert_called_once()
+		mockUpdateHandler1.assert_not_called()
+
 	# TODO: watch https://www.youtube.com/watch?v=kEQAsx6Ar_8 -- did we do all this for nothing?
 	# TODO: error if mapping control using wildcard
 	# TODO: if source is a control and pickup enabled, ignore value unless
