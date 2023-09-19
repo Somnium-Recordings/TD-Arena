@@ -205,7 +205,7 @@ class TDAExt(LoadableExt):
 		self.uiState.SendMessage('/composition/load', saveFile)
 
 	def SaveComposition(self, saveAs=False):  # noqa: ANN001, FBT002
-		saveFile = self.getSaveFile(promptIfConfigured=saveAs, load=True)
+		saveFile = self.getSaveFile(promptIfConfigured=saveAs, load=not saveAs)
 		if not saveFile:
 			self.logInfo('no save file selected, aborting save')
 			return
