@@ -36,7 +36,7 @@ def configureLogHandler(logger: logging.Logger):
 
 	fileHandler = RotatingFileHandler(
 		filename=tdu.expandPath(f'Logs/{logName}.log'),
-		maxBytes=1024 * 256,
+		maxBytes=1024 * 1024,
 		backupCount=1,
 	)
 	fileHandler.addFilter(TdContextFilter())

@@ -16,14 +16,15 @@ version = "0.1.0"
 
 [tool.poetry.dependencies]
 orjson = "^3.9.2"
-python = "3.9.5"
+python = "3.11.1"
 python-json-logger = "^2.0.7"
 transitions = "^0.9.0"
 typing-extensions = "^4.7.1"
 
 [tool.poetry.group.td.dependencies]
 # Dependencies from touchdesigner
-numpy = "=1.20.3"
+# see: https://derivative.ca/UserGuide/Python_Classes_and_Modules
+numpy = "=1.24.1"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.2.2"

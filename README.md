@@ -30,10 +30,10 @@ I'm currently developing this using [VS Code](https://code.visualstudio.com/) on
    Invoke-WebRequest -UseBasicParsing -Uri "https://raw.githubusercontent.com/pyenv-win/pyenv-win/master/pyenv-win/install-pyenv-win.ps1" -OutFile "./install-pyenv-win.ps1"; &"./install-pyenv-win.ps1"
 
    # reload terminal
-   pyenv install 3.9.5
+   pyenv install 3.11.1
 
    # Optionally set this to your global version of python
-   pyenv global 3.9.5
+   pyenv global 3.11.1
    ```
 
 1. Install Poetry
@@ -44,7 +44,7 @@ I'm currently developing this using [VS Code](https://code.visualstudio.com/) on
    # If not already installed, upgrade pip and install pipx
    pip install --upgrade pip
    pip install --user pipx
-   pipx ensure path
+   pipx ensurepath
 
    # Install Poetry
    pipx install poetry
@@ -57,7 +57,7 @@ I'm currently developing this using [VS Code](https://code.visualstudio.com/) on
    _From the poetry shell:_
 
    ```ps1
-   poetry install
+   poetry install --no-root
    ```
 
 1. Local site-packages

@@ -255,9 +255,9 @@ class ParameterContainer(BaseExt):
 			#    will parameters change over time? Or only values?
 			return
 
-		if style == 'WH':
+		if style in ['WH', 'RGBA']:
 			self.logWarning(
-				f'TODO: figure out what to do with WH parameters: {address}'
+				f'TODO: figure out what to do with {style} parameters: {address}'
 			)
 			return
 

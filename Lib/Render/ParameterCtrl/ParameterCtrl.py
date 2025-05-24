@@ -117,7 +117,11 @@ class ParameterCtrl(LoadableExt):
 		# 		parameter with the same address is created in the
 		#       future
 		saveValue = self.saveState.pop(address)
-		self.SetParameter(address, saveValue)
+
+		# If for some reason we saved an empty value,
+		# don't overwrite the default
+		if saveValue != '':  # noqa: PLC1901
+			self.SetParameter(address, saveValue)
 
 	def OnParameterStateChange(self):
 		initializedAddresses = {

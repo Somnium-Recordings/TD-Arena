@@ -48,7 +48,8 @@ class ToxSource(BaseExt):
 			)
 			return
 
-		if self.tox.isCOMP:
+		# TODO: why are base components returning true for isCOMP?
+		if self.tox.isCOMP and hasattr(self.tox.par, 'w'):
 			self.tox.par.w.expr = COMPOSITION_WIDTH_EXPR
 			self.tox.par.h.expr = COMPOSITION_HEIGHT_EXPR
 
