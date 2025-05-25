@@ -62,3 +62,8 @@ class ComponentLoggerMixin():
 		self, msg: object, *args: object, **kwargs: Unpack[LogKwargs]
 	) -> None:
 		self.componentLogger.error(msg, *args, **kwargs)
+
+	def logException(
+		self, msg: object, *args: object, **kwargs: Unpack[LogKwargs]
+	) -> None:
+		self.componentLogger.exception(msg, *args, **kwargs)

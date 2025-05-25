@@ -1,0 +1,113 @@
+logging {
+  level = "info"
+}
+
+// Local file source to read JSON logs
+local.file_match "json_logs" {
+  path_targets = [{
+    __path__ = "/logs/*.log",
+  }]
+  sync_period = "10s"
+}
+
+// Parse JSON logs
+loki.process "json_parser" {
+  forward_to = [loki.write.loki.receiver]
+
+  // First, parse the JSON
+  stage.json {
+    expressions = {
+      message   = "",
+      level     = "levelname",
+      levelno   = "",
+      timestamp = "asctime",
+      source    = "",
+      module    = "",
+      filename  = "",
+      funcName  = "",
+      lineno    = "",
+      frame     = "",
+      absframe  = "",
+      type      = "",
+    }
+  }
+
+  // Parse timestamp
+  stage.timestamp {
+    source = "timestamp"
+    format = "2006-01-02 15:04:05,999"
+    location = "Europe/Amsterdam"
+  }
+
+  // Add labels for filtering (keep these minimal for performance)
+  stage.labels {
+    values = {
+      level    = "level",
+      source   = "source",
+      module   = "module",
+      type     = "type",
+    }
+  }
+
+  // Add structured metadata for numeric and other fields
+  // This preserves them without creating high-cardinality labels
+  stage.structured_metadata {
+    values = {
+      levelno  = "levelno",
+      frame    = "frame",
+      absframe = "absframe",
+      lineno   = "lineno",
+      filename = "filename",
+      funcName = "funcName",
+    }
+  }
+
+  // Output just the message field
+  stage.output {
+    source = "message"
+  }
+}
+
+// Read and tail log files
+loki.source.file "logs" {
+  targets    = local.file_match.json_logs.targets
+  forward_to = [loki.process.json_parser.receiver]
+
+  // Handle file rotation
+  tail_from_end = false
+  
+  // File watching settings for rotation
+  file_watch {
+    min_poll_frequency = "250ms"
+    max_poll_frequency = "1s"
+  }
+}
+
+// Write logs to Loki
+loki.write "loki" {
+  endpoint {
+    url = "http://lgtm:3100/loki/api/v1/push"
+  }
+  
+  // External labels to add to all logs
+  external_labels = {
+    job = "td-arena",
+    instance = "alloy",
+  }
+}
+
+// Optional: Expose Alloy's own metrics
+prometheus.exporter.self "alloy" {}
+
+// Scrape Alloy's metrics
+prometheus.scrape "alloy" {
+  targets    = prometheus.exporter.self.alloy.targets
+  forward_to = [prometheus.remote_write.prom.receiver]
+}
+
+// Send metrics to Prometheus
+prometheus.remote_write "prom" {
+  endpoint {
+    url = "http://lgtm:9090/api/v1/write"
+  }
+}

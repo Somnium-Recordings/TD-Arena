@@ -141,8 +141,6 @@ class UIStateExt(logging_mixins.ComponentLoggerMixin):
 		if newValue == controlState['currentValue']:
 			return
 
-		debug(type(controlState['currentValue']))
-		debug(type(newValue))
 		if (
 			pickup and isinstance(controlState['currentValue'], float)
 			and isinstance(newValue, float)
@@ -159,9 +157,8 @@ class UIStateExt(logging_mixins.ComponentLoggerMixin):
 				try:
 					handler(address, newValue)
 				except:  # noqa: E722
-					self.logError(
+					self.logException(
 						f'failed to apply CtrlValue change handler ({sourceName}) @ {address}:'
-						f'\n{traceback.format_exc()}'
 					)
 
 		# Send change to renderer

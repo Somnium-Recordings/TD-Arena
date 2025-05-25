@@ -22,12 +22,19 @@ class TdContextFilter(logging.Filter):
 			record.source = normalizeSourcePath(
 				component.path if component else f'/{record.name.replace(".", "/")}'
 			)
+		elif not isinstance(record.source, str): # type: ignore
+			record.source = normalizeSourcePath(str(record.source)) # type: ignore
 
 		if not hasattr(record, 'type'):
 			record.type = component.type if component else 'UNKNOWN'
 
 		if not hasattr(record, 'frame'):
 			record.frame = component.time.frame if component else me.time.frame
+
+		# For some reason the json formatter tries to serialize this even though
+		# we don't list it as a property to log
+		if hasattr(record, 'component'):
+			delattr(record, 'component')
 
 		return True
 

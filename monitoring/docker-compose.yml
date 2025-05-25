@@ -19,7 +19,7 @@ services:
       - "4040:4040"
     volumes:
       # Mount local data directory to persist data
-      - ./data:/data
+      - ./data/lgtm:/data
     # environment:
     # Optional: Enable logging for troubleshooting
     # ENABLE_LOGS_ALL: "true"
@@ -33,4 +33,30 @@ services:
     # Optional: Send data to external vendors
     # OTEL_EXPORTER_OTLP_ENDPOINT: "https://your-endpoint.com"
     # OTEL_EXPORTER_OTLP_HEADERS: "Authorization=Bearer your-token"
+    restart: unless-stopped
+
+  alloy:
+    image: grafana/alloy:latest
+    container_name: alloy
+    ports:
+      # Alloy UI
+      - "12345:12345"
+    volumes:
+      # Mount the Alloy configuration
+      - ./config.alloy:/etc/alloy/config.alloy
+      # Mount the logs directory (read-only)
+      - ../Logs:/logs:ro
+      # Persist Alloy's positions file for log rotation handling
+      - ./data/alloy:/var/lib/alloy
+    command:
+      - run
+      - /etc/alloy/config.alloy
+      - --server.http.listen-addr=0.0.0.0:12345
+      - --storage.path=/var/lib/alloy
+    environment:
+      # Enable debug logging if needed
+      # ALLOY_LOG_LEVEL: debug
+      ALLOY_LOG_LEVEL: info
+    depends_on:
+      - lgtm
     restart: unless-stopped

@@ -16,7 +16,12 @@ def serializeJson(
 	Provide compatibility between the expected call signature of
 	json.dumps() and orjson.dumps()
 	"""
-	return orjson.dumps(obj, default).decode('utf-8')  # pylint: disable=no-member
+	try:
+		return orjson.dumps(obj, default).decode('utf-8')  # pylint: disable=no-member
+	except Exception as e:
+		debug(f'failed to serializeJson object: {e}')
+		debug(obj)
+		return '{"error": "failed to serialize object"}'
 
 
 class TdContextJsonFormatter(jsonlogger.JsonFormatter):
@@ -43,21 +48,3 @@ class TdContextJsonFormatter(jsonlogger.JsonFormatter):
 			'exc_text',
 			'stack_info',
 		]
-
-	def add_fields(
-		self, log_record: dict[str, Any], record: logging.LogRecord,
-		message_dict: dict[str, Any]
-	) -> None:
-		super().add_fields(log_record, record, message_dict)
-
-		log_record['absframe'] = absTime.frame
-		log_record['source'] = f'/{record.name.replace(".", "/")}'
-
-		component = log_record.get('component', None)
-		if component:
-			log_record['type'] = component.type
-			log_record['frame'] = component.time.frame
-			del log_record['component']
-		else:
-			log_record['type'] = 'UNKNOWN'
-			log_record['frame'] = me.time.frame

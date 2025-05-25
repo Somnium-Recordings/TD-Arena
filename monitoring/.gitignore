@@ -1,2 +1,6 @@
-# Ignore persistent data directory
-data/ 
+# Data directories
+data/
+
+# OS files
+.DS_Store
+Thumbs.db

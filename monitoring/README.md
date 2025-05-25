@@ -1,17 +1,22 @@
-# Grafana OTEL-LGTM Monitoring Stack
+# Monitoring Setup
 
-This directory contains a Docker Compose setup for the [grafana/otel-lgtm](https://github.com/grafana/docker-otel-lgtm) monitoring stack.
+This directory contains the Docker Compose configuration for monitoring TD-Arena logs using Grafana's LGTM stack (Loki, Grafana, Tempo, Mimir) and Alloy for log collection.
 
 ## Components
 
-The stack includes:
+### LGTM Stack
 
-- **OpenTelemetry Collector** - Receives and processes telemetry data
-- **Prometheus** - Metrics storage and querying
-- **Tempo** - Distributed tracing backend
-- **Loki** - Log aggregation system
-- **Grafana** - Visualization and dashboards
-- **Pyroscope** - Continuous profiling platform
+- **Grafana**: Web UI for visualization (port 3000)
+- **Loki**: Log aggregation system (port 3100)
+- **Prometheus/Mimir**: Metrics storage (port 9090)
+- **Tempo**: Distributed tracing (port 3200)
+- **Pyroscope**: Continuous profiling (port 4040)
+
+### Alloy
+
+- Log collector that reads JSON logs from the `../Logs` directory
+- Parses JSON format and forwards to Loki
+- Web UI available on port 12345
 
 ## Quick Start
 
@@ -21,70 +26,68 @@ The stack includes:
    docker-compose up -d
    ```
 
-2. Access Grafana at http://localhost:3000
+2. Access the services:
+   - Grafana: http://localhost:3000 (default login: admin/admin)
+   - Alloy UI: http://localhost:12345
+   - Prometheus: http://localhost:9090
+   - Loki: http://localhost:3100
 
-   - Username: `admin`
-   - Password: `admin`
+## Log Collection
 
-3. Stop the monitoring stack:
-   ```bash
-   docker-compose down
+Alloy is configured to:
+
+- Monitor all `*.log` files in the `../Logs` directory
+- Parse JSON-formatted logs
+- Extract fields like message, level, source, module, etc.
+- Handle log rotation automatically
+- Store file positions to resume after restarts
+
+## Viewing Logs in Grafana
+
+1. Open Grafana at http://localhost:3000
+2. Go to Explore (compass icon)
+3. Select Loki as the data source
+4. Use LogQL queries to filter logs:
+   ```
+   {level="ERROR"}
+   {source="/tdArena/render/state"}
+   {module="logging_mixins"} |= "initialized"
    ```
 
-## Ports
+## Configuration Files
 
-- **3000**: Grafana UI
-- **4317**: OpenTelemetry gRPC endpoint
-- **4318**: OpenTelemetry HTTP endpoint
-- **9090**: Prometheus
-- **3200**: Tempo
-- **3100**: Loki
-- **4040**: Pyroscope
+- `docker-compose.yml`: Container orchestration
+- `config.alloy`: Alloy configuration for log collection
+- `data/lgtm/`: Persistent storage for LGTM stack (Grafana, Loki, Prometheus, etc.)
+- `data/alloy/`: Persistent storage for Alloy (file positions for log rotation)
 
-## Sending OpenTelemetry Data
+## Directory Structure
 
-The stack works with OpenTelemetry's default configuration. Your applications can send data to:
-
-- gRPC: `localhost:4317`
-- HTTP: `localhost:4318`
-
-Example environment variables for your application:
-
-```bash
-export OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
-export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
 ```
-
-## Data Persistence
-
-Data is persisted in the `./data` directory, which is mounted as a volume in the container. This ensures your metrics, logs, and traces are preserved between container restarts.
+monitoring/
+├── docker-compose.yml
+├── config.alloy
+├── README.md
+├── .gitignore
+└── data/              # Created automatically on first run
+    ├── lgtm/          # LGTM stack data
+    └── alloy/         # Alloy position files
+```
 
 ## Troubleshooting
 
-To enable logging for debugging, uncomment the environment variables in `docker-compose.yml`:
+### Logs not appearing
+
+1. Check Alloy is running: `docker-compose ps`
+2. Check Alloy logs: `docker-compose logs alloy`
+3. Verify log files exist in `../Logs` directory
+4. Check Alloy UI at http://localhost:12345 for component status
+
+### Debug mode
+
+Enable debug logging by uncommenting in docker-compose.yml:
 
 ```yaml
 environment:
-  ENABLE_LOGS_ALL: "true"
-  # Or enable specific components:
-  # ENABLE_LOGS_GRAFANA: "true"
-  # ENABLE_LOGS_LOKI: "true"
-  # ENABLE_LOGS_PROMETHEUS: "true"
-  # ENABLE_LOGS_TEMPO: "true"
-  # ENABLE_LOGS_PYROSCOPE: "true"
-  # ENABLE_LOGS_OTELCOL: "true"
+  ALLOY_LOG_LEVEL: debug
 ```
-
-## Sending Data to External Vendors
-
-To forward telemetry data to external services (e.g., Grafana Cloud), uncomment and configure:
-
-```yaml
-environment:
-  OTEL_EXPORTER_OTLP_ENDPOINT: "https://your-endpoint.com"
-  OTEL_EXPORTER_OTLP_HEADERS: "Authorization=Bearer your-token"
-```
-
-## Note
-
-This stack is intended for development, demo, and testing environments. For production use, consider [Grafana Cloud Application Observability](https://grafana.com/products/cloud/application-observability/).
