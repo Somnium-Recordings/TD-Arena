@@ -31,8 +31,17 @@ class TdContextJsonFormatter(jsonlogger.JsonFormatter):
 			'absframe',
 			'frame',
 			'source',
-			'severity',
+			'levelname',
+			'levelno',
 			'type',
+			# TODO: see if we can add these through the logging_mixins
+			'module',
+			'filename',
+			'lineno',
+			'funcName',
+			'exc_info',
+			'exc_text',
+			'stack_info',
 		]
 
 	def add_fields(
@@ -43,7 +52,6 @@ class TdContextJsonFormatter(jsonlogger.JsonFormatter):
 
 		log_record['absframe'] = absTime.frame
 		log_record['source'] = f'/{record.name.replace(".", "/")}'
-		log_record['severity'] = record.levelname  # TODO: do we need to map these?
 
 		component = log_record.get('component', None)
 		if component:

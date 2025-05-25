@@ -3,6 +3,7 @@ from logging import LogRecord
 from logging.handlers import RotatingFileHandler
 from typing import Optional
 
+from .json_log_formatter import TdContextJsonFormatter
 from .utils import clearLogHandlers, getHandlers, normalizeSourcePath
 
 
@@ -31,7 +32,7 @@ class TdContextFilter(logging.Filter):
 		return True
 
 
-def configureLogHandler(logger: logging.Logger):
+def configureLegacyHandler(logger: logging.Logger):
 	logName = 'engine' if op('/render') else 'ui'
 
 	fileHandler = RotatingFileHandler(
@@ -50,10 +51,26 @@ def configureLogHandler(logger: logging.Logger):
 	logger.setLevel(logging.DEBUG)
 
 
+def configureJsonHandler(logger: logging.Logger):
+	fileHandler = RotatingFileHandler(
+		filename=tdu.expandPath('Logs/td-arena.log'),
+		maxBytes=10 * 1024 * 1024,  # 10MB
+		backupCount=5,
+	)
+
+	fileHandler.addFilter(TdContextFilter())
+	fileHandler.setFormatter(TdContextJsonFormatter())
+
+	logger.addHandler(fileHandler)
+
+	logger.setLevel(logging.DEBUG)
+
+
 def ensureLogHandlersPresent(logName: Optional[str] = None):
 	logger = logging.getLogger(logName)
 	if not logger.hasHandlers():
-		configureLogHandler(logger)
+		# configureLegacyHandler(logger)
+		configureJsonHandler(logger)
 
 
 def reloadLogHandlers(logName: Optional[str] = None):
