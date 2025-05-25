@@ -153,8 +153,6 @@ class AutoModuleExt:
 		self.ownerComp = ownerComp
 		self.fileList = cast(DAT, self.ownerComp.op('null_fileList'))
 		debug('AutoModule Extension initialized')
-		# TODO: This causes infinite loop / crashes TD, why?
-		# self.Sync()
 
 	def Sync(self):
 		basePath = self.ownerComp.par.Moduledirectory.eval()
@@ -167,6 +165,10 @@ class AutoModuleExt:
 			children={},
 			containerOp=cast(baseCOMP, self.ownerComp.par.Modulecomp.eval())
 		)
+
+		if (self.fileList.numRows == 1):
+			debug('Skipping auto module sync, fileList has no files')
+			return
 
 		for row in range(1, self.fileList.numRows):
 			basename = self.fileList[row, 'basename'].val
@@ -199,3 +201,7 @@ class AutoModuleExt:
 			)
 
 		fileTree.sync()
+
+		debug(
+			'AutoModule sync complete: ' + str(self.fileList.numRows) + ' files found'
+		)
