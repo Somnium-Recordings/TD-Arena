@@ -1,0 +1,36 @@
+services:
+  lgtm:
+    image: grafana/otel-lgtm:latest
+    container_name: lgtm
+    ports:
+      # Grafana
+      - "3000:3000"
+      # OpenTelemetry gRPC
+      - "4317:4317"
+      # OpenTelemetry HTTP
+      - "4318:4318"
+      # Prometheus
+      - "9090:9090"
+      # Tempo
+      - "3200:3200"
+      # Loki
+      - "3100:3100"
+      # Pyroscope
+      - "4040:4040"
+    volumes:
+      # Mount local data directory to persist data
+      - ./data:/data
+    # environment:
+    # Optional: Enable logging for troubleshooting
+    # ENABLE_LOGS_ALL: "true"
+    # ENABLE_LOGS_GRAFANA: "true"
+    # ENABLE_LOGS_LOKI: "true"
+    # ENABLE_LOGS_PROMETHEUS: "true"
+    # ENABLE_LOGS_TEMPO: "true"
+    # ENABLE_LOGS_PYROSCOPE: "true"
+    # ENABLE_LOGS_OTELCOL: "true"
+
+    # Optional: Send data to external vendors
+    # OTEL_EXPORTER_OTLP_ENDPOINT: "https://your-endpoint.com"
+    # OTEL_EXPORTER_OTLP_HEADERS: "Authorization=Bearer your-token"
+    restart: unless-stopped
