@@ -20,15 +20,19 @@ loki.process "json_parser" {
       message   = "",
       level     = "levelname",
       levelno   = "",
-      timestamp = "asctime",
+      timestamp = "",
       source    = "",
       module    = "",
-      filename  = "",
+      source_file  = "filename",
       funcName  = "",
+	  pathname  = "",
       lineno    = "",
       frame     = "",
       absframe  = "",
       type      = "",
+	  exc_info  = "",
+	  exc_text  = "",
+	  stack_info = "",
     }
   }
 
@@ -36,7 +40,6 @@ loki.process "json_parser" {
   stage.timestamp {
     source = "timestamp"
     format = "2006-01-02 15:04:05,999"
-    location = "Europe/Amsterdam"
   }
 
   // Add labels for filtering (keep these minimal for performance)
@@ -57,8 +60,12 @@ loki.process "json_parser" {
       frame    = "frame",
       absframe = "absframe",
       lineno   = "lineno",
-      filename = "filename",
+      source_file = "source_file",
+	  pathname = "pathname",
       funcName = "funcName",
+	  exc_info  = "exc_info",
+	  exc_text  = "exc_text",
+	  stack_info = "stack_info",
     }
   }
 

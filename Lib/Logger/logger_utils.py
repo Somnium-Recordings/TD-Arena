@@ -17,14 +17,6 @@ def isConfigured(logName: str):
 	return logName in logging.Logger.manager.loggerDict
 
 
-def clearLogHandlers(logName: Optional[str]):
-	logger = logging.getLogger(logName)
-
-	while logger.hasHandlers():
-		handler = logger.handlers[0]
-		handler.close()
-		logger.removeHandler(handler)
-
 
 RENDER_ROOT_PATH_RE = re.compile(r'^/render')
 

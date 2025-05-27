@@ -1,4 +1,4 @@
-from .utils import normalizeSourcePath
+from .logger_utils import normalizeSourcePath
 
 
 def test_normalizeSourcePath():

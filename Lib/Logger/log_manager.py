@@ -1,61 +1,11 @@
 import logging
-from logging import LogRecord
+import sys
 from logging.handlers import RotatingFileHandler
+from types import TracebackType
 from typing import Optional
 
 from .json_log_formatter import TdContextJsonFormatter
-from .utils import clearLogHandlers, getHandlers, normalizeSourcePath
-
-
-class TdContextFilter(logging.Filter):
-
-	def filter(self, record: LogRecord) -> bool:
-		# TODO: can/should we use encode for this?
-		record.msg = record.msg.replace('\n', '\\n').replace('\t', '\\t')
-
-		if not hasattr(record, 'absframe'):
-			record.absframe = absTime.frame
-
-		component: Optional[OP] = getattr(record, 'component', None)
-
-		if not hasattr(record, 'source'):
-			record.source = normalizeSourcePath(
-				component.path if component else f'/{record.name.replace(".", "/")}'
-			)
-		elif not isinstance(record.source, str): # type: ignore
-			record.source = normalizeSourcePath(str(record.source)) # type: ignore
-
-		if not hasattr(record, 'type'):
-			record.type = component.type if component else 'UNKNOWN'
-
-		if not hasattr(record, 'frame'):
-			record.frame = component.time.frame if component else me.time.frame
-
-		# For some reason the json formatter tries to serialize this even though
-		# we don't list it as a property to log
-		if hasattr(record, 'component'):
-			delattr(record, 'component')
-
-		return True
-
-
-def configureLegacyHandler(logger: logging.Logger):
-	logName = 'engine' if op('/render') else 'ui'
-
-	fileHandler = RotatingFileHandler(
-		filename=tdu.expandPath(f'Logs/{logName}.log'),
-		maxBytes=1024 * 1024,
-		backupCount=1,
-	)
-	fileHandler.addFilter(TdContextFilter())
-	fileHandler.setFormatter(
-		logging.Formatter(
-			'%(source)s\t%(message)s\t%(absframe)s\t%(frame)s\t%(type)s\t%(levelname)s\t%(asctime)s'
-		)
-	)
-	logger.addHandler(fileHandler)
-
-	logger.setLevel(logging.DEBUG)
+from .logger_utils import getHandlers, normalizeSourcePath
 
 
 def configureJsonHandler(logger: logging.Logger):
@@ -65,18 +15,41 @@ def configureJsonHandler(logger: logging.Logger):
 		backupCount=5,
 	)
 
-	fileHandler.addFilter(TdContextFilter())
 	fileHandler.setFormatter(TdContextJsonFormatter())
 
 	logger.addHandler(fileHandler)
 
 	logger.setLevel(logging.DEBUG)
 
+	debug('json log handler registered')
+
+
+def clearLogHandlers(logName: Optional[str]):
+	logger = logging.getLogger(logName)
+
+	# Only remove our custom handlers (RotatingFileHandler with TdContextJsonFormatter)
+	# so that we don't remove anything added by the touchdesigner logger
+	handlers_to_remove = []
+	for handler in logger.handlers:
+		if (
+			isinstance(handler, RotatingFileHandler)
+			and isinstance(handler.formatter, TdContextJsonFormatter)
+		):
+			handlers_to_remove.append(handler)
+
+	for handler in handlers_to_remove:
+		handler.close()
+		logger.removeHandler(handler)
+
 
 def ensureLogHandlersPresent(logName: Optional[str] = None):
+	# global _previous_excepthook  # noqa: PLW0603
+	# if _previous_excepthook is None:
+	# 	_previous_excepthook = sys.excepthook
+	# 	sys.excepthook = globalExceptionHandler
+
 	logger = logging.getLogger(logName)
 	if not logger.hasHandlers():
-		# configureLegacyHandler(logger)
 		configureJsonHandler(logger)
 
 
@@ -88,6 +61,8 @@ def reloadLogHandlers(logName: Optional[str] = None):
 def getComponentLogger(component: OP) -> logging.LoggerAdapter:
 	ensureLogHandlersPresent()
 
+	# Convert component path to dot notation for logger name
+	# e.g. "/td-arena/ui/status" -> "td-arena.ui.status"
 	logName = normalizeSourcePath(component.path)[1:].replace('/', '.')
 
 	logger = logging.getLogger(logName)
@@ -100,3 +75,31 @@ def getComponentLogger(component: OP) -> logging.LoggerAdapter:
 def rotateLogs(logName: Optional[str] = None):
 	for handler in getHandlers(logging.getLogger(logName), RotatingFileHandler):
 		handler.doRollover()
+
+
+def registerGlobalExceptionHandler():
+	sys.excepthook = globalExceptionHandler
+
+
+def globalExceptionHandler(
+	exc_type: type, exc_value: BaseException, exc_traceback: TracebackType | None
+):
+	try:
+		# Call the default excepthook to print the exception to the console
+		sys.__excepthook__(exc_type, exc_value, exc_traceback)
+
+		# Ensure logging is available, sometimes we get logging can't be found issues
+		import logging
+
+		# Forward exception to the logging system
+		logging.error(
+			'%s: %s',
+			exc_type.__name__,
+			exc_value,
+			exc_info=(exc_type, exc_value, exc_traceback),
+			stack_info=True
+		)
+	except Exception as e:  # noqa: BLE001
+		# If logging fails, at least print the error
+		print(f'Error in global exception handler: {e}')
+		sys.__excepthook__(type(e), e, e.__traceback__)
