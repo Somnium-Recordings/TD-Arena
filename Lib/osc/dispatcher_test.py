@@ -164,12 +164,10 @@ class TestOSCDispatcher():
 		assert 'unmatched OSC address /foo' in caplog.text
 
 	def test_Unmap_wildcardHandling(
-		self,
-		dispatcher: OSCDispatcher,
-		oscIn: MockOscinDAT,
+		self, dispatcher: OSCDispatcher, oscIn: MockOscinDAT,
 		caplog: pytest.LogCaptureFixture
 	):
-		caplog.set_level(lo)
+		caplog.set_level(logging.INFO)
 		mockTarget0 = MockOP('/mock_target_0')
 		mockUpdateHandler0 = MagicMock()
 		dispatcher.Map(mockTarget0, '/f*', mockUpdateHandler0)

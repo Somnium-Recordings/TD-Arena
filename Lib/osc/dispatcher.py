@@ -46,7 +46,7 @@ class OSCControl():
 
 
 # Mapping = Union[OSCValueHandler, OSCListener, OSCValueListener, OSCControl]
-Handler = Union[OSCUpdateHandler]
+Handler = OSCUpdateHandler
 
 
 @dataclass
@@ -148,7 +148,7 @@ class OSCDispatcher(logging_mixins.ComponentLoggerMixin):
 			subscribersToClear += [
 				(address, target)
 				for target, subscriber in mapping.subscribers.items()
-				if unmapTarget in (target, subscriber.handlerRef)
+				if str(unmapTarget) == target or unmapTarget == subscriber.handlerRef
 			]
 
 		self.logDebug('found %i targets to clear', len(subscribersToClear))
