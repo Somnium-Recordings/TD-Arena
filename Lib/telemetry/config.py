@@ -1,4 +1,4 @@
-"""OpenTelemetry configuration for TD-Arena."""
+'''OpenTelemetry configuration for TD-Arena.'''
 
 import logging
 from typing import Optional
@@ -12,19 +12,29 @@ from opentelemetry.semconv.resource import ResourceAttributes
 
 logger = logging.getLogger(__name__)
 
+_initialized = False
+
 
 def initialize_telemetry(
 	service_name: str = 'td-arena',
 	endpoint: str = 'http://localhost:4317',
 	log_level: Optional[str] = None,
 ) -> None:
-	"""Initialize OpenTelemetry tracing.
+	"""
+    Initialize OpenTelemetry tracing. Can only be called once per process.
+    Raises RuntimeError if called more than once.
 
     Args:
         service_name: Name of the service for tracing
         endpoint: OTLP endpoint for trace export
         log_level: Optional log level override
     """
+	global _initialized
+	if _initialized:
+		raise RuntimeError(
+			'OpenTelemetry has already been initialized in this process. Only one initialization is allowed.'
+		)
+
 	if log_level:
 		logging.getLogger(__name__).setLevel(log_level)
 
@@ -49,3 +59,4 @@ def initialize_telemetry(
 		service_name,
 		endpoint,
 	)
+	_initialized = True
