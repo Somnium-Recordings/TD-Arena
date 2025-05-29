@@ -5,8 +5,9 @@ Or at least some sort of Ctrl base class
 import json
 from collections import OrderedDict
 from pathlib import Path
+from typing import cast
 
-from oscDispatcher import OSCDispatcher
+from oscDispatcher import OSCDispatcher, OSCMappings
 from tda import LoadableExt
 from tdaUtils import (
 	getLayerID,
@@ -49,100 +50,103 @@ class StateCtrl(LoadableExt):
 		self.dispatcher = OSCDispatcher(
 			ownerComponent,
 			logger,
-			mappings=OrderedDict(
-				{
-					'?': {
-						'handler': parameterCtrl.ReplyWithCurrentValue
-					},
-					'/ack/render/initialized': {
-						'handler': self.acknowledgeInitialization,
-						'sendAddress': False
-					},
-					'/composition/load': {
-						'handler': self.load,
-						'sendAddress': False
-					},
-					'/composition/reinit': {
-						'handler': self.init,
-						'sendAddress': False
-					},
-					'/composition/new': {
-						'handler': self.new,
-						'sendAddress': False
-					},
-					'/composition/save': {
-						'handler': self.save,
-						'sendAddress': False
-					},
-					'/composition/*:*': {
-						'handler': parameterCtrl.SetParameter
-					},
-					'/composition/clips/*/select': {
-						'handler': deckCtrl.SelectClip
-					},
-					'/composition/clips/*/video/effects/add': {
-						'handler': effectCtrl.AddEffect,
-						'mapAddress': mapAddressToEffectContainer
-					},
-					'/composition/clips/*/video/effects/*/clear': {
-						'handler': effectCtrl.ClearEffect,
-						'mapAddress': mapAddressToEffectLocation
-					},
-					'/composition/clips/*/video/effects/*/move': {
-						'handler': effectCtrl.MoveEffect,
-						'mapAddress': mapAddressToEffectLocation
-					},
-					'/composition/layers/*/video/effects/add': {
-						'handler': effectCtrl.AddEffect,
-						'mapAddress': mapAddressToEffectContainer
-					},
-					'/composition/layers/*/video/effects/*/clear': {
-						'handler': effectCtrl.ClearEffect,
-						'mapAddress': mapAddressToEffectLocation
-					},
-					'/composition/layers/*/video/effects/*/move': {
-						'handler': effectCtrl.MoveEffect,
-						'mapAddress': mapAddressToEffectLocation
-					},
-					'/composition/layers/*/clear': {
-						'handler': layerCtrl.Clear,
-						'mapAddress': getLayerID
-					},
-					'/composition/decks/*/select': {
-						'handler': deckCtrl.SelectDeck
-					},
-					'/composition/layers/*/select': {
-						'handler': layerCtrl.SelectLayer
-					},
-					'/selecteddeck/layers/*/clips/*/connect': {
-						'handler': deckCtrl.ConnectClip,
-						'mapAddress': mapAddressToDeckLocation
-					},
-					'/selecteddeck/layers/*/clips/*/clear': {
-						'handler': deckCtrl.ClearClip,
-						'mapAddress': mapAddressToDeckLocation
-					},
-					'/selecteddeck/layers/*/clips/*/move': {
-						'handler': deckCtrl.MoveClip,
-						'mapAddress': mapAddressToDeckLocation
-					},
-					'/selecteddeck/layers/*/clips/*/source/load': {
-						'handler': deckCtrl.LoadClip,
-						'mapAddress': mapAddressToDeckLocation
-					},
-					'/selecteddeck/layers/*/clips/*/video/effects/add': {
-						'handler': deckCtrl.AddEffect,
-						'mapAddress': mapAddressToDeckLocation
-					},
-					'/selecteddeck/layers/*/insert': {
-						'handler': deckCtrl.InsertLayer,
-						'mapAddress': getLayerID
-					},
-					'/selecteddeck/layers/*/remove': {
-						'handler': deckCtrl.RemoveLayer,
-						'mapAddress': getLayerID
-					},
-				}
+			mappings=cast(
+				OSCMappings,
+				OrderedDict(
+					{
+						'?': {
+							'handler': parameterCtrl.ReplyWithCurrentValue
+						},
+						'/ack/render/initialized': {
+							'handler': self.acknowledgeInitialization,
+							'sendAddress': False
+						},
+						'/composition/load': {
+							'handler': self.load,
+							'sendAddress': False
+						},
+						'/composition/reinit': {
+							'handler': self.init,
+							'sendAddress': False
+						},
+						'/composition/new': {
+							'handler': self.new,
+							'sendAddress': False
+						},
+						'/composition/save': {
+							'handler': self.save,
+							'sendAddress': False
+						},
+						'/composition/*:*': {
+							'handler': parameterCtrl.SetParameter
+						},
+						'/composition/clips/*/select': {
+							'handler': deckCtrl.SelectClip
+						},
+						'/composition/clips/*/video/effects/add': {
+							'handler': effectCtrl.AddEffect,
+							'mapAddress': mapAddressToEffectContainer
+						},
+						'/composition/clips/*/video/effects/*/clear': {
+							'handler': effectCtrl.ClearEffect,
+							'mapAddress': mapAddressToEffectLocation
+						},
+						'/composition/clips/*/video/effects/*/move': {
+							'handler': effectCtrl.MoveEffect,
+							'mapAddress': mapAddressToEffectLocation
+						},
+						'/composition/layers/*/video/effects/add': {
+							'handler': effectCtrl.AddEffect,
+							'mapAddress': mapAddressToEffectContainer
+						},
+						'/composition/layers/*/video/effects/*/clear': {
+							'handler': effectCtrl.ClearEffect,
+							'mapAddress': mapAddressToEffectLocation
+						},
+						'/composition/layers/*/video/effects/*/move': {
+							'handler': effectCtrl.MoveEffect,
+							'mapAddress': mapAddressToEffectLocation
+						},
+						'/composition/layers/*/clear': {
+							'handler': layerCtrl.Clear,
+							'mapAddress': getLayerID
+						},
+						'/composition/decks/*/select': {
+							'handler': deckCtrl.SelectDeck
+						},
+						'/composition/layers/*/select': {
+							'handler': layerCtrl.SelectLayer
+						},
+						'/selecteddeck/layers/*/clips/*/connect': {
+							'handler': deckCtrl.ConnectClip,
+							'mapAddress': mapAddressToDeckLocation
+						},
+						'/selecteddeck/layers/*/clips/*/clear': {
+							'handler': deckCtrl.ClearClip,
+							'mapAddress': mapAddressToDeckLocation
+						},
+						'/selecteddeck/layers/*/clips/*/move': {
+							'handler': deckCtrl.MoveClip,
+							'mapAddress': mapAddressToDeckLocation
+						},
+						'/selecteddeck/layers/*/clips/*/source/load': {
+							'handler': deckCtrl.LoadClip,
+							'mapAddress': mapAddressToDeckLocation
+						},
+						'/selecteddeck/layers/*/clips/*/video/effects/add': {
+							'handler': deckCtrl.AddEffect,
+							'mapAddress': mapAddressToDeckLocation
+						},
+						'/selecteddeck/layers/*/insert': {
+							'handler': deckCtrl.InsertLayer,
+							'mapAddress': getLayerID
+						},
+						'/selecteddeck/layers/*/remove': {
+							'handler': deckCtrl.RemoveLayer,
+							'mapAddress': getLayerID
+						},
+					}
+				)
 			)
 		)
 

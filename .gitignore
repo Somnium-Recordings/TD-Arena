@@ -20,3 +20,5 @@ __pycache__
 .ruff_cache
 .coverage*
 lcov.info
+
+.cursor
