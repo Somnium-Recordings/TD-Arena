@@ -1,4 +1,4 @@
-'''OpenTelemetry configuration for TD-Arena.'''
+"""OpenTelemetry configuration for TD-Arena."""
 
 import logging
 from typing import Optional
@@ -29,7 +29,7 @@ def initialize_telemetry(
         endpoint: OTLP endpoint for trace export
         log_level: Optional log level override
     """
-	global _initialized
+	global _initialized  # noqa: PLW0603
 	if _initialized:
 		raise RuntimeError(
 			'OpenTelemetry has already been initialized in this process. Only one initialization is allowed.'

@@ -6,7 +6,7 @@ from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanE
 from opentelemetry.trace import StatusCode
 
 from .context import get_current_span, set_span_attribute, trace_context
-from .decorators import trace_span
+from .otel_decorators import trace_span
 
 # Set up a test tracer provider and memory exporter
 exporter = InMemorySpanExporter()
