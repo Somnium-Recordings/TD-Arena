@@ -16,7 +16,7 @@ builtins.oscinDAT = MagicMock()  # type: ignore
 builtins.debug = print  # type: ignore
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope='session', autouse=True)
 def setup_tracer_provider():
 	exporter = InMemorySpanExporter()
 	provider = TracerProvider()

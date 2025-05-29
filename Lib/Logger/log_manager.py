@@ -119,5 +119,5 @@ def globalExceptionHandler(
 
 	except Exception as e:  # noqa: BLE001
 		# If logging fails, at least print the error
-		print(f'Error in global exception handler: {e}')
+		print(f'Error in global exception handler: {e}')  # noqa: T201
 		sys.__excepthook__(type(e), e, e.__traceback__)

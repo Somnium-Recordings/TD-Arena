@@ -1,5 +1,6 @@
+from collections.abc import Generator
 from contextlib import contextmanager
-from typing import Any, Dict, Generator, Optional
+from typing import Optional, Union
 
 from opentelemetry import trace
 from opentelemetry.trace import Span, Status, StatusCode
@@ -8,17 +9,17 @@ from opentelemetry.trace import Span, Status, StatusCode
 @contextmanager
 def trace_context(
 	name: str,
-	attributes: Optional[Dict[str, Any]] = None,
+	attributes: Optional[dict] = None,
 	kind: trace.SpanKind = trace.SpanKind.INTERNAL
 ) -> Generator[Span, None, None]:
 	"""
     Context manager for creating and managing spans.
-    
+
     Args:
         name: Name of the span
         attributes: Optional dictionary of attributes to add to the span
         kind: Span kind (defaults to INTERNAL)
-    
+
     Yields:
         The created span
     """
@@ -38,17 +39,17 @@ def trace_context(
 def get_current_span() -> Optional[Span]:
 	"""
     Get the current active span.
-    
+
     Returns:
         The current span or None if no span is active
     """
 	return trace.get_current_span()
 
 
-def set_span_attribute(key: str, value: Any) -> None:
+def set_span_attribute(key: str, value: Union[str, int, float, bool]) -> None:
 	"""
     Set an attribute on the current span.
-    
+
     Args:
         key: Attribute key
         value: Attribute value

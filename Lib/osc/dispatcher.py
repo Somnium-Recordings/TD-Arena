@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from dataclasses import dataclass
-from fnmatch import fnmatch, fnmatchcase
+from fnmatch import fnmatchcase
 from itertools import chain
 from typing import Optional, Protocol, Union
 from weakref import ReferenceType, ref
