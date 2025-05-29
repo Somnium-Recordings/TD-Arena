@@ -2,10 +2,21 @@ import logging
 import sys
 from logging.handlers import RotatingFileHandler
 from types import TracebackType
-from typing import Optional
+from typing import Optional, TypeVar
 
 from .json_log_formatter import TdContextJsonFormatter
-from .logger_utils import getHandlers, normalizeSourcePath
+
+HANDLER_TYPE = TypeVar('HANDLER_TYPE')
+
+rootLogger = logging.getLogger()
+
+
+def getHandlers(
+	logger: logging.Logger, HandlerClass: type[HANDLER_TYPE]
+) -> list[HANDLER_TYPE]:  # yapf-disable
+	return [
+		handler for handler in logger.handlers if isinstance(handler, HandlerClass)
+	]
 
 
 def configureJsonHandler(logger: logging.Logger):
@@ -41,16 +52,16 @@ def clearLogHandlers(logName: Optional[str]):
 		handler.close()
 		logger.removeHandler(handler)
 
+	sys.excepthook = sys.__excepthook__
+
 
 def ensureLogHandlersPresent(logName: Optional[str] = None):
-	# global _previous_excepthook  # noqa: PLW0603
-	# if _previous_excepthook is None:
-	# 	_previous_excepthook = sys.excepthook
-	# 	sys.excepthook = globalExceptionHandler
-
 	logger = logging.getLogger(logName)
 	if not logger.hasHandlers():
 		configureJsonHandler(logger)
+
+	if sys.__excepthook__ is sys.excepthook:
+		registerGlobalExceptionHandler()
 
 
 def reloadLogHandlers(logName: Optional[str] = None):
@@ -59,11 +70,9 @@ def reloadLogHandlers(logName: Optional[str] = None):
 
 
 def getComponentLogger(component: OP) -> logging.LoggerAdapter:
-	ensureLogHandlersPresent()
-
 	# Convert component path to dot notation for logger name
 	# e.g. "/td-arena/ui/status" -> "td-arena.ui.status"
-	logName = normalizeSourcePath(component.path)[1:].replace('/', '.')
+	logName = component.path[1:].replace('/', '.')
 
 	logger = logging.getLogger(logName)
 
@@ -78,27 +87,36 @@ def rotateLogs(logName: Optional[str] = None):
 
 
 def registerGlobalExceptionHandler():
+	debug('registering global exception handler')
 	sys.excepthook = globalExceptionHandler
 
 
 def globalExceptionHandler(
 	exc_type: type, exc_value: BaseException, exc_traceback: TracebackType | None
 ):
-	try:
-		# Call the default excepthook to print the exception to the console
-		sys.__excepthook__(exc_type, exc_value, exc_traceback)
+	if not hasattr(  # noqa: SIM102
+		exc_value, '__traceback__'
+	) or exc_value.__traceback__ is None:
+		if exc_traceback:
+			exc_value.__traceback__ = exc_traceback
+			debug('propagating traceback')
 
-		# Ensure logging is available, sometimes we get logging can't be found issues
-		import logging
+	# Call the default excepthook to print the exception to the console
+	sys.__excepthook__(exc_type, exc_value, exc_traceback)
+
+	try:
+		# Use provided traceback if available, otherwise get it from the exception
+		traceback = exc_traceback if exc_traceback is not None else exc_value.__traceback__
 
 		# Forward exception to the logging system
-		logging.error(
+		rootLogger.error(
 			'%s: %s',
 			exc_type.__name__,
 			exc_value,
-			exc_info=(exc_type, exc_value, exc_traceback),
+			exc_info=(exc_type, exc_value, traceback),
 			stack_info=True
 		)
+
 	except Exception as e:  # noqa: BLE001
 		# If logging fails, at least print the error
 		print(f'Error in global exception handler: {e}')

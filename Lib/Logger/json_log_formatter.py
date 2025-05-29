@@ -4,8 +4,6 @@ from typing import Optional
 
 from pythonjsonlogger.orjson import OrjsonFormatter
 
-from .logger_utils import normalizeSourcePath
-
 
 class TdContextJsonFormatter(OrjsonFormatter):
 
@@ -25,24 +23,25 @@ class TdContextJsonFormatter(OrjsonFormatter):
 	) -> None:
 		super().add_fields(log_record, record, message_dict)
 
-		if not hasattr(record, 'absframe'):
-			log_record['absframe'] = absTime.frame
-
 		component: Optional[OP] = getattr(record, 'component', None)
 
 		if not hasattr(record, 'source'):
-			log_record['source'] = normalizeSourcePath(
-				component.path if component else f'/{record.name.replace(".", "/")}'
-			)
+			log_record['source'] = component.path if component else record.name
 
 		if not isinstance(log_record['source'], str):
-			log_record['source'] = normalizeSourcePath(str(log_record['source']))
+			log_record['source'] = str(log_record['source'])
 
 		if not hasattr(record, 'type'):
 			log_record['type'] = component.type if component else 'UNKNOWN'
 
-		if not hasattr(record, 'frame'):
-			log_record['frame'] = component.time.frame if component else me.time.frame
+		if not hasattr(record, 'frame') and component:
+			log_record['frame'] = component.time.frame
+
+		# only access absFrame when we know we have a component, without this check
+		# the error logger gets into a weird infinite loop on startup that I haven't
+		# been able to track down
+		if not hasattr(record, 'absframe') and component:
+			log_record['absframe'] = getattr(absTime, 'frame', 0)
 
 		if (
 			hasattr(record, 'exc_info') and record.exc_info is not None

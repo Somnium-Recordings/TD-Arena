@@ -1,8 +1,11 @@
+import logging
 import sys
 from pathlib import Path
 
 
 def onStart():
+	debug('starting td-arena bootstrap')
+
 	localPythonPath = Path(project.folder) / '.venv' / 'Lib' / 'site-packages'
 
 	if not localPythonPath.is_dir():
@@ -18,9 +21,15 @@ def onStart():
 
 	mod.logger.log_manager.ensureLogHandlersPresent()
 
+	logger = logging.getLogger()
+	logger.info('td-arena bootstrap complete')
+
 
 def onCreate():
 	# Within TouchEngine, what we use for rendering, onStart doesn't fire.
 	# Instead the recommendation is to use onCreate
 	# See: https://docs.derivative.ca/Engine_COMP
 	onStart()
+
+
+# onStart()
