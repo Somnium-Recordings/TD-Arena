@@ -2,6 +2,7 @@ import logging
 import traceback
 from typing import Optional
 
+from opentelemetry import trace
 from pythonjsonlogger.orjson import OrjsonFormatter
 
 
@@ -50,3 +51,15 @@ class TdContextJsonFormatter(OrjsonFormatter):
 			log_record['exc_info'] = ''.join(
 				traceback.format_exception(*record.exc_info)
 			)
+
+		# Inject OpenTelemetry trace context if available
+		span = trace.get_current_span()
+		if span is not None and hasattr(span, 'get_span_context'):
+			ctx = span.get_span_context()
+			if ctx is not None:
+				log_record['trace_id'] = (
+					format(ctx.trace_id, '032x') if hasattr(ctx, 'trace_id') else None
+				)
+				log_record['span_id'] = (
+					format(ctx.span_id, '016x') if hasattr(ctx, 'span_id') else None
+				)
