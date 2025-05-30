@@ -6,9 +6,9 @@ services:
       # Grafana
       - "3000:3000"
       # OpenTelemetry gRPC
-      - "4317:4317"
+      # - "4317:4317"
       # OpenTelemetry HTTP
-      - "4318:4318"
+      # - "4318:4318"
       # Prometheus
       - "9090:9090"
       # Tempo
@@ -41,6 +41,8 @@ services:
     ports:
       # Alloy UI
       - "12345:12345"
+      # OpenTelemetry gRPC (for receiving traces/logs from host)
+      - "4317:4317"
     volumes:
       # Mount the Alloy configuration
       - ./config.alloy:/etc/alloy/config.alloy

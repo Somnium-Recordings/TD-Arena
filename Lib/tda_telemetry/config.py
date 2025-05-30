@@ -56,7 +56,12 @@ def initialize_telemetry(
 	trace.set_tracer_provider(provider)
 
 	# Create and add the OTLP exporter
-	exporter = OTLPSpanExporter(endpoint=endpoint)
+	exporter = OTLPSpanExporter(
+		endpoint=endpoint,  # Alloy's OTLP receiver
+		insecure=True,  # No TLS for local docker connection
+		timeout=1,  # Short timeout for local connection
+		compression=None,  # No compression needed locally
+	)
 	provider.add_span_processor(BatchSpanProcessor(exporter))
 
 	# Optionally add the console exporter
@@ -72,7 +77,7 @@ def initialize_telemetry(
 
 
 def bootstrap():
-	debug('bootstrapping telemetry')
+	logger.debug('bootstrapping telemetry')
 	initialize_telemetry(log_to_console=True)
 	# TODO: create initial span to track application startup
 	sendTestTraces()

@@ -2,6 +2,27 @@ logging {
   level = "info"
 }
 
+// OTLP receiver for traces from Python application
+otelcol.receiver.otlp "default" {
+  grpc {
+    endpoint = "0.0.0.0:4317"
+  }
+  
+  output {
+    traces = [otelcol.exporter.otlp.tempo.input]
+  }
+}
+
+// Forward traces to Tempo in LGTM stack
+otelcol.exporter.otlp "tempo" {
+  client {
+    endpoint = "lgtm:4317"
+    tls {
+      insecure = true
+    }
+  }
+}
+
 // Local file source to read JSON logs
 local.file_match "json_logs" {
   path_targets = [{
