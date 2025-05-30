@@ -105,17 +105,6 @@ class TdContextOTELFilter(logging.Filter):
     """
     
     def filter(self, record):
-        # Add OTEL trace context
-        span = trace.get_current_span()
-        if span and span.is_recording():
-            span_context = span.get_span_context()
-            record.trace_id = format(span_context.trace_id, "032x")
-            record.span_id = format(span_context.span_id, "016x")
-            record.trace_flags = span_context.trace_flags
-        else:
-            record.trace_id = "0" * 32
-            record.span_id = "0" * 16
-            record.trace_flags = 0
         
         # TODO: Add your custom fields here
         # Copy the logic from TdContextJsonFormatter.add_fields()
