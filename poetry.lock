@@ -626,6 +626,24 @@ setuptools = ">=16.0"
 wrapt = ">=1.0.0,<2.0.0"
 
 [[package]]
+name = "opentelemetry-instrumentation-logging"
+version = "0.44b0"
+description = "OpenTelemetry Logging instrumentation"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "opentelemetry_instrumentation_logging-0.44b0-py3-none-any.whl", hash = "sha256:e0c978ee54a95e60ae6c4fd3839bcf4f0a2a26ebed6d1b9d02d03ebf7847cd8f"},
+    {file = "opentelemetry_instrumentation_logging-0.44b0.tar.gz", hash = "sha256:16b75964b5a3119bc143f3e67fbc9df238eb5ba457c485b81562197b1233b36f"},
+]
+
+[package.dependencies]
+opentelemetry-api = ">=1.12,<2.0"
+opentelemetry-instrumentation = "0.44b0"
+
+[package.extras]
+test = ["opentelemetry-test-utils (==0.44b0)"]
+
+[[package]]
 name = "opentelemetry-proto"
 version = "1.33.1"
 description = "OpenTelemetry Python Proto"
@@ -1372,4 +1390,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "3.11.1"
-content-hash = "20f15cb8f9bcefc5be274bc5d3c42ff13db5f0c305d833ad13cd8a5396369928"
+content-hash = "42d985b6a84df2a65c533e232d88e5d8532cfd2d437617d0eeb445da45130a5b"
