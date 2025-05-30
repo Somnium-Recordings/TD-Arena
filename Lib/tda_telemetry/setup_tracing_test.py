@@ -3,7 +3,7 @@ from opentelemetry import trace
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
 
-from .setup_tracing import initialize_telemetry
+from .setup_tracing import initialize_tracing
 
 
 def test_initialize_telemetry_and_guard(
@@ -28,7 +28,7 @@ def test_initialize_telemetry_and_guard(
 	)
 
 	# First initialization should succeed
-	initialize_telemetry(service_name='test1')
+	initialize_tracing(service_name='test1')
 	provider1 = trace.get_tracer_provider()
 	assert isinstance(provider1, TracerProvider)
 	# Exporter assertion is best-effort; may be 0 if provider already set by another test
@@ -36,4 +36,4 @@ def test_initialize_telemetry_and_guard(
 
 	# Guard: Second initialization should raise RuntimeError
 	with pytest.raises(RuntimeError):
-		initialize_telemetry(service_name='test2')
+		initialize_tracing(service_name='test2')

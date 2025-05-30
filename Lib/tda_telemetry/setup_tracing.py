@@ -10,14 +10,12 @@ from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
 from opentelemetry.semconv.resource import ResourceAttributes
 
-from .verify_tracing import sendTestTraces
-
 logger = logging.getLogger(__name__)
 
 _initialized = False
 
 
-def initialize_telemetry(
+def initialize_tracing(
 	*,
 	service_name: str = 'td-arena',
 	endpoint: str = 'http://localhost:4317',
@@ -83,10 +81,3 @@ def initialize_telemetry(
 		endpoint,
 	)
 	_initialized = True
-
-
-def bootstrap():
-	logger.debug('bootstrapping telemetry')
-	initialize_telemetry(log_to_console=True)
-	# TODO: create initial span to track application startup
-	sendTestTraces()

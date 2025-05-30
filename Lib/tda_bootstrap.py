@@ -22,8 +22,8 @@ def onStart():
 	debug('bootstrapping td-arena')
 
 	setupPythonPath()
-	mod.logger.log_handlers.bootstrap()
-	mod.tda_telemetry.config.bootstrap()
+	# mod.logger.log_handlers.bootstrap()
+	mod.tda_telemetry.bootstrap_otel.bootstrap()
 
 	logger = logging.getLogger()
 	logger.info('td-arena bootstrap complete')

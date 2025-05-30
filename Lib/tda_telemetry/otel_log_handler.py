@@ -1,14 +1,15 @@
 import logging
 
-from opentelemetry import trace
 from opentelemetry._logs import set_logger_provider
 from opentelemetry.exporter.otlp.proto.grpc._log_exporter import OTLPLogExporter
 from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
 from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
 from opentelemetry.sdk.resources import Resource
 
+from .log_filter import TdContextOTELFilter
 
-def setup_otel_logging(
+
+def create_otel_log_handler(
 	service_name: str = "tda-app",
 	alloy_endpoint: str = "localhost:4317",
 	log_level: int = logging.DEBUG,
@@ -47,5 +48,12 @@ def setup_otel_logging(
 	# Create handler for Python logging integration
 	handler = LoggingHandler(level=log_level, logger_provider=logger_provider)
 
-	# Don't add to root logger yet - we'll do that in migration
+	handler.addFilter(TdContextOTELFilter())
+
 	return handler
+
+
+def register_otel_log_handler(log_level: int = logging.DEBUG):
+	root_logger = logging.getLogger()
+	root_logger.addHandler(create_otel_log_handler())
+	root_logger.setLevel(log_level)
