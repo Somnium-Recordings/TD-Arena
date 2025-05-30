@@ -2,12 +2,14 @@ import logging
 import sys
 from types import TracebackType
 
-rootLogger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 
 def register_global_exception_handler():
 	debug('registering global exception handler')
 	sys.excepthook = global_exception_handler
+
+	logger.info('Global exception handler registered')
 
 
 def global_exception_handler(
@@ -27,7 +29,7 @@ def global_exception_handler(
 		traceback = exc_traceback if exc_traceback is not None else exc_value.__traceback__
 
 		# Forward exception to the logging system
-		rootLogger.error(
+		logger.error(
 			'%s: %s',
 			exc_type.__name__,
 			exc_value,

@@ -55,6 +55,7 @@ def register_otel_log_handler(
 	endpoint: str = 'localhost:4317',
 	log_level: int = logging.DEBUG,
 ):
+	debug('registering OTEL log handler')
 	root_logger = logging.getLogger()
 	root_logger.addHandler(
 		create_otel_log_handler(endpoint=endpoint, log_level=log_level)

@@ -39,8 +39,9 @@ def initialize_tracing(
 			'OpenTelemetry has already been initialized in this process. Only one initialization is allowed.'
 		)
 
-	if log_level:
-		logging.getLogger(__name__).setLevel(log_level)
+	debug('initializing OTEL tracing')
+
+	logging.getLogger(__name__).setLevel(log_level)
 
 	# Create and add the OTLP exporter
 	trace_exporter = OTLPSpanExporter(
@@ -69,7 +70,7 @@ def initialize_tracing(
 		provider.add_span_processor(BatchSpanProcessor(ConsoleSpanExporter()))
 
 	logger.info(
-		'OTEL Tracing initialized with service name: %s, endpoint: %s',
+		'OTEL Tracing initialized for service: %s, endpoint: %s',
 		resource.attributes[ResourceAttributes.SERVICE_NAME],
 		endpoint,
 	)
