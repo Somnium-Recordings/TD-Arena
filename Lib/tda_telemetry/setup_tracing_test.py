@@ -3,7 +3,7 @@ from opentelemetry import trace
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
 
-from .config import initialize_telemetry
+from .setup_tracing import initialize_telemetry
 
 
 def test_initialize_telemetry_and_guard(
