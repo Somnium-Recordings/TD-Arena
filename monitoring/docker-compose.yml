@@ -20,15 +20,18 @@ services:
     volumes:
       # Mount local data directory to persist data
       - ./data/lgtm:/data
+      # Mount config paths to override defaults
+      #   see: https://github.com/grafana/docker-otel-lgtm/discussions/151#discussioncomment-11393365
+      - ./config/loki-config.yaml:/otel-lgtm/loki-config.yaml:ro
     # environment:
-    # Optional: Enable logging for troubleshooting
-    # ENABLE_LOGS_ALL: "true"
-    # ENABLE_LOGS_GRAFANA: "true"
-    # ENABLE_LOGS_LOKI: "true"
-    # ENABLE_LOGS_PROMETHEUS: "true"
-    # ENABLE_LOGS_TEMPO: "true"
-    # ENABLE_LOGS_PYROSCOPE: "true"
-    # ENABLE_LOGS_OTELCOL: "true"
+      # Optional: Enable logging for troubleshooting
+      # ENABLE_LOGS_ALL: "true"
+      # ENABLE_LOGS_GRAFANA: "true"
+      # ENABLE_LOGS_LOKI: "true"
+      # ENABLE_LOGS_PROMETHEUS: "true"
+      # ENABLE_LOGS_TEMPO: "true"
+      # ENABLE_LOGS_PYROSCOPE: "true"
+      # ENABLE_LOGS_OTELCOL: "true"
 
     # Optional: Send data to external vendors
     # OTEL_EXPORTER_OTLP_ENDPOINT: "https://your-endpoint.com"
@@ -53,6 +56,7 @@ services:
     command:
       - run
       - /etc/alloy/config.alloy
+      - --stability.level=experimental # Needed to enable otelcol.exporter.debug
       - --server.http.listen-addr=0.0.0.0:12345
       - --storage.path=/var/lib/alloy
     environment:

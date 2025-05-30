@@ -1,3 +1,7 @@
+// NOTE: this can be reloaded without restarting the container
+// 		 use: curl -X POST http://localhost:12345/-/reload
+
+
 // ============================================
 // GLOBAL CONFIGURATION
 // ============================================
@@ -15,37 +19,43 @@ otelcol.receiver.otlp "default" {
   }
   
   output {
-    traces = [otelcol.exporter.otlp.tempo.input]
-    logs   = [otelcol.exporter.loki.default.input]
+    traces = [otelcol.exporter.otlp.default.input]
+    logs   = [otelcol.processor.transform.promote_attributes.input]
+
   }
 }
 
 // ============================================
 // TRACES PIPELINE
 // ============================================
-// Forward traces to Tempo in LGTM stack
-otelcol.exporter.otlp "tempo" {
-  client {
-    endpoint = "lgtm:4317"
-    tls {
-      insecure = true
-    }
-  }
-}
+
+// ...
 
 // ============================================
 // LOGS PIPELINE
 // ============================================
 
-// Convert OTLP logs to Loki format
-otelcol.exporter.loki "default" {
-  forward_to = [loki.write.default.receiver]
-}
+otelcol.processor.transform "promote_attributes" {
+  error_mode = "ignore"
 
-// Send logs to Loki
-loki.write "default" {
-  endpoint {
-    url = "http://lgtm:3100/loki/api/v1/push"
+  log_statements {
+    context = "log"
+    statements = [
+	  // Promote the source attribute to resource so we can index the label
+	  // see monitoring/config.loki-config.yaml
+	  // distributor.otlp_config.default_resource_attributes_as_index_labels
+      `set(resource.attributes["source"], log.attributes["source"])`,
+      `delete_key(log.attributes, "source")`,
+
+	  // Remove attributes that we don't care about
+      `delete_key(resource.attributes, "telemetry.sdk.name")`,
+      `delete_key(resource.attributes, "telemetry.sdk.version")`,
+      `delete_key(resource.attributes, "telemetry.sdk.language")`,
+    ]
+  }
+
+  output {
+    logs = [otelcol.exporter.otlp.default.input]
   }
 }
 
@@ -61,9 +71,29 @@ prometheus.scrape "alloy" {
   forward_to = [prometheus.remote_write.prom.receiver]
 }
 
+// ============================================
+// Exporters
+// ============================================
+// Forward traces/logs to  OTEL grpc endpoint in LGTM stack
+otelcol.exporter.otlp "default" {
+  client {
+    endpoint = "lgtm:4317"
+    tls {
+      insecure = true
+    }
+  }
+}
+
 // Send metrics to Prometheus
 prometheus.remote_write "prom" {
   endpoint {
     url = "http://lgtm:9090/api/v1/write"
   }
 }
+
+// Send logs to alloy stdout
+// otelcol.exporter.debug "logs" {
+//   verbosity           = "detailed"
+//   sampling_initial    = 1
+//   sampling_thereafter = 1
+// }

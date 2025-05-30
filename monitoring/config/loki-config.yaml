@@ -1,0 +1,78 @@
+# Modify the default tempo config
+# Copied from https://github.com/grafana/docker-otel-lgtm/blob/main/docker/loki-config.yaml
+
+####
+# Defaults unless otherwise noted
+####
+auth_enabled: false
+
+server:
+  http_listen_port: 3100
+
+common:
+  instance_addr: 127.0.0.1
+  path_prefix: /data/loki
+  storage:
+    filesystem:
+      chunks_directory: /data/loki/chunks
+      rules_directory: /data/loki/rules
+  replication_factor: 1
+  ring:
+    kvstore:
+      store: inmemory
+
+schema_config:
+  configs:
+    - from: 2020-10-24
+      store: tsdb
+      object_store: filesystem
+      schema: v13
+      index:
+        prefix: index_
+        period: 24h
+
+ruler:
+  alertmanager_url: http://localhost:9093
+
+pattern_ingester:
+  lifecycler:
+    min_ready_duration: 1s
+
+ingester:
+  lifecycler:
+    min_ready_duration: 1s
+
+frontend:
+  scheduler_dns_lookup_period: 1s
+  address: 127.0.0.1
+
+query_scheduler:
+  use_scheduler_ring: false
+
+# Begin: Customization
+distributor:
+  otlp_config:
+    default_resource_attributes_as_index_labels:
+      # Defaults
+      - service.name
+      # - service.namespace
+      # - service.instance.id
+      # - deployment.environment
+      # - deployment.environment.name
+      # - cloud.region
+      # - cloud.availability_zone
+      # - k8s.cluster.name
+      # - k8s.namespace.name
+      # - k8s.pod.name
+      # - k8s.container.name
+      # - container.name
+      # - k8s.replicaset.name
+      # - k8s.deployment.name
+      # - k8s.statefulset.name
+      # - k8s.daemonset.name
+      # - k8s.cronjob.name
+      # - k8s.job.name
+
+      # Custom
+      - source
+# End: Customization
