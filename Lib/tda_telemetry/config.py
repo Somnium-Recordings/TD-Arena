@@ -51,18 +51,27 @@ def initialize_telemetry(
 		}
 	)
 
-	# Create and set the tracer provider
-	provider = TracerProvider(resource=resource)
-	trace.set_tracer_provider(provider)
-
 	# Create and add the OTLP exporter
-	exporter = OTLPSpanExporter(
+	trace_exporter = OTLPSpanExporter(
 		endpoint=endpoint,  # Alloy's OTLP receiver
 		insecure=True,  # No TLS for local docker connection
 		timeout=1,  # Short timeout for local connection
 		compression=None,  # No compression needed locally
 	)
-	provider.add_span_processor(BatchSpanProcessor(exporter))
+
+	# Create and set the tracer provider
+	provider = TracerProvider(resource=resource)
+	processor = BatchSpanProcessor(
+		trace_exporter,
+		schedule_delay_millis=1000,  # Export every second / default is 5
+		export_timeout_millis=5000,  # Default is 30 seconds
+		# These are defaults, halve them for faster updates
+		max_queue_size=2048,
+		max_export_batch_size=512,
+	)
+
+	provider.add_span_processor(processor)
+	trace.set_tracer_provider(provider)
 
 	# Optionally add the console exporter
 	if log_to_console:
