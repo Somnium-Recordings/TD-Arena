@@ -1,7 +1,6 @@
 """OpenTelemetry configuration for TD-Arena."""
 
 import logging
-from typing import Optional
 
 from opentelemetry import trace
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
@@ -10,6 +9,8 @@ from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
 from opentelemetry.semconv.resource import ResourceAttributes
 
+from .otel_resource import tda_resource
+
 logger = logging.getLogger(__name__)
 
 _initialized = False
@@ -17,9 +18,9 @@ _initialized = False
 
 def initialize_tracing(
 	*,
-	service_name: str = 'td-arena',
+	resource: Resource = tda_resource,
 	endpoint: str = 'http://localhost:4317',
-	log_level: Optional[str] = None,
+	log_level: int = logging.DEBUG,
 	log_to_console: bool = False,
 ) -> None:
 	"""
@@ -40,14 +41,6 @@ def initialize_tracing(
 
 	if log_level:
 		logging.getLogger(__name__).setLevel(log_level)
-
-	# Create a resource with service information
-	resource = Resource.create(
-		{
-			ResourceAttributes.SERVICE_NAME: service_name,
-			ResourceAttributes.SERVICE_VERSION: '0.1.0',
-		}
-	)
 
 	# Create and add the OTLP exporter
 	trace_exporter = OTLPSpanExporter(
@@ -76,8 +69,8 @@ def initialize_tracing(
 		provider.add_span_processor(BatchSpanProcessor(ConsoleSpanExporter()))
 
 	logger.info(
-		'OpenTelemetry initialized with service name: %s, endpoint: %s',
-		service_name,
+		'OTEL Tracing initialized with service name: %s, endpoint: %s',
+		resource.attributes[ResourceAttributes.SERVICE_NAME],
 		endpoint,
 	)
 	_initialized = True

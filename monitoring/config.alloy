@@ -1,8 +1,14 @@
+// ============================================
+// GLOBAL CONFIGURATION
+// ============================================
 logging {
   level = "info"
 }
 
-// OTLP receiver for traces from Python application
+// ============================================
+// TELEMETRY RECEIVER (Entry Point)
+// ============================================
+// OTLP receiver for traces and logs from Python application
 otelcol.receiver.otlp "default" {
   grpc {
     endpoint = "0.0.0.0:4317"
@@ -10,9 +16,13 @@ otelcol.receiver.otlp "default" {
   
   output {
     traces = [otelcol.exporter.otlp.tempo.input]
+    logs   = [otelcol.exporter.loki.default.input]
   }
 }
 
+// ============================================
+// TRACES PIPELINE
+// ============================================
 // Forward traces to Tempo in LGTM stack
 otelcol.exporter.otlp "tempo" {
   client {
@@ -23,112 +33,26 @@ otelcol.exporter.otlp "tempo" {
   }
 }
 
-// Local file source to read JSON logs
-local.file_match "json_logs" {
-  path_targets = [{
-    __path__ = "/logs/*.log",
-  }]
-  sync_period = "10s"
+// ============================================
+// LOGS PIPELINE
+// ============================================
+
+// Convert OTLP logs to Loki format
+otelcol.exporter.loki "default" {
+  forward_to = [loki.write.default.receiver]
 }
 
-// Parse JSON logs
-loki.process "json_parser" {
-  forward_to = [loki.write.loki.receiver]
-
-  // First, parse the JSON
-  stage.json {
-    expressions = {
-      message   = "",
-      level     = "levelname",
-      levelno   = "",
-      timestamp = "",
-      source    = "",
-      module    = "",
-      source_file  = "filename",
-      funcName  = "",
-	  pathname  = "",
-      lineno    = "",
-      frame     = "",
-      absframe  = "",
-      type      = "",
-	  exc_info  = "",
-	  exc_text  = "",
-	  stack_info = "",
-      trace_id  = "",
-      span_id   = "",
-    }
-  }
-
-  // Parse timestamp
-  stage.timestamp {
-    source = "timestamp"
-    format = "2006-01-02 15:04:05,999"
-  }
-
-  // Add labels for filtering (keep these minimal for performance)
-  stage.labels {
-    values = {
-      level    = "level",
-      source   = "source",
-      module   = "module",
-      type     = "type",
-    }
-  }
-
-  // Add structured metadata for numeric and other fields
-  // This preserves them without creating high-cardinality labels
-  stage.structured_metadata {
-    values = {
-      levelno  = "levelno",
-      frame    = "frame",
-      absframe = "absframe",
-      lineno   = "lineno",
-      source_file = "source_file",
-	  pathname = "pathname",
-      funcName = "funcName",
-	  exc_info  = "exc_info",
-	  exc_text  = "exc_text",
-	  stack_info = "stack_info",
-      trace_id  = "trace_id",
-      span_id   = "span_id",
-    }
-  }
-
-  // Output just the message field
-  stage.output {
-    source = "message"
-  }
-}
-
-// Read and tail log files
-loki.source.file "logs" {
-  targets    = local.file_match.json_logs.targets
-  forward_to = [loki.process.json_parser.receiver]
-
-  // Handle file rotation
-  tail_from_end = false
-  
-  // File watching settings for rotation
-  file_watch {
-    min_poll_frequency = "250ms"
-    max_poll_frequency = "1s"
-  }
-}
-
-// Write logs to Loki
-loki.write "loki" {
+// Send logs to Loki
+loki.write "default" {
   endpoint {
     url = "http://lgtm:3100/loki/api/v1/push"
   }
-  
-  // External labels to add to all logs
-  external_labels = {
-    job = "td-arena",
-    instance = "alloy",
-  }
 }
 
-// Optional: Expose Alloy's own metrics
+// ============================================
+// METRICS PIPELINE ()
+// ============================================
+// Expose Alloy's own metrics
 prometheus.exporter.self "alloy" {}
 
 // Scrape Alloy's metrics

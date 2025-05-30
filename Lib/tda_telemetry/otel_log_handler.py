@@ -5,28 +5,25 @@ from opentelemetry.exporter.otlp.proto.grpc._log_exporter import OTLPLogExporter
 from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
 from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
 from opentelemetry.sdk.resources import Resource
+from opentelemetry.semconv.resource import ResourceAttributes
 
 from .log_filter import TdContextOTELFilter
+from .otel_resource import tda_resource
+
+logger = logging.getLogger(__name__)
 
 
 def create_otel_log_handler(
-	service_name: str = "tda-app",
-	alloy_endpoint: str = "localhost:4317",
+	*,
+	resource: Resource = tda_resource,
+	endpoint: str = 'localhost:4317',
 	log_level: int = logging.DEBUG,
 ):
 	"""Configure OpenTelemetry logging to send to Alloy."""
 
-	# Create resource with service info
-	resource = Resource.create(
-		{
-			"service.name": service_name,
-			"service.version": "1.0.0",  # Update as needed
-		}
-	)
-
 	# Setup log exporter pointing to Alloy
 	log_exporter = OTLPLogExporter(
-		endpoint=alloy_endpoint,
+		endpoint=endpoint,
 		insecure=True,
 		timeout=1,
 	)
@@ -53,7 +50,19 @@ def create_otel_log_handler(
 	return handler
 
 
-def register_otel_log_handler(log_level: int = logging.DEBUG):
+def register_otel_log_handler(
+	*,
+	endpoint: str = 'localhost:4317',
+	log_level: int = logging.DEBUG,
+):
 	root_logger = logging.getLogger()
-	root_logger.addHandler(create_otel_log_handler())
+	root_logger.addHandler(
+		create_otel_log_handler(endpoint=endpoint, log_level=log_level)
+	)
 	root_logger.setLevel(log_level)
+
+	logger.info(
+		'OTEL Log Handler registered for service: %s, endpoint: %s',
+		tda_resource.attributes[ResourceAttributes.SERVICE_NAME],
+		endpoint,
+	)
