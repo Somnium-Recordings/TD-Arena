@@ -74,5 +74,5 @@ distributor:
       # - k8s.job.name
 
       # Custom
-      - source
+      # - source
 # End: Customization
