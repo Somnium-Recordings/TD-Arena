@@ -11,7 +11,8 @@ def main():
 	initialize_telemetry(
 		service_name='td-arena-test',
 		endpoint='http://localhost:4317',
-		log_level='INFO'
+		log_level='INFO',
+		log_to_console=True
 	)
 	logging.info('[verify_tracing] Telemetry initialized.')
 

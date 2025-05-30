@@ -7,7 +7,7 @@ from opentelemetry import trace
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
 from opentelemetry.semconv.resource import ResourceAttributes
 
 logger = logging.getLogger(__name__)
@@ -16,9 +16,11 @@ _initialized = False
 
 
 def initialize_telemetry(
+	*,
 	service_name: str = 'td-arena',
 	endpoint: str = 'http://localhost:4317',
 	log_level: Optional[str] = None,
+	log_to_console: bool = False,
 ) -> None:
 	"""
     Initialize OpenTelemetry tracing. Can only be called once per process.
@@ -28,6 +30,7 @@ def initialize_telemetry(
         service_name: Name of the service for tracing
         endpoint: OTLP endpoint for trace export
         log_level: Optional log level override
+        log_to_console: If True, also log spans to the console
     """
 	global _initialized  # noqa: PLW0603
 	if _initialized:
@@ -53,6 +56,10 @@ def initialize_telemetry(
 	# Create and add the OTLP exporter
 	exporter = OTLPSpanExporter(endpoint=endpoint)
 	provider.add_span_processor(BatchSpanProcessor(exporter))
+
+	# Optionally add the console exporter
+	if log_to_console:
+		provider.add_span_processor(BatchSpanProcessor(ConsoleSpanExporter()))
 
 	logger.info(
 		'OpenTelemetry initialized with service name: %s, endpoint: %s',
