@@ -1,11 +1,9 @@
 from collections.abc import Mapping
-from logging import LoggerAdapter
+from logging import LoggerAdapter, getLogger
 from types import TracebackType
 from typing import Optional, TypedDict, Union
 
 from typing_extensions import Unpack
-
-from .log_manager import getComponentLogger
 
 # Copied from the logger types T_T
 _SysExcInfoType = Union[(
@@ -19,6 +17,18 @@ class LogKwargs(TypedDict, total=False):
 	exc_info: _ExcInfoType
 	stack_info: bool
 	extra: Mapping[str, object]
+
+
+def getComponentLogger(component: OP) -> LoggerAdapter:
+	# Convert component path to dot notation for logger name
+	# e.g. "/td-arena/ui/status" -> "td-arena.ui.status"
+	logName = component.path[1:].replace('/', '.')
+
+	logger = getLogger(logName)
+
+	return LoggerAdapter(logger, {
+		'component': component,
+	})
 
 
 class ComponentLoggerMixin():

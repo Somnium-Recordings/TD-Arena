@@ -1,7 +1,7 @@
 import logging
 import logging.handlers
 
-from .log_manager import rotateLogs
+from .log_handlers import rotateLogs
 from .logging_mixins import ComponentLoggerMixin
 
 LOG_FORMAT = '{source}\t{message}\t{absframe}\t{frame}\t{type}'

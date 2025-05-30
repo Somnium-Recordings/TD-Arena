@@ -55,6 +55,11 @@ def clearLogHandlers(logName: Optional[str]):
 	sys.excepthook = sys.__excepthook__
 
 
+def bootstrap():
+	debug('bootstrapping log handlers')
+	ensureLogHandlersPresent()
+
+
 def ensureLogHandlersPresent(logName: Optional[str] = None):
 	logger = logging.getLogger(logName)
 	if not logger.hasHandlers():
@@ -67,18 +72,6 @@ def ensureLogHandlersPresent(logName: Optional[str] = None):
 def reloadLogHandlers(logName: Optional[str] = None):
 	clearLogHandlers(logName)
 	ensureLogHandlersPresent(logName)
-
-
-def getComponentLogger(component: OP) -> logging.LoggerAdapter:
-	# Convert component path to dot notation for logger name
-	# e.g. "/td-arena/ui/status" -> "td-arena.ui.status"
-	logName = component.path[1:].replace('/', '.')
-
-	logger = logging.getLogger(logName)
-
-	return logging.LoggerAdapter(logger, {
-		'component': component,
-	})
 
 
 def rotateLogs(logName: Optional[str] = None):

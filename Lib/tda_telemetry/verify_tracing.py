@@ -1,19 +1,11 @@
 import logging
 import time
 
-from .config import initialize_telemetry
 from .context import trace_context
 from .otel_decorators import trace_span
 
 
-def main():
-	# Initialize OpenTelemetry (prints to console if exporter is set to console in config)
-	initialize_telemetry(
-		service_name='td-arena-test',
-		endpoint='http://localhost:4317',
-		log_level='INFO',
-		log_to_console=True
-	)
+def sendTestTraces():
 	logging.info('[verify_tracing] Telemetry initialized.')
 
 	# Use context manager for tracing
@@ -40,6 +32,3 @@ def main():
 	logging.info(
 		'[verify_tracing] Tracing verification complete. Check your OpenTelemetry backend for spans.'
 	)
-
-
-main()
