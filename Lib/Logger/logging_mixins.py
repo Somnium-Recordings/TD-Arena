@@ -51,29 +51,29 @@ class ComponentLoggerMixin():
 	def newLog(
 		self, msg: object, *args: object, **kwargs: Unpack[LogKwargs]
 	) -> None:
-		self.componentLogger.info(msg, *args, **kwargs)
+		self.componentLogger.info(msg, *args, stacklevel=2, **kwargs)
 
 	def logInfo(
 		self, msg: object, *args: object, **kwargs: Unpack[LogKwargs]
 	) -> None:
-		self.componentLogger.info(msg, *args, **kwargs)
+		self.componentLogger.info(msg, *args, stacklevel=2, **kwargs)
 
 	def logDebug(
 		self, msg: object, *args: object, **kwargs: Unpack[LogKwargs]
 	) -> None:
-		self.componentLogger.debug(msg, *args, **kwargs)
+		self.componentLogger.debug(msg, *args, stacklevel=2, **kwargs)
 
 	def logWarning(
 		self, msg: object, *args: object, **kwargs: Unpack[LogKwargs]
 	) -> None:
-		self.componentLogger.warning(msg, *args, **kwargs)
+		self.componentLogger.warning(msg, *args, stacklevel=2, **kwargs)
 
 	def logError(
 		self, msg: object, *args: object, **kwargs: Unpack[LogKwargs]
 	) -> None:
-		self.componentLogger.error(msg, *args, **kwargs)
+		self.componentLogger.error(msg, *args, stacklevel=2, **kwargs)
 
 	def logException(
 		self, msg: object, *args: object, **kwargs: Unpack[LogKwargs]
 	) -> None:
-		self.componentLogger.exception(msg, *args, **kwargs)
+		self.componentLogger.exception(msg, *args, stacklevel=2, **kwargs)

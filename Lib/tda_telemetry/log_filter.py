@@ -32,13 +32,4 @@ class TdContextOTELFilter(logging.Filter):
 		if not hasattr(record, 'absframe') and component:
 			record.absframe = getattr(absTime, 'frame', 0)
 
-		# Format exception info if present (create new field to avoid breaking OTEL handler)
-		if (
-			hasattr(record, 'exc_info') and record.exc_info is not None
-			and not isinstance(record.exc_info, str)
-		):
-			record.formatted_exc_info = ''.join(
-				traceback.format_exception(*record.exc_info)
-			)
-
 		return True

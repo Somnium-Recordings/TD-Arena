@@ -44,8 +44,9 @@ otelcol.processor.transform "promote_attributes" {
 	  // Promote the source attribute to resource so we can index the label
 	  // see monitoring/config.loki-config.yaml
 	  // distributor.otlp_config.default_resource_attributes_as_index_labels
-      `set(resource.attributes["source"], log.attributes["source"])`,
-      `delete_key(log.attributes, "source")`,
+	// TODO: this is resulting in all logs having the same source
+    //   `set(resource.attributes["source"], log.attributes["source"])`,
+    //   `delete_key(log.attributes, "source")`,
 
 	  // Remove attributes that we don't care about
       `delete_key(resource.attributes, "telemetry.sdk.name")`,
