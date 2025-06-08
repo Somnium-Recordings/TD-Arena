@@ -50,6 +50,7 @@ disable = [
   "broad-except", # Coverd by BLE
   "duplicate-code",
   "fixme",
+  "global-statement", # Covered by PLW0603
   "invalid-name",
   "line-too-long",
   "missing-class-docstring",

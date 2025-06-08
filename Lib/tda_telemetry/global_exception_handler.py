@@ -6,10 +6,10 @@ logger = logging.getLogger(__name__)
 
 
 def register_global_exception_handler():
-	debug('registering global exception handler')
+	logger.info('registering global exception handler')
 	sys.excepthook = global_exception_handler
 
-	logger.info('Global exception handler registered')
+	logger.debug('Global exception handler registered')
 
 
 def global_exception_handler(
